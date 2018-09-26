@@ -17,19 +17,22 @@
 
 package com.symantec.tree.nodes;
 
-import com.google.inject.assistedinject.Assisted;
-import com.iplanet.sso.SSOException;
-import com.sun.identity.idm.AMIdentity;
-import com.sun.identity.idm.IdRepoException;
-import com.sun.identity.shared.debug.Debug;
-import org.forgerock.openam.annotations.sm.Attribute;
-import org.forgerock.openam.auth.node.api.*;
-import org.forgerock.openam.core.CoreWrapper;
-
 import javax.inject.Inject;
 
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.REALM;
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
+import org.forgerock.openam.annotations.sm.Attribute;
+import org.forgerock.openam.auth.node.api.AbstractDecisionNode;
+import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.Node;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.SharedStateConstants;
+import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.core.CoreWrapper;
+import com.google.inject.assistedinject.Assisted;
+import com.sun.identity.shared.debug.Debug;
+import com.sun.identity.sm.RequiredValueValidator;
+import com.symantec.tree.request.util.SearchUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** 
  * A node that checks to see if zero-page login headers have specified username and shared key 
@@ -43,13 +46,18 @@ public class SymantecSearchUser extends AbstractDecisionNode {
     private final CoreWrapper coreWrapper;
     private final static String DEBUG_FILE = "SymantecSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
+    private final Logger logger = LoggerFactory.getLogger("amVipAuth");
 
     /**
      * Configuration for the node.
      */
     public interface Config {
-        @Attribute(order = 100,requiredValue = true)
+    	@Attribute(order = 100, validators = {RequiredValueValidator.class})
         default String vipuserservice_url() {
+            return "";
+        }
+        @Attribute(order = 100, validators = {RequiredValueValidator.class})
+        default String keyStorePassword() {
             return "";
         }
 
@@ -67,9 +75,7 @@ public class SymantecSearchUser extends AbstractDecisionNode {
 
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
-
-        // to do add logic to call API for getUserInfo if yes goTo(true)
-
-        return goTo(false).build();
+    	String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
+        return goTo(SearchUser.searchUser(config.vipuserservice_url(),config.keyStorePassword(),userName)).build();
     }
 }
