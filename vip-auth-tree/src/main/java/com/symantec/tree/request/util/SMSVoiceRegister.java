@@ -17,7 +17,7 @@ import org.xml.sax.InputSource;
 
 public class SMSVoiceRegister {
 
-public void smsVoiceRegister(String credValue) {
+public void smsRegister(String credValue) {
 
 HttpClientUtil clientUtil = new HttpClientUtil();
 HttpClient httpClient = clientUtil.getHttpClient();
@@ -49,7 +49,7 @@ Document doc = builder.parse(src);
 String status = doc.getElementsByTagName("status").item(0).getTextContent();
 String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 System.out.println("Status is:\t" + statusMessage);
-System.out.println("SMSVOICERegister call:"+status);
+System.out.println("SMS Register call:"+status);
 
 
 

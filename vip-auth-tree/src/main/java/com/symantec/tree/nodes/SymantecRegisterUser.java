@@ -66,7 +66,21 @@ public class SymantecRegisterUser extends AbstractDecisionNode {
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
     	String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-    	boolean isVIPProfileRegistered = vIPCreateUser.createVIPUser(userName);        
-    	return goTo(isVIPProfileRegistered).build();
+    	String credRegistrationStatus = context.transientState.get("NoCredentialRegistered").toString();
+    	boolean isVIPProfileRegistered = false;
+    	
+    	System.out.println("credRegistrationStatus:"+credRegistrationStatus);
+    	
+    	
+    	if(credRegistrationStatus != null && credRegistrationStatus.equalsIgnoreCase("true")) {
+        	System.out.println("User already registered and hence not making user registration call");
+    		isVIPProfileRegistered = true;
+    		return goTo(isVIPProfileRegistered).build();
+    	}
+    	else {
+        	System.out.println("User not registered and hence making user registration call");  
+        	isVIPProfileRegistered = vIPCreateUser.createVIPUser(userName);        
+	    	return goTo(isVIPProfileRegistered).build();
+    	}
     }
 }

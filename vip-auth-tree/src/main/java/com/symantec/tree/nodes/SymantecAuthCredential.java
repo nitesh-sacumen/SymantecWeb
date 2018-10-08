@@ -79,15 +79,19 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
     	context.sharedState.put(TXNID,transactionId);
     	//if(status != null && !status.isEmpty()) {
     		if(status.equalsIgnoreCase("6040")) {
-    			System.out.println("Mobile Push is sent successfully.."+status);
+    			System.out.println("Mobile Push is sent successfully:"+status);
     			return goTo(true).build();
     		}
     		else if(status.equalsIgnoreCase("6043")) {
-    			System.out.println("Cred doesnot support Mobile Push"+status);
+    			System.out.println("Cred doesnot support Mobile Push:"+status);
     			return goTo(false).build();
     		}
     		else if(status.equalsIgnoreCase("603E")) {
-    			System.out.println("Mobile Push not enabled for the account"+status);
+    			System.out.println("Mobile Push not enabled for the account:"+status);
+    			return goTo(false).build();
+    		}
+    		else if(status.equalsIgnoreCase("6004")) {
+    			System.out.println("Credential ID is not valid:"+status);
     			return goTo(false).build();
     		}
     		else {

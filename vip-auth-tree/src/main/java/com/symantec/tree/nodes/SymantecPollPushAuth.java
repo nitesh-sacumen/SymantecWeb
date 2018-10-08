@@ -101,6 +101,12 @@ public class SymantecPollPushAuth implements Node {
 						case "7002":
 							return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
 
+						case "7004":
+							return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
+
+						case "7005":
+							return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
+
 						
 						default:
 							return goTo(Symantec.UNANSWERED).replaceSharedState(newSharedState).build();

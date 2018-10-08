@@ -13,11 +13,11 @@ import org.apache.http.ssl.SSLContexts;
 
 public class HttpClientUtil {
 
-	private final String KEYSTOREPASS = "Innominds123$";
-    private final String KEYPASS = "Innominds123$";
+	private final String KEYSTOREPASS = "Work12345#";
+    private final String KEYPASS = "Work12345#";
     
     char SEP = File.separatorChar;
-	String KEYSTOREPATH = System.getProperty("java.home") + SEP + "lib" + SEP + "security"+SEP+"vip_cert.jks";
+	String KEYSTOREPATH = System.getProperty("java.home") + SEP + "lib" + SEP + "security"+SEP+"vip.jks";
 	
 
     public KeyStore readStore() throws Exception {

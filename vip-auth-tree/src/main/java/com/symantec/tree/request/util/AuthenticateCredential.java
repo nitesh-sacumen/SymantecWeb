@@ -57,7 +57,12 @@ public class AuthenticateCredential {
 			Document doc = builder.parse(src);
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
+			System.out.println( "retrieving transactionId \t" + doc.getElementsByTagName("transactionId"));
+			if(doc.getElementsByTagName("transactionId").item(0) !=null) {
+				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
+			}
+			else
+				transactionID = " ";
 			System.out.println("Status is:\t" + statusMessage);
 			/*if ("6040".equals(status)) {
 				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();

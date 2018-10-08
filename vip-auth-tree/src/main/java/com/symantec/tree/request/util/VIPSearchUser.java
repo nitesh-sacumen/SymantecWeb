@@ -90,7 +90,7 @@ public class VIPSearchUser {
 	}
 
 	public String getMobInfo(String userId) throws NullPointerException {
-		String phoneNumber="";
+		String phoneNumber=null;
 
 		try {
 		HttpClient httpClient =new HttpClientUtil().getHttpClient();
@@ -126,22 +126,63 @@ public class VIPSearchUser {
 		src.setCharacterStream(new StringReader(body));
 		Document doc = builder.parse(src);
 		String status = doc.getElementsByTagName("status").item(0).getTextContent();
-		String credBindingDetail=doc.getElementsByTagName("credentialBindingDetail").item(0).getTextContent();
-		String credType=doc.getElementsByTagName("credentialType").item(0).getTextContent();
-		if(credBindingDetail==null || credType.equalsIgnoreCase("SMS_OTP") || credType.equalsIgnoreCase("VOICE_OTP") ) {
-		phoneNumber=doc.getElementsByTagName("credentialId").item(0).getTextContent();
-		System.out.println("\n\nPHone Number"+phoneNumber);
+		
+		System.out.println("credentialBindingDetail:" +  doc.getElementsByTagName("credentialBindingDetail"));
+		if(doc.getElementsByTagName("credentialBindingDetail") != null) 
+		{
+			System.out.println("credentialBindingDetail is NOT NULL");
+			
+			if(doc.getElementsByTagName("credentialBindingDetail").item(0) != null) 
+			{
+				String credBindingDetail=doc.getElementsByTagName("credentialBindingDetail").item(0).getTextContent();
+				
+				String credType=doc.getElementsByTagName("credentialType").item(0).getTextContent();
+				if(credBindingDetail==null || credType.equalsIgnoreCase("SMS_OTP") || credType.equalsIgnoreCase("VOICE_OTP") ) 
+				{
+				phoneNumber=doc.getElementsByTagName("credentialId").item(0).getTextContent();
+				System.out.println("\n\nPhone Number:-->"+phoneNumber);
+				}
+				else 
+				{
+					String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+					System.out.println("Status is:\t"+statusMessage);
+					if (statusMessage != null && statusMessage.equalsIgnoreCase("Success")) 
+						{
+						return "VIPCREDREGISTERED";
+						
+						}
+				}
+			}
+
+			else {
+					
+					String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+					System.out.println("Status is:\t"+statusMessage);
+					if (statusMessage != null && statusMessage.equalsIgnoreCase("Success")) {
+						return "NOCREDREGISTERED";
+						
+					}
+			}
+		}
+		else {
+				
+				String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+				System.out.println("Status is:\t"+statusMessage);
+				if (statusMessage != null && statusMessage.equalsIgnoreCase("Success")) {
+					return "NOCREDREGISTERED";
+					
+				}
+			
 		}
 
+		
 
-		String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-		System.out.println("Status is:\t"+statusMessage);
 
 
 		}catch (Exception e) {
 		e.printStackTrace();
 		}
-		System.out.println("PHone Number ---"+phoneNumber);
+		System.out.println("Phone Number at end--->"+phoneNumber);
 		return phoneNumber; 
 		}
 

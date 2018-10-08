@@ -79,13 +79,31 @@ public class SymantecSearchUser extends AbstractDecisionNode {
     public Action process(TreeContext context) throws NodeProcessException {
     	String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
     	boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName);
+    	String mobNum = null;
+    	
     	try {
-    	String mobNum = vipSearchUser.getMobInfo(userName);
-    	System.out.println("PHone Number"+mobNum);
-    	if(mobNum != null || !mobNum.isEmpty()) {
-    		
-    	context.sharedState.put(MOBNUM,mobNum);    	
+    	
+    	if(isVIPProfileExisted) {
+    		mobNum = vipSearchUser.getMobInfo(userName);
+	    	System.out.println("PHone Number"+mobNum);
+
+	    	if(mobNum != null && mobNum.equalsIgnoreCase("NOCREDREGISTERED")){
+	    		System.out.println("NOCREDREGISTERED");
+	    		context.transientState.put("NoCredentialRegistered", true);
+	    		return goTo(false).build();
+	    	}
+	    	else if(mobNum != null && mobNum.equalsIgnoreCase("VIPCREDREGISTERED")){
+	    		System.out.println("VIPCREDREGISTERED");
+	    		//context.transientState.put("VIPCREDREGISTERED", "VIPCREDREGISTERED");
+	    		return goTo(isVIPProfileExisted).build();
+	    	}
+	    	else{
+	    		
+	    		context.sharedState.put(MOBNUM,mobNum);    	
+	    		return goTo(isVIPProfileExisted).build();
+	    	}
     	}
+    	
     	}catch(NullPointerException ne){
     		System.out.println("Phone Number not available for user");
     	}

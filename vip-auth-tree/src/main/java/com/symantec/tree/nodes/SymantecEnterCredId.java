@@ -85,7 +85,7 @@ public class SymantecEnterCredId extends SingleOutcomeNode {
                 	String credType= context.sharedState.get(CREDCHOICE).asString();
                 	if(credType.equalsIgnoreCase("SMS") ) {
                 	System.out.println("call sms register method");
-                	svRegister.smsVoiceRegister(password);
+                	svRegister.smsRegister(password);
                 	return goToNext()
                 	.replaceSharedState(sharedState.copy().put(CREDID, password)).build();
 

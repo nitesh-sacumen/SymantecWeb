@@ -140,7 +140,7 @@ public class SymantecEnterPhoneNumber extends SingleOutcomeNode {
                 	String credType= context.sharedState.get(CREDCHOICE).asString();
                 	if(credType.equalsIgnoreCase("SMS") ) {
                 	System.out.println("call sms register method");
-                	svRegister.smsVoiceRegister(name);
+                	svRegister.smsRegister(name);
                 	return goToNext()
                 	.replaceSharedState(sharedState.copy().put(MOBNUM, name)).build();
 
