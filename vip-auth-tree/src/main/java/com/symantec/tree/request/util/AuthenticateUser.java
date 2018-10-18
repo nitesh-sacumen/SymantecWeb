@@ -25,7 +25,7 @@ public class AuthenticateUser {
 
 	// TODO Auto-generated method stub
 
-	public String authUser(String userName) {
+	public String authUser(String userName, String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
 
 		String transactionID = "";
 		HttpClientUtil clientUtil = new HttpClientUtil();
@@ -37,7 +37,7 @@ public class AuthenticateUser {
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
 		// charset=ISO-8859-1"));
-		String payLoad = getViewUserPayload(userName);
+		String payLoad = getViewUserPayload(userName, displayMsgText, displayMsgTitle, displayMsgProfile);
 		System.out.println("Request Payload: " + payLoad);
 		try {
 			post.setEntity(new StringEntity(payLoad));
@@ -69,7 +69,7 @@ public class AuthenticateUser {
 		return transactionID;
 	}
 
-	public static String getViewUserPayload(String userId) {
+	public static String getViewUserPayload(String userId,String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
 		StringBuilder str = new StringBuilder();
 		str.append(
 				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
@@ -83,7 +83,27 @@ public class AuthenticateUser {
 		str.append("<!--Optional:-->");
 		// str.append("<vip:pin>"+pin+"</vip:pin>");
 		str.append("<vip:pushAuthData>");
+		
 		str.append("<!--0 to 20 repetitions:-->");
+		str.append("<vip:displayParameters>");
+		str.append("<vip:Key>" + "display.message.text" + "</vip:Key>");
+		str.append("<vip:Value>" + displayMsgText + "</vip:Value>");
+		str.append("");
+		str.append("</vip:displayParameters>");
+		
+		str.append("<vip:displayParameters>");
+		str.append("<vip:Key>" + "display.message.title" + "</vip:Key>");
+		str.append("<vip:Value>" + displayMsgTitle + "</vip:Value>");
+		str.append("");
+		str.append("</vip:displayParameters>");
+		
+		str.append("<vip:displayParameters>");
+		str.append("<vip:Key>" + "display.message.profile" + "</vip:Key>");
+		str.append("<vip:Value>" + displayMsgProfile + "</vip:Value>");
+		str.append("");
+		str.append("</vip:displayParameters>");
+		
+		
 		str.append("");
 		str.append("</vip:pushAuthData>");
 		str.append("</vip:AuthenticateUserWithPushRequest>");

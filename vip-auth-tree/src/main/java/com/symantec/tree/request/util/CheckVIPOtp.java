@@ -48,7 +48,8 @@ public class CheckVIPOtp {
 			Document doc = builder.parse(src);
 			String status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			System.out.println("Status is:\t" + statusMessage);
+			System.out.println("Status Message is:\t" + statusMessage);
+			System.out.println("Status is:\t" + status);
 			
 			
 		if ("success".equalsIgnoreCase(statusMessage)) {

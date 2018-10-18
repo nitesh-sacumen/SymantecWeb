@@ -20,13 +20,24 @@ package com.symantec.tree.nodes;
 
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.shared.debug.Debug;
+import com.sun.identity.sm.RequiredValueValidator;
+import com.symantec.tree.config.Constants;
+import com.symantec.tree.nodes.SymantecPushAuth.Config;
 import com.symantec.tree.request.util.AuthenticateCredential;
+
+import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
 import org.forgerock.openam.core.CoreWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
 import static com.symantec.tree.config.Constants.TXNID;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.symantec.tree.config.Constants.CREDID;
 import static com.symantec.tree.config.Constants.CREDCHOICE;;
 
@@ -41,14 +52,32 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
     private final static String DEBUG_FILE = "SymantecSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
+    private final Config config;
+    private final CoreWrapper coreWrapper;
+    
     private AuthenticateCredential authPushCred;
+    final Map<String, String> vipPushCodeMap = new HashMap<>();
+    private final Logger logger = LoggerFactory.getLogger("SymantecAuthCredential");
 
     /**
      * Configuration for the node.
      */
     public interface Config {
     	
+        @Attribute(order = 100,requiredValue = true)
+        default String displayMsgText() {
+            return "";
+        }
         
+        @Attribute(order = 200,requiredValue = true)
+        default String displayMsgTitle() {
+            return "";
+        }
+        
+        @Attribute(order = 300,requiredValue = true)
+        default String displayMsgProfile() {
+            return "";
+        }
 
     }
     /**
@@ -58,6 +87,20 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
      */
     @Inject
     public SymantecAuthCredential(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    	
+        this.config = config;
+        this.coreWrapper = coreWrapper;
+        
+
+        logger.debug("Display Message Text:",this.config.displayMsgText());
+        vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETEXT, this.config.displayMsgText());
+
+        logger.debug("Display Message Title",this.config.displayMsgTitle());
+        vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETITLE, this.config.displayMsgTitle());
+
+        logger.debug("Display Message Profile",this.config.displayMsgProfile());
+        vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGEPROFILE, this.config.displayMsgProfile());
+        
         authPushCred = new AuthenticateCredential();
     }
 
@@ -67,7 +110,7 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
    //	String credType = context.sharedState.get(CREDCHOICE).asString();
     	String credId = context.sharedState.get(CREDID).asString();
   //	String transactionId  = authPushCred.authCredential(credId);
-    	String Stat  = authPushCred.authCredential(credId);
+    	String Stat  = authPushCred.authCredential(credId,  vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETEXT), vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETITLE), vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGEPROFILE));
     	String[] trastat=Stat.split(",");
     	for(String s:trastat)
     		System.out.println("Values:"+s);

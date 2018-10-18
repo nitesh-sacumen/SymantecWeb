@@ -30,6 +30,8 @@ import com.symantec.tree.request.util.VIPSearchUser;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
 import org.forgerock.openam.core.CoreWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
@@ -37,8 +39,10 @@ import static org.forgerock.openam.auth.node.api.SharedStateConstants.REALM;
 import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
+import com.symantec.tree.config.Constants;
 import static com.symantec.tree.config.Constants.TXNID;
 
 /** 
@@ -53,16 +57,33 @@ public class SymantecPushAuth extends AbstractDecisionNode {
     private final CoreWrapper coreWrapper;
     private final static String DEBUG_FILE = "SymantecSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
+    private final Logger logger = LoggerFactory.getLogger("SymantecPushAuth");
     
     private AuthenticateUser pushAuthUser;
+    final Map<String, String> vipPushCodeMap = new HashMap<>();
 
     /**
      * Configuration for the node.
      */
     public interface Config {
     	
-        
 
+        @Attribute(order = 100,requiredValue = true)
+        default String displayMsgText() {
+            return "";
+        }
+        
+        @Attribute(order = 200,requiredValue = true)
+        default String displayMsgTitle() {
+            return "";
+        }
+        
+        @Attribute(order = 300,requiredValue = true)
+        default String displayMsgProfile() {
+            return "";
+        }
+        
+   
     }
     /**
      * Create the node.
@@ -73,13 +94,24 @@ public class SymantecPushAuth extends AbstractDecisionNode {
     public SymantecPushAuth(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
+        
+
+        logger.debug("Display Message Text:",this.config.displayMsgText());
+        vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETEXT, this.config.displayMsgText());
+
+        logger.debug("Display Message Title",this.config.displayMsgTitle());
+        vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETITLE, this.config.displayMsgTitle());
+
+        logger.debug("Display Message Profile",this.config.displayMsgProfile());
+        vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGEPROFILE, this.config.displayMsgProfile());
+        
         pushAuthUser = new AuthenticateUser();
     }
 
     @Override
     public Action process(TreeContext context) throws NodeProcessException {
     	String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-    	String transactionId  = pushAuthUser.authUser(userName);
+    	String transactionId  = pushAuthUser.authUser(userName, vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETEXT), vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETITLE), vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGEPROFILE));
     	if(transactionId != null && !transactionId.isEmpty()) {
     		context.sharedState.put(TXNID,transactionId);
     		return goTo(true).build();

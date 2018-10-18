@@ -42,10 +42,7 @@ public class SymantecVerifyCodeAddCred extends AbstractDecisionNode {
 	     * Configuration for the node.
 	     */
 	    public interface Config {
-	        @Attribute(order = 100,requiredValue = true)
-	        default String Credential() {
-	            return "";
-	        }
+
 	    }
 	    /**
 	     * Create the node.

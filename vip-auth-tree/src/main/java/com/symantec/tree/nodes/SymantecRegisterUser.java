@@ -77,7 +77,7 @@ public class SymantecRegisterUser extends AbstractDecisionNode {
     		isVIPProfileRegistered = true;
     		return goTo(isVIPProfileRegistered).build();
     	}*/
-    	if(credRegistrationStatus != null && credRegistrationStatus.equalsIgnoreCase("false")) {
+    	if(credRegistrationStatus != null && credRegistrationStatus.equalsIgnoreCase("true")) {
         	System.out.println("User already registered and hence not making user registration call");
     		isVIPProfileRegistered = true;
     		return goTo(isVIPProfileRegistered).build();

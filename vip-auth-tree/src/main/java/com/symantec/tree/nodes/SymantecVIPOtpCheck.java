@@ -86,14 +86,14 @@ public class SymantecVIPOtpCheck implements Node  {
     	else {
     		/*TextOutputCallback top= new TextOutputCallback(0,"Entered secureId is Invalid");
     		Callback[] callbacks = new Callback[]{top};*/
-    		counter=counter+1;
+    		/*counter=counter+1;
     		System.out.println("Check OTP failed"+counter);
     		 if(counter>3) {
       			context.sharedState.put(FINALCODEERROR,"USER REACHED MAXIMUM NUMBER OF INVALID ATTEMPTS");
               	return goTo(Symantec.ERROR).build();
               }
-    		 else
-    		context.sharedState.put(SECURECODEERROR,"Entered secureId is Invalid");
+    		 else*/
+    		context.sharedState.put(SECURECODEERROR,"Entered Security Code is Invalid");
             return goTo(Symantec.FALSE).build();
             
              }

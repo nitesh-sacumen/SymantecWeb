@@ -1,7 +1,6 @@
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecEnterCredId.java
-D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\HttpClientUtil1.java
-D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecMobNumCheck.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\SMSVoiceRegister.java
+D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\HttpClientUtil2.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecVIPOtpCheck.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecAuthCredential.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VipAuthTreeNodePlugin.java
@@ -26,6 +25,7 @@ D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\HttpClientUtil.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecOTPAuth.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecDeleteCredential.java
+D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\SymantecAuthError.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\VoiceDeviceRegister.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\SmsDeviceRegister.java
 D:\Symantec_Github\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\DeleteCredential.java
