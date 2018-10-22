@@ -22,4 +22,6 @@ public final class Constants {
     public static final String PUSHDISPLAYMESSAGETITLE = "push_display_message_title";
     public static final String PUSHDISPLAYMESSAGEPROFILE = "push_display_message_profile";
     
+    public static final  String ACTIVATIONCODE="ACTIVATION CODE";
+    
 }
