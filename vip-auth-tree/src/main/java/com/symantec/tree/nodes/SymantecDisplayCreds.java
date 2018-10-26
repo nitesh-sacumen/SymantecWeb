@@ -148,7 +148,7 @@ public class SymantecDisplayCreds implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the EntersektVerifyAuth.
+	 * The possible outcomes for the SymantecVerifyAuth.
 	 */
 	public enum SymantecDisplayCredsOutcome {
 		/**
@@ -167,7 +167,7 @@ public class SymantecDisplayCreds implements Node {
 	}
 	
 	/**
-	 * Defines the possible outcomes from this EntersektOutcomeProvider node.
+	 * Defines the possible outcomes from this SymantecOutcomeProvider node.
 	 */
 	public static class CredsOutcomeProvider implements OutcomeProvider {
 		@Override

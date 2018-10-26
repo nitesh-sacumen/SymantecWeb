@@ -12,143 +12,148 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-
 public class AddCredential {
-	
-	public Boolean addCredential(String userName,String credValue,String credIdType) {
-	
-	HttpClientUtil clientUtil = new HttpClientUtil();
-	HttpClient httpClient = clientUtil.getHttpClient();
+	static Logger logger = LoggerFactory.getLogger(AddCredential.class);
 
-	HttpPost post = new HttpPost(
-			"https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
+	public Boolean addCredential(String userName, String credValue, String credIdType) {
 
-	post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-	// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
-	// charset=ISO-8859-1"));
-	String payLoad = getViewUserPayload(userName,credValue,credIdType);
-	System.out.println("Request Payload: " + payLoad);
-	try {
-		post.setEntity(new StringEntity(payLoad));
+		HttpClientUtil clientUtil = new HttpClientUtil();
+		HttpClient httpClient = clientUtil.getHttpClient();
 
-		HttpResponse response = httpClient.execute(post);
-		HttpEntity entity = response.getEntity();
+		HttpPost post = new HttpPost(
+				"https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
 
-		System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-		// add header
+		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
+		// charset=ISO-8859-1"));
+		String payLoad = getViewUserPayload(userName, credValue, credIdType);
+		logger.debug("Request Payload: " + payLoad);
+		try {
+			post.setEntity(new StringEntity(payLoad));
 
-		System.out.println(response.getStatusLine());
-		String body = IOUtils.toString(entity.getContent());
-		System.out.println("response body is:\t" + body);
-		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		InputSource src = new InputSource();
-		src.setCharacterStream(new StringReader(body));
-		Document doc = builder.parse(src);
-		String status = doc.getElementsByTagName("status").item(0).getTextContent();
-		String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-		System.out.println("Status is:\t" + statusMessage);
-		
-		
-	if ("success".equalsIgnoreCase(statusMessage)) {
-		return true;
+			logger.info("executing HTTP Request");
+			HttpResponse response = httpClient.execute(post);
+			HttpEntity entity = response.getEntity();
+
+			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
+
+			logger.info(response.getStatusLine().toString());
+			String body = IOUtils.toString(entity.getContent());
+			logger.debug("response body is:\t" + body);
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			InputSource src = new InputSource();
+			src.setCharacterStream(new StringReader(body));
+			Document doc = builder.parse(src);
+			String status = doc.getElementsByTagName("status").item(0).getTextContent();
+			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			logger.debug("Status is:\t" + statusMessage);
+
+			if ("success".equalsIgnoreCase(statusMessage)) {
+				return true;
+
+			}
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static String getViewUserPayload(String userName, String credValue, String credIdType) {
+		logger.info("getting payload for AddCredentialRequest");
+		StringBuilder str = new StringBuilder();
+		str.append(
+				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
+		str.append("<soapenv:Header/>");
+		str.append("<soapenv:Body>");
+		str.append("<vip:AddCredentialRequest>");
+		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
+		str.append("<vip:userId>" + userName + "</vip:userId>");
+		str.append("<vip:credentialDetail>");
+		str.append("<vip:credentialId>" + credValue + "</vip:credentialId>");
+		str.append("<vip:credentialType>" + credIdType + "</vip:credentialType>");
+		str.append("</vip:credentialDetail>");
+		str.append("</vip:AddCredentialRequest>");
+		str.append("</soapenv:Body>");
+		str.append("</soapenv:Envelope>");
+		return str.toString();
 
 	}
 
-	} catch (Exception e) {
-		e.printStackTrace();
+	public Boolean addCredential(String userName, String credValue, String credIdType, String otpreceived) {
+		HttpClientUtil clientUtil = new HttpClientUtil();
+		HttpClient httpClient = clientUtil.getHttpClient();
+
+		HttpPost post = new HttpPost(
+				"https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
+
+		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
+		// charset=ISO-8859-1"));
+		String payLoad = getViewUserPayload(userName, credValue, credIdType, otpreceived);
+		logger.debug("Request Payload: " + payLoad);
+		try {
+			post.setEntity(new StringEntity(payLoad));
+
+			logger.info("executing http request of add credential with otp");
+			HttpResponse response = httpClient.execute(post);
+			HttpEntity entity = response.getEntity();
+
+			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
+			// add header
+
+			logger.info(response.getStatusLine().toString());
+			String body = IOUtils.toString(entity.getContent());
+			logger.debug("response body is:\t" + body);
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			InputSource src = new InputSource();
+			src.setCharacterStream(new StringReader(body));
+			Document doc = builder.parse(src);
+			String status = doc.getElementsByTagName("status").item(0).getTextContent();
+			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			logger.debug("Status is:\t" + statusMessage);
+
+			if ("success".equalsIgnoreCase(statusMessage)) {
+				return true;
+
+			}
+
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return false;
 	}
-	return false;
-}
 
-public static String getViewUserPayload(String userName,String credValue,String credIdType) {
-	StringBuilder str = new StringBuilder();
-	str.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-	str.append("<soapenv:Header/>");
-	str.append("<soapenv:Body>");
-	str.append("<vip:AddCredentialRequest>");
-	str.append("<vip:requestId>"+new Random().nextInt(10)+11111+"</vip:requestId>");
-	str.append("<vip:userId>"+userName+"</vip:userId>");
-	str.append("<vip:credentialDetail>");
-	str.append("<vip:credentialId>"+credValue+"</vip:credentialId>");
-	str.append("<vip:credentialType>"+credIdType+"</vip:credentialType>");	
-	str.append("</vip:credentialDetail>");
-	str.append("</vip:AddCredentialRequest>");
-	str.append("</soapenv:Body>");
-	str.append("</soapenv:Envelope>");
-	return str.toString();
+	public static String getViewUserPayload(String userName, String credValue, String credIdType, String otpReceived) {
 
-}
+		logger.info("getting payload for AddCredentialRequest with otp");
+		StringBuilder str = new StringBuilder();
+		str.append(
+				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
+		str.append("<soapenv:Header/>");
+		str.append("<soapenv:Body>");
+		str.append("<vip:AddCredentialRequest>");
+		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
+		str.append("<vip:userId>" + userName + "</vip:userId>");
+		str.append("<vip:credentialDetail>");
+		str.append("<vip:credentialId>" + credValue + "</vip:credentialId>");
+		str.append("<vip:credentialType>" + credIdType + "</vip:credentialType>");
+		str.append("</vip:credentialDetail>");
+		str.append("<vip:otpAuthData>");
+		str.append("<vip:otp>" + otpReceived + "</vip:otp>");
+		str.append("</vip:otpAuthData>");
+		str.append("</vip:AddCredentialRequest>");
+		str.append("</soapenv:Body>");
+		str.append("</soapenv:Envelope>");
+		return str.toString();
 
-public Boolean addCredential(String userName,String credValue,String credIdType,String otpreceived) {
-
-HttpClientUtil clientUtil = new HttpClientUtil();
-HttpClient httpClient = clientUtil.getHttpClient();
-
-HttpPost post = new HttpPost(
-"https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
-
-post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
-// charset=ISO-8859-1"));
-String payLoad = getViewUserPayload(userName,credValue,credIdType,otpreceived);
-System.out.println("Request Payload: " + payLoad);
-try {
-post.setEntity(new StringEntity(payLoad));
-
-HttpResponse response = httpClient.execute(post);
-HttpEntity entity = response.getEntity();
-
-System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-// add header
-
-System.out.println(response.getStatusLine());
-String body = IOUtils.toString(entity.getContent());
-System.out.println("response body is:\t" + body);
-DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-InputSource src = new InputSource();
-src.setCharacterStream(new StringReader(body));
-Document doc = builder.parse(src);
-String status = doc.getElementsByTagName("status").item(0).getTextContent();
-String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-System.out.println("Status is:\t" + statusMessage);
-
-
-if ("success".equalsIgnoreCase(statusMessage)) {
-return true;
-
-}
-
-} catch (Exception e) {
-e.printStackTrace();
-}
-return false;
-}
-
-public static String getViewUserPayload(String userName,String credValue,String credIdType,String otpReceived) {
-
-System.out.println("calling add cred with otp value received");
-StringBuilder str = new StringBuilder();
-str.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-str.append("<soapenv:Header/>");
-str.append("<soapenv:Body>");
-str.append("<vip:AddCredentialRequest>");
-str.append("<vip:requestId>"+new Random().nextInt(10)+11111+"</vip:requestId>");
-str.append("<vip:userId>"+userName+"</vip:userId>");
-str.append("<vip:credentialDetail>");
-str.append("<vip:credentialId>"+credValue+"</vip:credentialId>");
-str.append("<vip:credentialType>"+credIdType+"</vip:credentialType>");	
-str.append("</vip:credentialDetail>");
-str.append("<vip:otpAuthData>");
-str.append("<vip:otp>"+otpReceived+"</vip:otp>");
-str.append("</vip:otpAuthData>");
-str.append("</vip:AddCredentialRequest>");
-str.append("</soapenv:Body>");
-str.append("</soapenv:Envelope>");
-return str.toString();
-
-}
+	}
 
 }

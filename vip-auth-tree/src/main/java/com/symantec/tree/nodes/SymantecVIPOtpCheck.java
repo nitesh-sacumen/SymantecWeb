@@ -48,7 +48,7 @@ public class SymantecVIPOtpCheck implements Node  {
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
     private static final String BUNDLE = "com/symantec/tree/nodes/SymantecVIPOtpCheck";
-    private final Logger logger = LoggerFactory.getLogger("entersektAuth");
+    private final Logger logger = LoggerFactory.getLogger("SymantecAuth");
     
     private CheckVIPOtp  checkOtp;
     static int counter=0;
@@ -105,7 +105,7 @@ public class SymantecVIPOtpCheck implements Node  {
 	}
 
 	/**
-	 * The possible outcomes for the EntersektVerifyAuth.
+	 * The possible outcomes for the SymantecVerifyAuth.
 	 */
 	public enum Symantec {
 		/**
@@ -125,7 +125,7 @@ public class SymantecVIPOtpCheck implements Node  {
 
 
 	/**
-	 * Defines the possible outcomes from this EntersektOutcomeProvider node.
+	 * Defines the possible outcomes from this SymantecOutcomeProvider node.
 	 */
 	public static class SymantecOutcomeProvider implements OutcomeProvider {
 		@Override

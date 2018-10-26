@@ -6,6 +6,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -19,6 +21,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class VIPCreateUser {
 	
+	static Logger logger = LoggerFactory.getLogger(VIPCreateUser.class);
 	final String SymUrl = "https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8";
 	
 	/*public static void main(String[] args) {
@@ -26,6 +29,7 @@ public class VIPCreateUser {
 	}*/
 
     private String createUserPayload(String userId) {
+    logger.info("getting CreateUserRequest payload");
 	StringBuilder str = new StringBuilder();
 	str.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
 	str.append("   <soapenv:Header/>");		
@@ -63,27 +67,29 @@ public class VIPCreateUser {
             System.out.println("req content length:\t"+reqEntity.getContentLength());
     		httpPost.setEntity(reqEntity);
             
+    		logger.info("executing CreateUserRequest");
             HttpResponse response = httpClient.execute(httpPost);
-            System.out.println(response.getStatusLine().getStatusCode());
+            logger.debug("status code is "+response.getStatusLine().getStatusCode());
             HttpEntity entity = response.getEntity();
 
             
-            System.out.println("----------------------------------------");
-            System.out.println(response.getStatusLine());
+            logger.info("----------------------------------------");
+            logger.debug(response.getStatusLine().toString());
             String body = IOUtils.toString(entity.getContent());
-            System.out.println("response body is:\t"+body);
+            logger.debug("response body is:\t"+body);
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             InputSource src = new InputSource();
             src.setCharacterStream(new StringReader(body));
             Document doc = builder.parse(src);
             String status = doc.getElementsByTagName("status").item(0).getTextContent();
             String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-            System.out.println("Status is:\t"+statusMessage);
+            logger.debug("Status is:\t"+statusMessage);
             if("Success".equals(statusMessage)) {
             	isUserExisted = true;
             }
             
         }catch (Exception e) {
+        	logger.error(e.getMessage());
         	e.printStackTrace();
 		}
 		return isUserExisted;        

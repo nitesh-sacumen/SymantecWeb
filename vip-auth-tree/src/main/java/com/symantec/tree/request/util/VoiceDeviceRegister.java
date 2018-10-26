@@ -12,11 +12,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 public class VoiceDeviceRegister {
 	
+	static Logger logger = LoggerFactory.getLogger(VoiceDeviceRegister.class);
 	public Boolean voiceDeviceRegister(String userName,String credValue) {
 		
 		HttpClientUtil clientUtil = new HttpClientUtil();
@@ -29,26 +32,27 @@ public class VoiceDeviceRegister {
 		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
 		// charset=ISO-8859-1"));
 		String payLoad = getViewUserPayload(userName,credValue);
-		System.out.println("Request Payload: " + payLoad);
+		logger.debug("Request Payload: " + payLoad);
 		try {
 			post.setEntity(new StringEntity(payLoad));
 
+			logger.info("executing SendOtpRequest");
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 
-			System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
 			// add header
 
-			System.out.println(response.getStatusLine());
+			logger.debug(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
-			System.out.println("response body is:\t" + body);
+			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
 			String status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			System.out.println("Status is:\t" + statusMessage);
+			logger.debug("Status is:\t" + statusMessage);
 			
 			if ("success".equalsIgnoreCase(statusMessage)) {
 				return true;
@@ -56,12 +60,14 @@ public class VoiceDeviceRegister {
 			}
 
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
 		return false;
 	}
 
 	public static String getViewUserPayload(String userName,String credValue) {
+		logger.info("getting SendOtpRequest ");
 		StringBuilder str = new StringBuilder();
 		str.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
 		str.append("<soapenv:Header/>");

@@ -18,13 +18,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 public class AuthenticateCredential {
 
 	// TODO Auto-generated method stub
-
+	static Logger logger = LoggerFactory.getLogger(AuthenticateCredential.class);
 	public String authCredential(String credID, String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
 		String credType = "STANDARD_OTP";
 		String transactionID = "";
@@ -38,52 +40,56 @@ public class AuthenticateCredential {
 		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
 		// charset=ISO-8859-1"));
 		String payLoad = getViewUserPayload(credID, credType, displayMsgText, displayMsgTitle, displayMsgProfile);
-		System.out.println("Request Payload: " + payLoad);
+		logger.debug("Request Payload: " + payLoad);
 		try {
 			post.setEntity(new StringEntity(payLoad));
 
+			logger.info("Executing http request for AuthenticateCredentials");
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 
-			System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
 			// add header
 
-			System.out.println(response.getStatusLine());
+			logger.info(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
-			System.out.println("response body is:\t" + body);
+			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			System.out.println( "retrieving transactionId \t" + doc.getElementsByTagName("transactionId"));
+			logger.debug( "retrieving transactionId \t" + doc.getElementsByTagName("transactionId"));
 			if(doc.getElementsByTagName("transactionId").item(0) !=null) {
 				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
 			}
 			else
 				transactionID = " ";
-			System.out.println("Status is:\t" + statusMessage);
+			logger.debug("Status is:\t" + statusMessage);
 			/*if ("6040".equals(status)) {
 				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
 				return transactionID;
 			}*/
 
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
 		String transtat=status+","+transactionID;
-		System.out.println( "Status and TransactionId \t"+transtat);
+		logger.debug( "Status and TransactionId \t"+transtat);
 		return transtat;
 	}
 
 	public static String getViewUserPayload(String credId, String credType,String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
+		logger.info("getting payload for AuthenticateCredentialsRequest");
 		StringBuilder str = new StringBuilder();
 		str.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
 		str.append("   <soapenv:Header/>");
 		str.append("   <soapenv:Body>");
 		str.append("      <vip:AuthenticateCredentialsRequest>");
 		str.append("<vip:requestId>"+Math.round(Math.random() * 100000)+"</vip:requestId>");
+		str.append("<vip:activate>"+true+"</vip:activate>");
 		str.append("           <vip:credentials>");
 		str.append("            <vip:credentialId>"+credId+"</vip:credentialId>");
 		str.append("            <vip:credentialType>"+credType+"</vip:credentialType>");

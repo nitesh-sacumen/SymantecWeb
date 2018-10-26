@@ -130,7 +130,7 @@ public class SymantecPollPushAuth implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the EntersektVerifyAuth.
+	 * The possible outcomes for the SymantecVerifyAuth.
 	 */
 	public enum Symantec {
 		/**
@@ -150,7 +150,7 @@ public class SymantecPollPushAuth implements Node {
 
 
 	/**
-	 * Defines the possible outcomes from this EntersektOutcomeProvider node.
+	 * Defines the possible outcomes from this SymantecOutcomeProvider node.
 	 */
 	public static class SymantecOutcomeProvider implements OutcomeProvider {
 		@Override
