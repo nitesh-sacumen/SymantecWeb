@@ -84,7 +84,9 @@ public class VipAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 						SymantecEnterPhoneNumber.class,
 						SymantecVerifyCodeAddCred.class,
 						SymantecConfirmCred.class,
-						SymantecAuthError.class
+						SymantecAuthError.class,
+						SymantecGenerateActivationCode.class
+						
 				
 						
 				));
