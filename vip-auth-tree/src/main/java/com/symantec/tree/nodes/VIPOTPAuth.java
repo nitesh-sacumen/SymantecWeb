@@ -62,7 +62,7 @@ public class VIPOTPAuth implements Node {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecOTPAuth";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPOTPAuth";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
     private SmsDeviceRegister smsReg;
     private VoiceDeviceRegister voiceReg;

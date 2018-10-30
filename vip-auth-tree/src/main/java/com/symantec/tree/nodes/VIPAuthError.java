@@ -52,7 +52,7 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;
                configClass      = VIPAuthError.Config.class)
 public class VIPAuthError extends SingleOutcomeNode {
 
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecAuthError";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPAuthError";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
     private SMSVoiceRegister svRegister;
     /**

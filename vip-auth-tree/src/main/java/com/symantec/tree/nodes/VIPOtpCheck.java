@@ -44,11 +44,11 @@ public class VIPOtpCheck implements Node  {
 
 	private final Config config;
     private final CoreWrapper coreWrapper;
-    private final static String DEBUG_FILE = "SymantecRegisterUser";
+    private final static String DEBUG_FILE = "VIPRegisterUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecVIPOtpCheck";
-    private final Logger logger = LoggerFactory.getLogger("SymantecAuth");
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPOtpCheck";
+    private final Logger logger = LoggerFactory.getLogger("VIPAuth");
     
     private CheckVIPOtp  checkOtp;
     static int counter=0;

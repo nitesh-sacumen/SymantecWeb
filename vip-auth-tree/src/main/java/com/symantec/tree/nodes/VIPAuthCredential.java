@@ -20,9 +20,7 @@ package com.symantec.tree.nodes;
 
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.shared.debug.Debug;
-import com.sun.identity.sm.RequiredValueValidator;
 import com.symantec.tree.config.Constants;
-import com.symantec.tree.nodes.VIPPushAuth.Config;
 import com.symantec.tree.request.util.AuthenticateCredential;
 import com.symantec.tree.request.util.DeleteCredential;
 
@@ -51,7 +49,7 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;;
                configClass      = VIPAuthCredential.Config.class)
 public class VIPAuthCredential extends AbstractDecisionNode {
 
-    private final static String DEBUG_FILE = "SymantecSearchUser";
+    private final static String DEBUG_FILE = "VIPSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
     private final Config config;
@@ -59,7 +57,7 @@ public class VIPAuthCredential extends AbstractDecisionNode {
     
     private AuthenticateCredential authPushCred;
     final Map<String, String> vipPushCodeMap = new HashMap<>();
-    private final Logger logger = LoggerFactory.getLogger("SymantecAuthCredential");
+    private final Logger logger = LoggerFactory.getLogger("VIPAuthCredential");
 
     /**
      * Configuration for the node.
@@ -129,22 +127,9 @@ public class VIPAuthCredential extends AbstractDecisionNode {
     			System.out.println("Mobile Push is sent successfully:"+status);
     			return goTo(true).build();
     		}
-    		else if(status.equalsIgnoreCase("6043")) {
-    			logger.info("deleting creential id");
-    			deleteCredential(userName,credId,credType);
-    			return goTo(false).build();
-    		}
-    		else if(status.equalsIgnoreCase("603E")) {
-    			logger.info("deleting creential id");
-    			deleteCredential(userName,credId,credType);
-    			return goTo(false).build();
-    		}
-    		else if(status.equalsIgnoreCase("6004")) {
-    			logger.info("deleting creential id");
-    			deleteCredential(userName,credId,credType);
-    			return goTo(false).build();
-    		}
     		else {
+    			logger.info("deleting creential id");
+    			deleteCredential(userName,credId,credType);
         		return goTo(false).build();
         	}
     	

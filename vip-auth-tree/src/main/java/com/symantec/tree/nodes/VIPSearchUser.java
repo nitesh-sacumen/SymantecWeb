@@ -42,7 +42,7 @@ public class VIPSearchUser extends AbstractDecisionNode {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private final static String DEBUG_FILE = "SymantecSearchUser";
+    private final static String DEBUG_FILE = "VIPSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
     private com.symantec.tree.request.util.VIPSearchUser vipSearchUser=null;

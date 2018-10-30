@@ -89,7 +89,6 @@ public class AuthenticateCredential {
 		str.append("   <soapenv:Body>");
 		str.append("      <vip:AuthenticateCredentialsRequest>");
 		str.append("<vip:requestId>"+Math.round(Math.random() * 100000)+"</vip:requestId>");
-		str.append("<vip:activate>"+true+"</vip:activate>");
 		str.append("           <vip:credentials>");
 		str.append("            <vip:credentialId>"+credId+"</vip:credentialId>");
 		str.append("            <vip:credentialType>"+credType+"</vip:credentialType>");

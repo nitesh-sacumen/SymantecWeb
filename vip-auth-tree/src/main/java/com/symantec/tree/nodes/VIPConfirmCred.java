@@ -35,7 +35,7 @@ public class VIPConfirmCred implements Node {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecConfirmCred";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPConfirmCred";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
 
     /**

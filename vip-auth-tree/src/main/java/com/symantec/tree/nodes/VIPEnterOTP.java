@@ -43,7 +43,7 @@ import static com.symantec.tree.config.Constants.SECURECODE;
                configClass      = VIPEnterOTP.Config.class)
 public class VIPEnterOTP extends SingleOutcomeNode {
 
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecEnterOTP";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterOTP";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
 
     /**

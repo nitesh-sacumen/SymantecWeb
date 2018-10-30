@@ -55,9 +55,9 @@ public class VIPPushAuth extends AbstractDecisionNode {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private final static String DEBUG_FILE = "SymantecSearchUser";
+    private final static String DEBUG_FILE = "VIPSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
-    private final Logger logger = LoggerFactory.getLogger("SymantecPushAuth");
+    private final Logger logger = LoggerFactory.getLogger("VIPPushAuth");
     
     private AuthenticateUser pushAuthUser;
     final Map<String, String> vipPushCodeMap = new HashMap<>();

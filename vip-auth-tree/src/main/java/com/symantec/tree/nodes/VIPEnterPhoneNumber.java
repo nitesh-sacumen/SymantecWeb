@@ -50,7 +50,7 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;
                configClass      = VIPEnterPhoneNumber.Config.class)
 public class VIPEnterPhoneNumber extends SingleOutcomeNode {
 
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecEnterPhoneNumber";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterPhoneNumber";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
     private SMSVoiceRegister svRegister;
     /**

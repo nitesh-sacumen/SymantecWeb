@@ -47,7 +47,7 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;
                configClass      = VIPEnterCredId.Config.class)
 public class VIPEnterCredId extends SingleOutcomeNode {
 
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecEnterCredId";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterCredId";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
     private SMSVoiceRegister svRegister;
     /**

@@ -1,7 +1,6 @@
 package com.symantec.tree.nodes;
 
 import com.google.inject.assistedinject.Assisted;
-import com.ibm.wsdl.Constants;
 import com.sun.identity.sm.RequiredValueValidator;
 import com.symantec.tree.request.util.AuthPollPush;
 import com.symantec.tree.request.util.DeleteCredential;
@@ -26,7 +25,7 @@ import org.forgerock.openam.sm.validation.URLValidator;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symantec.tree.config.Constants.STANDARD_OTP;
+
 import static com.symantec.tree.config.Constants.CREDCHOICE;
 import static com.symantec.tree.config.Constants.CREDID;
 import static com.symantec.tree.config.Constants.TXNID;
@@ -34,7 +33,7 @@ import static com.symantec.tree.config.Constants.TXNID;
 @Node.Metadata(outcomeProvider = VIPPollPushAuth.SymantecOutcomeProvider.class, configClass = VIPPollPushAuth.Config.class)
 public class VIPPollPushAuth implements Node {
 
-	private static final String BUNDLE = "com/symantec/tree/nodes/SymantecPollPushAuth";
+	private static final String BUNDLE = "com/symantec/tree/nodes/VIPPollPushAuth";
 
 	private AuthPollPush pollPush;
 
@@ -72,9 +71,6 @@ public class VIPPollPushAuth implements Node {
 
 	private Action verifyAuth(TreeContext context) {
 		// logger.debug("Entered into verifyAuth method");
-		String credId = context.sharedState.get(CREDID).asString();
-		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-		String credType = STANDARD_OTP;
 		JsonValue newSharedState = context.sharedState.copy();
 
 		// JsonValue sharedState = context.sharedState;
@@ -95,8 +91,6 @@ public class VIPPollPushAuth implements Node {
 						return goTo(Symantec.UNANSWERED).replaceSharedState(newSharedState).build();
 
 					case "7002":
-				        System.out.println("deleting credntial id");
-						deleteCredential(userName, credId, credType);
 						return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
 
 					case "7003":
@@ -126,8 +120,6 @@ public class VIPPollPushAuth implements Node {
 			// logger.error(e.getMessage());
 		}
 
-		System.out.println("deleting credntial id");
-		deleteCredential(userName, credId, credType);
 		return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
 
 	}
@@ -173,10 +165,4 @@ public class VIPPollPushAuth implements Node {
 					new Outcome(Symantec.UNANSWERED.name(), bundle.getString("unansweredOutcome")));
 		}
 	}
-
-	private void deleteCredential(String userName, String credId, String credType) {
-		DeleteCredential delCred = new DeleteCredential();
-		delCred.deleteCredential(userName, credId, credType);
-	}
-
 }

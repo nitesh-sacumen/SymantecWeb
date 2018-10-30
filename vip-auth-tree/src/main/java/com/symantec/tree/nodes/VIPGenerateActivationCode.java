@@ -20,7 +20,7 @@ import javax.inject.Inject;
 configClass      = VIPGenerateActivationCode.Config.class)
 public class VIPGenerateActivationCode extends AbstractDecisionNode{
 
-	private final static String DEBUG_FILE = "SymantecSearchUser";
+	private final static String DEBUG_FILE = "VIPSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
     private final Config config;
@@ -28,7 +28,7 @@ public class VIPGenerateActivationCode extends AbstractDecisionNode{
     
     private GenerateActivationCode generateActivationCode;
     final Map<String, String> vipPushCodeMap = new HashMap<>();
-    private final Logger logger = LoggerFactory.getLogger("SymantecGenerateActivationCode");
+    private final Logger logger = LoggerFactory.getLogger("VIPGenerateActivationCode");
     
     /**
      * Configuration for the node.

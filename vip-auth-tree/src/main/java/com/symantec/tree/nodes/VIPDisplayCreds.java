@@ -49,7 +49,7 @@ public class VIPDisplayCreds implements Node {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecDisplayCreds";
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPDisplayCreds";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
 
     /**

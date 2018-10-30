@@ -37,7 +37,7 @@ public class VIPRegisterUser extends AbstractDecisionNode {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
-    private final static String DEBUG_FILE = "SymantecRegisterUser";
+    private final static String DEBUG_FILE = "VIPRegisterUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
     
     private VIPCreateUser  vIPCreateUser;
