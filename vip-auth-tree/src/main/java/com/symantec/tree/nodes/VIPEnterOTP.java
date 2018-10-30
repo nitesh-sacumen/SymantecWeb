@@ -29,19 +29,10 @@ import org.forgerock.guava.common.base.Strings;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.core.CoreWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.assistedinject.Assisted;
-import com.symantec.tree.nodes.SymantecAddCreds.Config;
-import com.symantec.tree.request.util.DeleteCredential;
-
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.CREDCHOICE;
 import static com.symantec.tree.config.Constants.SECURECODE;
 /**
  * A node which collects a OTP from the user via a password callback.
@@ -49,49 +40,37 @@ import static com.symantec.tree.config.Constants.SECURECODE;
  * <p>Places the result in the transient state as 'ONE TIME PASSWORD'.</p>
  */
 @Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
-               configClass      = SymantecDeleteCredential.Config.class)
-public class SymantecDeleteCredential extends SingleOutcomeNode {
+               configClass      = VIPEnterOTP.Config.class)
+public class VIPEnterOTP extends SingleOutcomeNode {
 
-    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecDeleteCredential";
+    private static final String BUNDLE = "com/symantec/tree/nodes/SymantecEnterOTP";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
-    DeleteCredential delCred;
-	private Config config;
-	private CoreWrapper coreWrapper;
+
     /**
      * Configuration for the node.
      */
     public interface Config {}
-
+    
 
     /**
      * Create the node.
      */
     @Inject
-    public SymantecDeleteCredential(@Assisted Config config, CoreWrapper coreWrapper) {
+    public VIPEnterOTP() {
 
-    	this.config = config;
-        this.coreWrapper = coreWrapper;
-        delCred = new DeleteCredential();
     }
     
-	/*private Action collectOTP(TreeContext context) {
+	private Action collectOTP(TreeContext context) {
 		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
 		return send(new PasswordCallback(bundle.getString("callback.securecode"), false)).build();
-	}*/
+	}
 
     @Override
     public Action process(TreeContext context) {
     	logger.debug("Collect SecurityCode started");
         JsonValue sharedState = context.sharedState;
-        String credId = context.sharedState.get(CREDID).asString();
-        String credType = context.sharedState.get(CREDCHOICE).asString();
-        String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-        delCred.deleteCredential(userName, credId, credType);
-
         
-        return goToNext().build();
-        
-        /*return context.getCallback(PasswordCallback.class)
+        return context.getCallback(PasswordCallback.class)
                 .map(PasswordCallback::getPassword)
                 .map(String::new)
                 .filter(password -> !Strings.isNullOrEmpty(password))
@@ -103,7 +82,6 @@ public class SymantecDeleteCredential extends SingleOutcomeNode {
                 .orElseGet(() -> {
                 	logger.debug("Enter Credential ID");
                     return collectOTP(context);
-                });*/
-        
+                });
     }
 }

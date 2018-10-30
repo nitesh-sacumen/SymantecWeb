@@ -49,8 +49,8 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;
  * <p>Places the result in the transient state as 'ONE TIME PASSWORD'.</p>
  */
 @Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
-               configClass      = SymantecAuthError.Config.class)
-public class SymantecAuthError extends SingleOutcomeNode {
+               configClass      = VIPAuthError.Config.class)
+public class VIPAuthError extends SingleOutcomeNode {
 
     private static final String BUNDLE = "com/symantec/tree/nodes/SymantecAuthError";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
@@ -65,7 +65,7 @@ public class SymantecAuthError extends SingleOutcomeNode {
      * Create the node.
      */
     @Inject
-    public SymantecAuthError() {
+    public VIPAuthError() {
     	svRegister= new SMSVoiceRegister();
 
     }

@@ -13,7 +13,7 @@ import org.forgerock.openam.core.CoreWrapper;
 
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.shared.debug.Debug;
-import com.symantec.tree.nodes.SymantecRegisterUser.Config;
+import com.symantec.tree.nodes.VIPRegisterUser.Config;
 import com.symantec.tree.request.util.AddCredential;
 import com.symantec.tree.request.util.SmsDeviceRegister;
 import com.symantec.tree.request.util.VIPCreateUser;
@@ -25,8 +25,8 @@ import static com.symantec.tree.config.Constants.MOBNUM;
 import static com.symantec.tree.config.Constants.SECURECODE;
 
 @Node.Metadata(outcomeProvider  = AbstractDecisionNode.OutcomeProvider.class,
-configClass      = SymantecVerifyCodeAddCred.Config.class)
-public class SymantecVerifyCodeAddCred extends AbstractDecisionNode {
+configClass      = VIPVerifyCodeAddCred.Config.class)
+public class VIPVerifyCodeAddCred extends AbstractDecisionNode {
 	
 	
 	  private final Config config;
@@ -50,7 +50,7 @@ public class SymantecVerifyCodeAddCred extends AbstractDecisionNode {
 	     * @throws NodeProcessException If the configuration was not valid.
 	     */
 	    @Inject
-	    public SymantecVerifyCodeAddCred(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+	    public VIPVerifyCodeAddCred(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
 	        this.config = config;
 	        this.coreWrapper = coreWrapper;
 	        addCred = new AddCredential();

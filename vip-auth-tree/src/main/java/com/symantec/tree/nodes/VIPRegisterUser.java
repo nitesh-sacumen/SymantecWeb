@@ -32,8 +32,8 @@ import javax.inject.Inject;
  * for this request. 
  */
 @Node.Metadata(outcomeProvider  = AbstractDecisionNode.OutcomeProvider.class,
-               configClass      = SymantecRegisterUser.Config.class)
-public class SymantecRegisterUser extends AbstractDecisionNode {
+               configClass      = VIPRegisterUser.Config.class)
+public class VIPRegisterUser extends AbstractDecisionNode {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
@@ -57,7 +57,7 @@ public class SymantecRegisterUser extends AbstractDecisionNode {
      * @throws NodeProcessException If the configuration was not valid.
      */
     @Inject
-    public SymantecRegisterUser(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public VIPRegisterUser(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
         vIPCreateUser = new VIPCreateUser();

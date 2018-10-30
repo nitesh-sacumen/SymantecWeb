@@ -69,22 +69,22 @@ public class VipAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
 		return ImmutableMap.of(
 				VipAuthTreeNodePlugin.currentVersion, asList(
-						SymantecSearchUser.class,
-						SymantecRegisterUser.class,
-						SymantecDisplayCreds.class,
-						SymantecPushAuth.class,
-						SymantecAddCreds.class,
-						SymantecEnterCredId.class,
-						SymantecVIPOtpCheck.class,
-						SymantecEnterOTP.class,
-						SymantecPollPushAuth.class,
-						SymantecOTPAuth.class,
-						SymantecAuthCredential.class,
-						SymantecDeleteCredential.class,
-						SymantecEnterPhoneNumber.class,
-						SymantecVerifyCodeAddCred.class,
-						SymantecConfirmCred.class,
-						SymantecAuthError.class
+						VIPSearchUser.class,
+						VIPRegisterUser.class,
+						VIPDisplayCreds.class,
+						VIPPushAuth.class,
+						VIPAddCreds.class,
+						VIPEnterCredId.class,
+						VIPOtpCheck.class,
+						VIPEnterOTP.class,
+						VIPPollPushAuth.class,
+						VIPOTPAuth.class,
+						VIPAuthCredential.class,
+						VIPEnterPhoneNumber.class,
+						VIPVerifyCodeAddCred.class,
+						VIPConfirmCred.class,
+						VIPAuthError.class,
+						VIPGenerateActivationCode.class
 				
 						
 				));

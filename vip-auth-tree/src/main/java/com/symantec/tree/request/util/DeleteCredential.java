@@ -36,12 +36,12 @@ public class DeleteCredential {
 
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		
-		if(credType.equalsIgnoreCase("SMS"))
-			credType="SMS_OTP";
-		else if (credType.equalsIgnoreCase("Voice"))
-			credType="VOICE_OTP";
-		else if (credType.equalsIgnoreCase("VIP"))
-			credType="STANDARD_OTP";
+//		if(credType.equalsIgnoreCase("SMS"))
+//			credType="SMS_OTP";
+//		else if (credType.equalsIgnoreCase("Voice"))
+//			credType="VOICE_OTP";
+//		else if (credType.equalsIgnoreCase("VIP"))
+//			credType="STANDARD_OTP";
 			
 		System.out.println("CredType to be Removed ..."+credType);
 		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;

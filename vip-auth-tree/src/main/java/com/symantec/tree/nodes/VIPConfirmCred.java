@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 import static com.symantec.tree.config.Constants.CONFIRMCREDCHOICE;
 
-@Node.Metadata(outcomeProvider  = SymantecConfirmCred.CredsOutcomeProvider.class,
-configClass      = SymantecConfirmCred.Config.class)
-public class SymantecConfirmCred implements Node {
+@Node.Metadata(outcomeProvider  = VIPConfirmCred.CredsOutcomeProvider.class,
+configClass      = VIPConfirmCred.Config.class)
+public class VIPConfirmCred implements Node {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
@@ -61,7 +61,7 @@ public class SymantecConfirmCred implements Node {
      * @throws NodeProcessException If the configuration was not valid.
      */
     @Inject
-    public SymantecConfirmCred(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public VIPConfirmCred(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
     }
@@ -209,7 +209,7 @@ public class SymantecConfirmCred implements Node {
 	public static class CredsOutcomeProvider implements OutcomeProvider {
 		@Override
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale(SymantecConfirmCred.BUNDLE,
+			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPConfirmCred.BUNDLE,
 					CredsOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(
 					new Outcome(SymantecConfirmCredOutcome.YES.name(), bundle.getString("YesOutcome")),

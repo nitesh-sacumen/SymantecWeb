@@ -47,8 +47,8 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;
  * <p>Places the result in the transient state as 'ONE TIME PASSWORD'.</p>
  */
 @Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
-               configClass      = SymantecEnterPhoneNumber.Config.class)
-public class SymantecEnterPhoneNumber extends SingleOutcomeNode {
+               configClass      = VIPEnterPhoneNumber.Config.class)
+public class VIPEnterPhoneNumber extends SingleOutcomeNode {
 
     private static final String BUNDLE = "com/symantec/tree/nodes/SymantecEnterPhoneNumber";
     private final Logger logger = LoggerFactory.getLogger("vipAuth");
@@ -63,7 +63,7 @@ public class SymantecEnterPhoneNumber extends SingleOutcomeNode {
      * Create the node.
      */
     @Inject
-    public SymantecEnterPhoneNumber() {
+    public VIPEnterPhoneNumber() {
     	svRegister= new SMSVoiceRegister();
 
     }

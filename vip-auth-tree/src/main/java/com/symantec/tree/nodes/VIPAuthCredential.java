@@ -22,8 +22,9 @@ import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.shared.debug.Debug;
 import com.sun.identity.sm.RequiredValueValidator;
 import com.symantec.tree.config.Constants;
-import com.symantec.tree.nodes.SymantecPushAuth.Config;
+import com.symantec.tree.nodes.VIPPushAuth.Config;
 import com.symantec.tree.request.util.AuthenticateCredential;
+import com.symantec.tree.request.util.DeleteCredential;
 
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
@@ -39,6 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.symantec.tree.config.Constants.CREDID;
+import static com.symantec.tree.config.Constants.STANDARD_OTP;
 import static com.symantec.tree.config.Constants.CREDCHOICE;;
 
 /** 
@@ -46,8 +48,8 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;;
  * for this request. 
  */
 @Node.Metadata(outcomeProvider  = AbstractDecisionNode.OutcomeProvider.class,
-               configClass      = SymantecAuthCredential.Config.class)
-public class SymantecAuthCredential extends AbstractDecisionNode {
+               configClass      = VIPAuthCredential.Config.class)
+public class VIPAuthCredential extends AbstractDecisionNode {
 
     private final static String DEBUG_FILE = "SymantecSearchUser";
     protected Debug debug = Debug.getInstance(DEBUG_FILE);
@@ -86,7 +88,7 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
      * @throws NodeProcessException If the configuration was not valid.
      */
     @Inject
-    public SymantecAuthCredential(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public VIPAuthCredential(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
     	
         this.config = config;
         this.coreWrapper = coreWrapper;
@@ -109,6 +111,8 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
     //	String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
    //	String credType = context.sharedState.get(CREDCHOICE).asString();
     	String credId = context.sharedState.get(CREDID).asString();
+        String credType = STANDARD_OTP;
+        String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
   //	String transactionId  = authPushCred.authCredential(credId);
     	String Stat  = authPushCred.authCredential(credId,  vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETEXT), vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETITLE), vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGEPROFILE));
     	String[] trastat=Stat.split(",");
@@ -126,15 +130,18 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
     			return goTo(true).build();
     		}
     		else if(status.equalsIgnoreCase("6043")) {
-    			System.out.println("Cred doesnot support Mobile Push:"+status);
+    			logger.info("deleting creential id");
+    			deleteCredential(userName,credId,credType);
     			return goTo(false).build();
     		}
     		else if(status.equalsIgnoreCase("603E")) {
-    			System.out.println("Mobile Push not enabled for the account:"+status);
+    			logger.info("deleting creential id");
+    			deleteCredential(userName,credId,credType);
     			return goTo(false).build();
     		}
     		else if(status.equalsIgnoreCase("6004")) {
-    			System.out.println("Credential ID is not valid:"+status);
+    			logger.info("deleting creential id");
+    			deleteCredential(userName,credId,credType);
     			return goTo(false).build();
     		}
     		else {
@@ -146,5 +153,9 @@ public class SymantecAuthCredential extends AbstractDecisionNode {
     		return goTo(false).build();
     	}*/
         
+    }
+    private void deleteCredential(String userName, String credId, String credType) {
+    	DeleteCredential delCred = new DeleteCredential();
+    	delCred.deleteCredential(userName, credId, credType);
     }
 }

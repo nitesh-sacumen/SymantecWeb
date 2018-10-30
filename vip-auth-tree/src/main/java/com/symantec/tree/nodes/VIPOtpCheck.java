@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.shared.debug.Debug;
-import com.symantec.tree.nodes.SymantecPollPushAuth.Symantec;
-import com.symantec.tree.nodes.SymantecPollPushAuth.SymantecOutcomeProvider;
+import com.symantec.tree.nodes.VIPPollPushAuth.Symantec;
+import com.symantec.tree.nodes.VIPPollPushAuth.SymantecOutcomeProvider;
 import com.symantec.tree.request.util.CheckVIPOtp;
 import com.symantec.tree.request.util.SmsDeviceRegister;
 import static com.symantec.tree.config.Constants.SECURECODE;
@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 
-@Node.Metadata(outcomeProvider  = SymantecVIPOtpCheck.SymantecOutcomeProvider.class,
-configClass= SymantecVIPOtpCheck.Config.class)
-public class SymantecVIPOtpCheck implements Node  {
+@Node.Metadata(outcomeProvider  = VIPOtpCheck.SymantecOutcomeProvider.class,
+configClass= VIPOtpCheck.Config.class)
+public class VIPOtpCheck implements Node  {
 
 	private final Config config;
     private final CoreWrapper coreWrapper;
@@ -65,7 +65,7 @@ public class SymantecVIPOtpCheck implements Node  {
      * @throws NodeProcessException If the configuration was not valid.
      */
     @Inject
-    public SymantecVIPOtpCheck(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public VIPOtpCheck(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
         checkOtp = new CheckVIPOtp();
@@ -130,7 +130,7 @@ public class SymantecVIPOtpCheck implements Node  {
 	public static class SymantecOutcomeProvider implements OutcomeProvider {
 		@Override
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale(SymantecVIPOtpCheck.BUNDLE,
+			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPOtpCheck.BUNDLE,
 					SymantecOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(
 					new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),

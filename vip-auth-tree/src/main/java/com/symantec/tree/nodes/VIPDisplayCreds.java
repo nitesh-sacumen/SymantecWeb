@@ -43,9 +43,9 @@ import static com.symantec.tree.config.Constants.CREDCHOICE;
  * A node that checks to see if zero-page login headers have specified username and shared key 
  * for this request. 
  */
-@Node.Metadata(outcomeProvider  = SymantecDisplayCreds.CredsOutcomeProvider.class,
-               configClass      = SymantecDisplayCreds.Config.class)
-public class SymantecDisplayCreds implements Node {
+@Node.Metadata(outcomeProvider  = VIPDisplayCreds.CredsOutcomeProvider.class,
+               configClass      = VIPDisplayCreds.Config.class)
+public class VIPDisplayCreds implements Node {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
@@ -75,7 +75,7 @@ public class SymantecDisplayCreds implements Node {
      * @throws NodeProcessException If the configuration was not valid.
      */
     @Inject
-    public SymantecDisplayCreds(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public VIPDisplayCreds(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
     }
@@ -172,7 +172,7 @@ public class SymantecDisplayCreds implements Node {
 	public static class CredsOutcomeProvider implements OutcomeProvider {
 		@Override
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale(SymantecDisplayCreds.BUNDLE,
+			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPDisplayCreds.BUNDLE,
 					CredsOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(
 					new Outcome(SymantecDisplayCredsOutcome.VIP.name(), bundle.getString("vipOutcome")),

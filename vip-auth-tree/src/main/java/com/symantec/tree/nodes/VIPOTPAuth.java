@@ -56,9 +56,9 @@ import static com.symantec.tree.config.Constants.SECURECODEERROR;
  * A node that checks to see if zero-page login headers have specified username and shared key 
  * for this request. 
  */
-@Node.Metadata(outcomeProvider  = SymantecOTPAuth.OTPAuthOutcomeProvider.class,
-               configClass      = SymantecOTPAuth.Config.class)
-public class SymantecOTPAuth implements Node {
+@Node.Metadata(outcomeProvider  = VIPOTPAuth.OTPAuthOutcomeProvider.class,
+               configClass      = VIPOTPAuth.Config.class)
+public class VIPOTPAuth implements Node {
 
     private final Config config;
     private final CoreWrapper coreWrapper;
@@ -90,7 +90,7 @@ public class SymantecOTPAuth implements Node {
      * @throws NodeProcessException If the configuration was not valid.
      */
     @Inject
-    public SymantecOTPAuth(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+    public VIPOTPAuth(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
         this.config = config;
         this.coreWrapper = coreWrapper;
     }
@@ -268,7 +268,7 @@ public class SymantecOTPAuth implements Node {
 	public static class OTPAuthOutcomeProvider implements OutcomeProvider {
 		@Override
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale(SymantecOTPAuth.BUNDLE,
+			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPOTPAuth.BUNDLE,
 					OTPAuthOutcomeProvider.class.getClassLoader());
 			System.out.println("OUT come..."+new Outcome(SymantecOTPAuthOutcome.SMS.name(), bundle.getString("smsOutcome")));
 			return ImmutableList.of(
