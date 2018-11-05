@@ -1,111 +1,92 @@
-/*
- * The contents of this file are subject to the terms of the Common Development and
- * Distribution License (the License). You may not use this file except in compliance with the
- * License.
- *
- * You can obtain a copy of the License at legal/CDDLv1.0.txt. See the License for the
- * specific language governing permission and limitations under the License.
- *
- * When distributing Covered Software, include this CDDL Header Notice in each file and include
- * the License file at legal/CDDLv1.0.txt. If applicable, add the following below the CDDL
- * Header, with the fields enclosed by brackets [] replaced by your own identifying
- * information: "Portions copyright [year] [name of copyright owner]".
- *
- * Copyright 2018 ForgeRock AS.
- */
-
-
 package com.symantec.tree.nodes;
 
 import com.google.inject.assistedinject.Assisted;
-import com.iplanet.sso.SSOException;
-import com.sun.identity.idm.AMIdentity;
-import com.sun.identity.idm.IdRepoException;
-import com.sun.identity.shared.debug.Debug;
-import org.forgerock.openam.annotations.sm.Attribute;
+import com.symantec.tree.request.util.VIPGetUser;
 import org.forgerock.openam.auth.node.api.*;
 import org.forgerock.openam.core.CoreWrapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.REALM;
-import static org.forgerock.openam.auth.node.api.SharedStateConstants.USERNAME;
 import static com.symantec.tree.config.Constants.MOBNUM;
+import static com.symantec.tree.config.Constants.NOCREDREGISTERED;
+import static com.symantec.tree.config.Constants.VIPCREDREGISTERED;
+import static com.symantec.tree.config.Constants.NO_CREDENTIALS_REGISTERED;
 
-/** 
- * A node that checks to see if zero-page login headers have specified username and shared key 
- * for this request. 
+/**
+ * 
+ * @author Symantec
+ * @category Node
+ * @Descrition "VIP Search User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Push Auth User". If False, go to
+ *             "VIP Register User".
+ *
  */
-@Node.Metadata(outcomeProvider  = AbstractDecisionNode.OutcomeProvider.class,
-               configClass      = VIPSearchUser.Config.class)
+@Node.Metadata(outcomeProvider = AbstractDecisionNode.OutcomeProvider.class, configClass = VIPSearchUser.Config.class)
 public class VIPSearchUser extends AbstractDecisionNode {
+	static Logger logger = LoggerFactory.getLogger(VIPSearchUser.class);
+	private final Config config;
+	private final CoreWrapper coreWrapper;
 
-    private final Config config;
-    private final CoreWrapper coreWrapper;
-    private final static String DEBUG_FILE = "VIPSearchUser";
-    protected Debug debug = Debug.getInstance(DEBUG_FILE);
-    
-    private com.symantec.tree.request.util.VIPSearchUser vipSearchUser=null;
+	private VIPGetUser vipSearchUser = null;
 
-    /**
-     * Configuration for the node.
-     */
-    public interface Config {
-        @Attribute(order = 100,requiredValue = true)
-        default String vipuserservice_url() {
-            return "";
-        }
+	/**
+	 * Configuration for the node.
+	 */
+	public interface Config {
 
-    }
-    /**
-     * Create the node.
-     * @param config The service config.
-     * @throws NodeProcessException If the configuration was not valid.
-     */
-    @Inject
-    public VIPSearchUser(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
-        this.config = config;
-        this.coreWrapper = coreWrapper;
-        try {
-        vipSearchUser = new com.symantec.tree.request.util.VIPSearchUser();
-        }catch (Exception e) {
-			System.out.println("error when instansiating searchuser......."+e.getMessage());
+	}
+
+	/**
+	 * Create the node.
+	 * 
+	 * @param config The service config.
+	 * @throws NodeProcessException If the configuration was not valid.
+	 */
+	@Inject
+	public VIPSearchUser(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+		this.config = config;
+		this.coreWrapper = coreWrapper;
+		try {
+			vipSearchUser = new VIPGetUser();
+		} catch (Exception e) {
+			logger.error("error when instansiating searchuser......." + e.getMessage());
 		}
-    }
+	}
 
-    @Override
-    public Action process(TreeContext context) throws NodeProcessException {
-    	String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-    	boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName);
-    	String mobNum = null;
-    	
-    	try {
-    	
-    	if(isVIPProfileExisted) {
-    		mobNum = vipSearchUser.getMobInfo(userName);
-	    	System.out.println("PHone Number"+mobNum);
+	/**
+	 * Main logic of the node.
+	 */
+	@Override
+	public Action process(TreeContext context) throws NodeProcessException {
+		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
+		boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName);
+		String mobNum = null;
 
-	    	if(mobNum != null && mobNum.equalsIgnoreCase("NOCREDREGISTERED")){
-	    		System.out.println("NOCREDREGISTERED");
-	    		context.transientState.put("NoCredentialRegistered", true);
-	    		return goTo(false).build();
-	    	}
-	    	else if(mobNum != null && mobNum.equalsIgnoreCase("VIPCREDREGISTERED")){
-	    		System.out.println("VIPCREDREGISTERED");
-	    		//context.transientState.put("VIPCREDREGISTERED", "VIPCREDREGISTERED");
-	    		return goTo(isVIPProfileExisted).build();
-	    	}
-	    	else{
-	    		
-	    		context.sharedState.put(MOBNUM,mobNum);    	
-	    		return goTo(isVIPProfileExisted).build();
-	    	}
-    	}
-    	
-    	}catch(NullPointerException ne){
-    		System.out.println("Phone Number not available for user");
-    	}
-    	
-        return goTo(isVIPProfileExisted).build();
-    }
+		try {
+
+			if (isVIPProfileExisted) {
+				mobNum = vipSearchUser.getMobInfo(userName);
+				logger.debug("Phone Number " + mobNum);
+
+				if (mobNum != null && mobNum.equalsIgnoreCase(NOCREDREGISTERED)) {
+					logger.info("NOCREDREGISTERED");
+					context.transientState.put(NO_CREDENTIALS_REGISTERED, true);
+					return goTo(false).build();
+				} else if (mobNum != null && mobNum.equalsIgnoreCase(VIPCREDREGISTERED)) {
+					logger.info("VIPCREDREGISTERED");
+					return goTo(isVIPProfileExisted).build();
+				} else {
+
+					context.sharedState.put(MOBNUM, mobNum);
+					return goTo(isVIPProfileExisted).build();
+				}
+			}
+
+		} catch (NullPointerException ne) {
+			logger.error("Phone Number not available for user");
+		}
+
+		return goTo(isVIPProfileExisted).build();
+	}
+
 }

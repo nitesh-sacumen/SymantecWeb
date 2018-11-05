@@ -3,16 +3,17 @@ C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPRegisterUser.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\HttpClientUtil.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPOtpCheck.java
+C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPSDKEnterCredId.java
+C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPSDKOtpCheck.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPGenerateActivationCode.java
-C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPAuthError.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\SMSVoiceRegister.java
-C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\VIPSearchUser.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\AddCredential.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\CheckVIPOtp.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPOTPAuth.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\SmsDeviceRegister.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\AuthenticateCredential.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\GenerateActivationCode.java
+C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPSdkAddCreds.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPAddCreds.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPVerifyCodeAddCred.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPSearchUser.java
@@ -29,4 +30,6 @@ C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPDisplayCreds.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPPollPushReg.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\AuthPollPush.java
+C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\VIPGetUser.java
 C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\nodes\VIPConfirmCred.java
+C:\Users\ruchika\Desktop\Symantec\vip-auth-tree\src\main\java\com\symantec\tree\request\util\SdkAddCredential.java

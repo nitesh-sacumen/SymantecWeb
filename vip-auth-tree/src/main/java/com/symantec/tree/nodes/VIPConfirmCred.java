@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.assistedinject.Assisted;
-import com.sun.security.auth.callback.TextCallbackHandler;
-
 import static org.forgerock.openam.auth.node.api.Action.send;
 
 import java.util.ArrayList;
@@ -29,133 +27,94 @@ import java.util.List;
 import java.util.ResourceBundle;
 import static com.symantec.tree.config.Constants.CONFIRMCREDCHOICE;
 
-@Node.Metadata(outcomeProvider  = VIPConfirmCred.CredsOutcomeProvider.class,
-configClass      = VIPConfirmCred.Config.class)
+/**
+ * 
+ * @author Symantec
+ * @category Node
+ * @Descrition "VIP Add More Creds" node with yes and no outcome, If yes, go
+ *             to "VIP Display Creds" else false, go to "Success".
+ *
+ */
+
+@Node.Metadata(outcomeProvider = VIPConfirmCred.CredsOutcomeProvider.class, configClass = VIPConfirmCred.Config.class)
 public class VIPConfirmCred implements Node {
 
-    private final Config config;
-    private final CoreWrapper coreWrapper;
-    private static final String BUNDLE = "com/symantec/tree/nodes/VIPConfirmCred";
-    private final Logger logger = LoggerFactory.getLogger("vipAuth");
+	private final Config config;
+	private final CoreWrapper coreWrapper;
+	private static final String BUNDLE = "com/symantec/tree/nodes/VIPConfirmCred";
+	private final Logger logger = LoggerFactory.getLogger(VIPConfirmCred.class);
 
-    /**
-     * Configuration for the node.
-     */
-    public interface Config {
+	/**
+	 * Configuration for the node.
+	 */
+	public interface Config {
+	}
 
-        /**
-         * A white list of allowed Creds. If a referer is required, the request must have a referer on this list.
-         *
-         * @return the cred list.
-         */
+	/**
+	 * Create the node.
+	 * 
+	 * @param config The service config.
+	 * @throws NodeProcessException If the configuration was not valid.
+	 */
+	@Inject
+	public VIPConfirmCred(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+		this.config = config;
+		this.coreWrapper = coreWrapper;
+	}
 
-    	 /*      @Attribute(order = 100,validators={RequiredValueValidator.class})
-      default Map<Integer, String> referrerCredList() {
-            return Collections.emptyMap();
-        }*/
+	/**
+	 * Main logic of the node.
+	 */
+	@Override
+	public Action process(TreeContext context) {
 
-    }
-    /**
-     * Create the node.
-     * @param config The service config.
-     * @throws NodeProcessException If the configuration was not valid.
-     */
-    @Inject
-    public VIPConfirmCred(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
-        this.config = config;
-        this.coreWrapper = coreWrapper;
-    }
+		JsonValue sharedState = context.sharedState;
+		String inputChoice = "";
 
-    @Override
-    public Action process(TreeContext context) {
-  	
+		List<ConfirmationCallback> ls = context.getCallbacks(ConfirmationCallback.class);
 
-        JsonValue sharedState = context.sharedState;
-      String inputChoice= "";
-        
-        List<ConfirmationCallback> ls= context.getCallbacks(ConfirmationCallback.class);
-        
-               Iterator<ConfirmationCallback> it= ls.iterator();
-        
-        while(it.hasNext()) {
-        	ConfirmationCallback cc = it.next();
-        	System.out.println("option type is:\t"+cc.getOptionType());
-        	System.out.println("selected option is:\t"+cc.getSelectedIndex());
-        	inputChoice = SymantecConfirmCredOutcomeChoice.getChoiceByCode(cc.getSelectedIndex());
-        	sharedState.put(CONFIRMCREDCHOICE, inputChoice);
-        }
-        System.out.println("choice value"+inputChoice);
-        switch(inputChoice) {
-        case "YES":
-    		
-    		return goTo(SymantecConfirmCredOutcome.YES).replaceSharedState(sharedState).build();
-    	
-    		
-    		
-    		       
-        case "NO":
-        	
-        	return goTo(SymantecConfirmCredOutcome.NO).replaceSharedState(sharedState).build();
-        	
-        	
-        }	
-        
-        	return displayCreds(context);
-        /*try {
-       new TextCallbackHandler().handle(new Callback[]{
-                new ConfirmationCallback("Confirm", ConfirmationCallback.INFORMATION,
-                        new String[]{"Yes", "No"}, 0)});
-        }catch (Exception e) {
-			// TODO: handle exception
-        	e.printStackTrace();
+		Iterator<ConfirmationCallback> it = ls.iterator();
+
+		while (it.hasNext()) {
+			ConfirmationCallback cc = it.next();
+			logger.debug("option type is:\t" + cc.getOptionType());
+			logger.debug("selected option is:\t" + cc.getSelectedIndex());
+			inputChoice = SymantecConfirmCredOutcomeChoice.getChoiceByCode(cc.getSelectedIndex());
+			sharedState.put(CONFIRMCREDCHOICE, inputChoice);
 		}
-    
-/*        return context.getCallback(ChoiceCallback.class)
-                .map(c -> c.getSelectedIndexes()[0])
-                .map(Integer::new)
-                .filter(choice -> -1 < choice && choice < 2 )
-                .map(choice -> {
-                	sharedState.put(CONFIRMCREDCHOICE, config.referrerCredList().get(choice));
-                	switch(choice) {
-                	
-                	case 0:
-                		
-                		return goTo(SymantecDisplayCredsOutcome.YES).replaceSharedState(sharedState).build();
-                	case 2:
-                		
-                		return goTo(SymantecDisplayCredsOutcome.Cancel).replaceSharedState(sharedState).build();
-                    
-                		default:
-                    	
-                    	return goTo(SymantecDisplayCredsOutcome.NO).replaceSharedState(sharedState).build();
-                	}
-                	
-                   // return goToNext()
-                   //         .replaceTransientState(sharedState.copy().put(CREDCHOICE, config.referrerCredList().get(Integer.parseInt(choice)))).build();
-                })
-                .orElseGet(() -> {
-                    logger.debug("collecting choice");
-                    return displayCreds(context);
-                })
-*/
-		     
-    
-        }
+		logger.debug("choice value" + inputChoice);
+		switch (inputChoice) {
+		case "YES":
 
-    private Action displayCreds(TreeContext context) {
-    	List<Callback> cbList = new ArrayList<>(2);
-        ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());               
-       // Collection<String> values = config.referrerCredList().values();
-       // String[] targetArray = values.toArray(new String[values.size()]);
-        TextOutputCallback tocb = new TextOutputCallback(0, "Add More Credentials  ");
-        ConfirmationCallback ccb =new ConfirmationCallback(bundle.getString("callback.creds"),ConfirmationCallback.INFORMATION,new String[]{"YES", "NO"}, 0);
-        //ChoiceCallback ccb=new ChoiceCallback(bundle.getString("callback.creds"),targetArray,2,false);
-        cbList.add(tocb);
-        cbList.add(ccb);
-        return send(cbList).build();
-    }
-    
-    private ActionBuilder goTo(SymantecConfirmCredOutcome outcome) {
+			return goTo(SymantecConfirmCredOutcome.YES).replaceSharedState(sharedState).build();
+
+		case "NO":
+
+			return goTo(SymantecConfirmCredOutcome.NO).replaceSharedState(sharedState).build();
+
+		}
+
+		return displayCreds(context);
+
+	}
+
+	/**
+	 * 
+	 * @param context
+	 * @return lsit of callbacks
+	 */
+	private Action displayCreds(TreeContext context) {
+		List<Callback> cbList = new ArrayList<>(2);
+		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
+		TextOutputCallback tocb = new TextOutputCallback(0, "Add More Credentials  ");
+		ConfirmationCallback ccb = new ConfirmationCallback(bundle.getString("callback.creds"),
+				ConfirmationCallback.INFORMATION, new String[] { "YES", "NO" }, 0);
+		cbList.add(tocb);
+		cbList.add(ccb);
+		return send(cbList).build();
+	}
+
+	private ActionBuilder goTo(SymantecConfirmCredOutcome outcome) {
 		return Action.goTo(outcome.name());
 	}
 
@@ -168,41 +127,43 @@ public class VIPConfirmCred implements Node {
 		 */
 		YES,
 		/**
-		 * selection for  SMS.
+		 * selection for SMS.
 		 */
 		NO,
 		/**
 		 * selection for VOICE.
-		 
-		CANCEL*/
+		 * 
+		 * CANCEL
+		 */
 
 	}
-	
+
+	/**
+	 * Defines the configuration for the outcomes.
+	 */
 	public enum SymantecConfirmCredOutcomeChoice {
-		
-		YES(0,"YES"),
-		NO(1,"NO");
-		
+
+		YES(0, "YES"), NO(1, "NO");
+
 		private int code;
 		private String choice;
-		SymantecConfirmCredOutcomeChoice(int code, String choice){
+
+		SymantecConfirmCredOutcomeChoice(int code, String choice) {
 			this.code = code;
-			this.choice=choice;
+			this.choice = choice;
 		}
-		
+
 		public static String getChoiceByCode(int code) {
-			for(SymantecConfirmCredOutcomeChoice syc : SymantecConfirmCredOutcomeChoice.values()) {
-				if(syc.code == code) {
+			for (SymantecConfirmCredOutcomeChoice syc : SymantecConfirmCredOutcomeChoice.values()) {
+				if (syc.code == code) {
 					return syc.choice;
 				}
 			}
 			return "";
 		}
-		
-		
+
 	}
 
-	
 	/**
 	 * Defines the possible outcomes from this SymantecOutcomeProvider node.
 	 */
@@ -211,10 +172,8 @@ public class VIPConfirmCred implements Node {
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPConfirmCred.BUNDLE,
 					CredsOutcomeProvider.class.getClassLoader());
-			return ImmutableList.of(
-					new Outcome(SymantecConfirmCredOutcome.YES.name(), bundle.getString("YesOutcome")),
+			return ImmutableList.of(new Outcome(SymantecConfirmCredOutcome.YES.name(), bundle.getString("YesOutcome")),
 					new Outcome(SymantecConfirmCredOutcome.NO.name(), bundle.getString("NoOutcome")));
-				//	new Outcome(SymantecDisplayCredsOutcome.CANCEL.name(), bundle.getString("CancelOutcome")));
 		}
 	}
 }

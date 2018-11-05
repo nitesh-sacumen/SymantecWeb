@@ -28,5 +28,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/ruchika/.m2/repository/org/apache/httpcomponents/httpclient-osgi/4.5.2/httpclient-osgi-4.5.2.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

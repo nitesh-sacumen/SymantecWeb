@@ -1,11 +1,13 @@
 package com.symantec.tree.request.util;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.StringReader;
+import java.util.Properties;
 import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -16,21 +18,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
+/**
+ * 
+ * @author Symantec
+ * Add credentials using "AddCredentialRequest".
+ *
+ */
 public class AddCredential {
-	static Logger logger = LoggerFactory.getLogger(AddCredential.class);
+	public static final Logger logger = LoggerFactory.getLogger(AddCredential.class);
 
+	/**
+	 * 
+	 * @param userName
+	 * @param credValue
+	 * @param credIdType
+	 * @return true if success, else false.
+	 */
 	public Boolean addCredential(String userName, String credValue, String credIdType) {
 
 		HttpClientUtil clientUtil = new HttpClientUtil();
 		HttpClient httpClient = clientUtil.getHttpClient();
 
-		HttpPost post = new HttpPost(
-				"https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
+		HttpPost post = new HttpPost(getURL());
 
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
-		// charset=ISO-8859-1"));
 		String payLoad = getViewUserPayload(userName, credValue, credIdType);
 		logger.debug("Request Payload: " + payLoad);
 		try {
@@ -42,7 +53,7 @@ public class AddCredential {
 
 			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
 
-			logger.info(response.getStatusLine().toString());
+			logger.debug(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
 			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -65,6 +76,13 @@ public class AddCredential {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param userName
+	 * @param credValue
+	 * @param credIdType
+	 * @return AddCredentialRequest payload
+	 */
 	public static String getViewUserPayload(String userName, String credValue, String credIdType) {
 		logger.info("getting payload for AddCredentialRequest");
 		StringBuilder str = new StringBuilder();
@@ -86,16 +104,21 @@ public class AddCredential {
 
 	}
 
+	/**
+	 * 
+	 * @param userName
+	 * @param credValue
+	 * @param credIdType
+	 * @param otpreceived
+	 * @return true if success, else false
+	 */
 	public Boolean addCredential(String userName, String credValue, String credIdType, String otpreceived) {
 		HttpClientUtil clientUtil = new HttpClientUtil();
 		HttpClient httpClient = clientUtil.getHttpClient();
 
-		HttpPost post = new HttpPost(
-				"https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
+		HttpPost post = new HttpPost(getURL());
 
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
-		// charset=ISO-8859-1"));
 		String payLoad = getViewUserPayload(userName, credValue, credIdType, otpreceived);
 		logger.debug("Request Payload: " + payLoad);
 		try {
@@ -106,9 +129,7 @@ public class AddCredential {
 			HttpEntity entity = response.getEntity();
 
 			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
-			// add header
-
-			logger.info(response.getStatusLine().toString());
+            logger.info(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
 			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -131,6 +152,14 @@ public class AddCredential {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param userName
+	 * @param credValue
+	 * @param credIdType
+	 * @param otpReceived
+	 * @return AddCredentialRequest payload
+	 */
 	public static String getViewUserPayload(String userName, String credValue, String credIdType, String otpReceived) {
 
 		logger.info("getting payload for AddCredentialRequest with otp");
@@ -154,6 +183,20 @@ public class AddCredential {
 		str.append("</soapenv:Envelope>");
 		return str.toString();
 
+	}
+	
+	/**
+	 * 
+	 * @return ManagementServiceURL
+	 */
+	private String getURL() {
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileInputStream("src/main/resources/vip.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return prop.getProperty("ManagementServiceURL");
 	}
 
 }

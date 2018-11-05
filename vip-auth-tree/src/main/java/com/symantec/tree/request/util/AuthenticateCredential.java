@@ -1,12 +1,10 @@
 package com.symantec.tree.request.util;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.StringReader;
-import java.security.KeyStore;
+import java.util.Properties;
 
-import javax.net.ssl.SSLContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -16,29 +14,29 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import static com.symantec.tree.config.Constants.STANDARD_OTP;
 
+/**
+ * 
+ * @author Symantec
+ * Authenticate credentials using AuthenticateCredentialsRequest
+ *
+ */
 public class AuthenticateCredential {
-
-	// TODO Auto-generated method stub
 	static Logger logger = LoggerFactory.getLogger(AuthenticateCredential.class);
 	public String authCredential(String credID, String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
-		String credType = "STANDARD_OTP";
+		String credType = STANDARD_OTP;
 		String transactionID = "";
 		HttpClientUtil clientUtil = new HttpClientUtil();
 		HttpClient httpClient = clientUtil.getHttpClient();
 
-		HttpPost post = new HttpPost(
-				"https://userservices-auth.vip.symantec.com/vipuserservices/AuthenticationService_1_8");
+		HttpPost post = new HttpPost(getURL());
 		String status = null;
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-		// post.setHeader(new Header(HttpHeaders.CONTENT_TYPE,"text/xml;
-		// charset=ISO-8859-1"));
 		String payLoad = getViewUserPayload(credID, credType, displayMsgText, displayMsgTitle, displayMsgProfile);
 		logger.debug("Request Payload: " + payLoad);
 		try {
@@ -49,8 +47,6 @@ public class AuthenticateCredential {
 			HttpEntity entity = response.getEntity();
 
 			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
-			// add header
-
 			logger.info(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
 			logger.debug("response body is:\t" + body);
@@ -67,11 +63,7 @@ public class AuthenticateCredential {
 			else
 				transactionID = " ";
 			logger.debug("Status is:\t" + statusMessage);
-			/*if ("6040".equals(status)) {
-				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
-				return transactionID;
-			}*/
-
+		
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
@@ -81,6 +73,15 @@ public class AuthenticateCredential {
 		return transtat;
 	}
 
+	/**
+	 * 
+	 * @param credId
+	 * @param credType
+	 * @param displayMsgText
+	 * @param displayMsgTitle
+	 * @param displayMsgProfile
+	 * @return AuthenticateCredentialsRequest payload
+	 */
 	public static String getViewUserPayload(String credId, String credType,String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
 		logger.info("getting payload for AuthenticateCredentialsRequest");
 		StringBuilder str = new StringBuilder();
@@ -126,5 +127,18 @@ public class AuthenticateCredential {
 		return str.toString();
 
 	}
-
+	
+	/**
+	 * 
+	 * @return AuthenticationServiceURL 
+	 */
+	private String getURL() {
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileInputStream("src/main/resources/vip.properties"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return prop.getProperty("AuthenticationServiceURL");
+	}
 }

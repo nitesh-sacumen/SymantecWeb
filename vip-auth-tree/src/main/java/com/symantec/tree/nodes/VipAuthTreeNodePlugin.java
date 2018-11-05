@@ -78,15 +78,16 @@ public class VipAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 						VIPOtpCheck.class,
 						VIPEnterOTP.class,
 						VIPPollPushAuth.class,
+						VIPPollPushReg.class,
 						VIPOTPAuth.class,
 						VIPAuthCredential.class,
 						VIPEnterPhoneNumber.class,
 						VIPVerifyCodeAddCred.class,
 						VIPConfirmCred.class,
-						VIPAuthError.class,
-						VIPGenerateActivationCode.class
-				
-						
+						VIPGenerateActivationCode.class,
+						VIPSdkAddCreds.class,
+						VIPSDKEnterCredId.class,
+						VIPSDKOtpCheck.class
 				));
 	}
 

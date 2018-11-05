@@ -1,38 +1,42 @@
 package com.symantec.tree.nodes;
 
 import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.sm.RequiredValueValidator;
+import com.symantec.tree.config.Constants.VIPPollPush;
 import com.symantec.tree.request.util.AuthPollPush;
-import com.symantec.tree.request.util.DeleteCredential;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
+
 import org.forgerock.guava.common.base.Strings;
 import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
-import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.OutcomeProvider;
-import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.sm.annotations.adapters.Password;
-import org.forgerock.openam.sm.validation.URLValidator;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.symantec.tree.config.Constants.CREDCHOICE;
-import static com.symantec.tree.config.Constants.CREDID;
 import static com.symantec.tree.config.Constants.TXNID;
 
+/**
+ * 
+ * @author Symantec
+ * @category Node
+ * @Descrition "VIP Poll Push Auth" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
+ * If TRUE, it will go to "Success".
+ * If False, go to "Failure".
+ * If Error, go to "VIP OTPAuth Creds".
+ * If Unanswered, go to "polling wait node".
+ *
+ */
 @Node.Metadata(outcomeProvider = VIPPollPushAuth.SymantecOutcomeProvider.class, configClass = VIPPollPushAuth.Config.class)
 public class VIPPollPushAuth implements Node {
 
+	static final Logger logger = LoggerFactory.getLogger(VIPPollPushAuth.class);
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPPollPushAuth";
 
 	private AuthPollPush pollPush;
@@ -41,12 +45,6 @@ public class VIPPollPushAuth implements Node {
 	 * Configuration for the node.
 	 */
 	public interface Config {
-
-		/**
-		 * the ttlSeconds.
-		 * 
-		 * @return the ttlSeconds Reserved for future purpose
-		 */
 
 	}
 
@@ -57,23 +55,24 @@ public class VIPPollPushAuth implements Node {
 	 */
 	@Inject
 	public VIPPollPushAuth(@Assisted Config config) {
-
-		// verifyAuthClient = verifyAuthClientUtility.getAuthClient(uri);
 		pollPush = new AuthPollPush();
 	}
 
+	/**
+	 * Main logic of the node.
+	 */
 	public Action process(TreeContext context) {
-		// logger.debug("Entered into ValidaePush porcess method");
-
 		return verifyAuth(context);
-
 	}
 
+	/**
+	 * 
+	 * @param context
+	 * @return next actin.
+	 */
 	private Action verifyAuth(TreeContext context) {
-		// logger.debug("Entered into verifyAuth method");
+		logger.info("Entered into verifyAuth method");
 		JsonValue newSharedState = context.sharedState.copy();
-
-		// JsonValue sharedState = context.sharedState;
 		try {
 
 			String result = pollPush.authPollPush(context.sharedState.get(TXNID).asString());
@@ -82,34 +81,17 @@ public class VIPPollPushAuth implements Node {
 
 				if (!Strings.isNullOrEmpty(result)) {
 
-					switch (result) {
-					case "7000":
+					if (result.equalsIgnoreCase(VIPPollPush.ACCEPTED)) {
 						return goTo(Symantec.TRUE).replaceSharedState(newSharedState).build();
 
-					case "7001":
-
+					} else if (result.equalsIgnoreCase(VIPPollPush.UNANSWERED)) {
 						return goTo(Symantec.UNANSWERED).replaceSharedState(newSharedState).build();
 
-					case "7002":
+					} else if (result.equalsIgnoreCase(VIPPollPush.REJECTED)) {
 						return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
 
-					case "7003":
+					} else {
 						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
-
-					case "7004":
-						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
-
-					case "7005":
-						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
-
-					case "7006":
-						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
-
-					case "7008":
-						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
-
-					default:
-						return goTo(Symantec.UNANSWERED).replaceSharedState(newSharedState).build();
 
 					}
 
@@ -117,7 +99,7 @@ public class VIPPollPushAuth implements Node {
 			}
 
 		} catch (Exception e) {
-			// logger.error(e.getMessage());
+			logger.error(e.getMessage());
 		}
 
 		return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
