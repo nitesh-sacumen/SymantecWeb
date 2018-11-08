@@ -23,7 +23,7 @@ VIP Forgerock offers secondary authentication along with the authentication offe
 
 ## Installation
 
-The VIP OpenAM tree nodes will be packaged as a jar file using the maven build tool and will be deployed in to the ForgeRock Access Management (AM)6 applicationâ€™s WEB-INF/lib folder which is running on tomcat server.
+The VIP OpenAM tree nodes will be packaged as a jar file using the maven build tool and will be deployed in to the ForgeRock Access Management (AM)6 application WEB-INF/lib folder which is running on tomcat server.
 
 ## Steps
 
@@ -35,7 +35,7 @@ The VIP OpenAM tree nodes will be packaged as a jar file using the maven build t
 
 4) Change to the root directory of the Maven project of the vip Tree Node Run the mvn package command.
 
-5) The project will generate a .jar file containing our custom nodes I.e .Entersekt OpenAM Tree Nodes, In the form of vip-auth-tree-1.0.jar.
+5) The project will generate a .jar file containing our custom nodes I.e . VIP OpenAM Tree Nodes, In the form of vip-auth-tree-1.0.jar.
 
 6) Copy the vip-auth-tree-1.0.jar file to the WEB-INF/lib/ folder where AM is deployed
 
@@ -112,8 +112,8 @@ This node gives you a screen where you need to enter OTP, which appears on given
 This node gives you a screen where you need choose your authentication credential type. Where you can choose SMS/VOICE.
 Attributes to be configured are:
  * List of Creds : You need to configure key-value pair as
-    0 - VIP
-    1 - SMS
+    0 - SMS
+    1 - VOICE
 ```
 ![otp-auth](https://user-images.githubusercontent.com/20396535/48188130-f914f300-e362-11e8-8a38-61f611ad8450.PNG)
 
@@ -160,21 +160,24 @@ This node search user in VIP and get user info, if user exits. There are no conf
 ```js
 this section depicts configuration of VIP Auth Tree
 ```
-
 * Configure VIP Auth Tree as shown below
-    ```js
-    Nodes To be Configured:
-     * VIP Display Creds
-     * VIP OTPAuth Creds
-     * VIP Authenticate Push Credentials
-     * VIP Push Auth User
-    ```
+
+![vip-tree](https://user-images.githubusercontent.com/20396535/48194726-d5a67400-e373-11e8-9ab0-e380afe5faa2.PNG)
+
+```js
+ Nodes To be Configured:
+    * VIP Display Creds
+    * VIP OTPAuth Creds
+    * VIP Authenticate Push Credentials
+    * VIP Push Auth User
+```
 
 * Now access the protected site by OpenAM
 
 ![login](https://user-images.githubusercontent.com/20396535/48189557-7c841380-e366-11e8-8050-f1b54e3d8e1c.PNG)
 
-  
+
+
 
 
 
