@@ -15,28 +15,184 @@
 -->
 # VipAuthTreeNode
 
-A simple authentication node for ForgeRock's [Identity Platform][forgerock_platform] 5.5 and above. This node... **SHORT DESCRIPTION HERE**
+A simple authentication node for ForgeRock's [Identity Platform][forgerock_platform] 5.5 and above.
+
+## Information
+
+VIP Forgerock offers secondary authentication along with the authentication offered by the openam. Following are the authentication mechanisms available: 1) Push 2) OTP
+
+## Installation
+
+The VIP OpenAM tree nodes will be packaged as a jar file using the maven build tool and will be deployed in to the ForgeRock Access Management (AM)6 application WEB-INF/lib folder which is running on tomcat server.
+
+## Steps
+
+1) Configure Maven to be able to access the OpenAM repositories
+
+2) Setup a Maven Project for building the Custom Authentication Node I.e. vip-auth-tree
+
+3) Write the custom logic inside tree nodes to communicate with vip services
+
+4) Change to the root directory of the Maven project of the vip Tree Node Run the mvn package command.
+
+5) The project will generate a .jar file containing our custom nodes I.e . VIP OpenAM Tree Nodes, In the form of vip-auth-tree-1.0.jar.
+
+6) Copy the vip-auth-tree-1.0.jar file to the WEB-INF/lib/ folder where AM is deployed
+
+7) Restart the AM for the new plug-in to become available.
+
+The vip tree nodes are now available in the tree designer to add to authentication trees
+
+Following are the nodes that will be available after deploying the jar file:
+
+![nodes-1](https://user-images.githubusercontent.com/20396535/48183641-6883e600-e355-11e8-8e07-421f399cc55b.PNG)
+
+![nodes-2](https://user-images.githubusercontent.com/20396535/48184091-f01e2480-e356-11e8-8707-962a3fc1110a.PNG)
 
 
-Copy the .jar file from the ../target directory into the ../web-container/webapps/openam/WEB-INF/lib directory where AM is deployed.  Restart the web container to pick up the new node.  The node will then appear in the authentication trees components palette.
+* VIP Add Credential
+```js
+This node will add credentials as credential id associtaed with user in VIP Database. There are no configurable attributes to it.
+```
+
+* VIP Add More Credentials
+```js
+This node gives you a screen where you can choose yes/no for add more credentilas in VIP. There are no configurable attributes to it.
+```
+
+* VIP AddCred with VerifyCode
+```js
+This node will add credentials as credential id and OTP  or phone number and OTP associtaed with user in VIP Database. There are no configurable attributes to it.
+```
+
+* VIP Authenticate Push Credentals
+```js
+This node will authenticate push credentials during registration.
+Attributes to be configured are:
+ * Push Display Message Text: The message which should be display on push event. Ex. VIP Push Cred
+ * Push Display Message Title: The message title which should be display on push event. Ex. VIP Push
+ * Push Display Message Profile. The message profile. Ex www.vip.com
+```
+![auth-push](https://user-images.githubusercontent.com/20396535/48187242-7c811500-e360-11e8-8bee-a7d7668aed8c.PNG)
+
+* VIP Check Symantec OTP
+```js
+This node will verify OTP with username. There are no configurable attributes to it.
+```
+
+* VIP Display Creds
+```js
+This node gives you a screen where you need choose your credential type. Where you can choose VIP/SMS/VOICE.
+Attributes to be configured are:
+ * List of Creds : You need to configure key-value pair as
+    0 - VIP
+    1 - SMS
+    2 - VOICE
+```
+![display](https://user-images.githubusercontent.com/20396535/48187643-b0106f00-e361-11e8-9d25-e6a6b0b38f49.PNG)
 
 
-**USAGE HERE**
+* VIP Enter CredentialID
+```js
+This node gives you a screen where you need to enter credential id generated on vip app. There are no configurable attributes to it.
+```
+
+* VIP Enter Phone Number
+```js
+This node gives you a screen where you need to enter phone number. There are no configurable attributes to it.
+```
+
+* VIP Enter SecurityCode/OTP
+```js
+This node gives you a screen where you need to enter OTP, which appears on given phone number . There are no configurable attributes to it.
+```
+
+* VIP OTPAuth Creds
+```js
+This node gives you a screen where you need choose your authentication credential type. Where you can choose SMS/VOICE.
+Attributes to be configured are:
+ * List of Creds : You need to configure key-value pair as
+    0 - SMS
+    1 - VOICE
+```
+![otp-auth](https://user-images.githubusercontent.com/20396535/48188130-f914f300-e362-11e8-8a38-61f611ad8450.PNG)
 
 
-The code in this repository has binary dependencies that live in the ForgeRock maven repository. Maven can be configured to authenticate to this repository by following the following [ForgeRock Knowledge Base Article](https://backstage.forgerock.com/knowledge/kb/article/a74096897).
+* VIP Poll Push Auth
+```js
+This node get poll push request status during authentication. There are no configurable attributes to it.
+```
 
-**SPECIFIC BUILD INSTRUCTIONS HERE**
+* VIP Poll Push Reg
+```js
+This node get poll push request status during registraton. There are no configurable attributes to it.
+```
 
-**SCREENSHOTS ARE GOOD LIKE BELOW**
+* VIP Push Auth User
+```js
+This node will authenticate push credentials during authentication.
+Attributes to be configured are:
+ * Push Display Message Text: The message which should be display on push event. Ex. VIP Push Cred
+ * Push Display Message Title: The message title which should be display on push event. Ex. VIP Push
+ * Push Display Message Profile. The message profile. Ex www.vip.com
+```
+![auth-push-1](https://user-images.githubusercontent.com/20396535/48188528-f8c92780-e363-11e8-95c9-480ee7f63aca.PNG)
 
-![ScreenShot](./example.png)
+
+* VIP Register User
+```js
+This node register user in VIP, If user dont exist. There are no configurable attributes to it.
+```
+
+** VIP Search User
+```js
+This node search user in VIP and get user info, if user exits. There are no configurable attributes to it.
+```
+
+## Configure the trees as follows
+
+ * Navigate to **Realm** > **Authentication** > **Trees** > **Create Tree**
+ 
+ ![tree](https://user-images.githubusercontent.com/20396535/48189113-66c21e80-e365-11e8-8045-326786a41aca.PNG)
+
+
+## Configuring VIP Auth Tre
+```js
+this section depicts configuration of VIP Auth Tree
+```
+* Configure VIP Auth Tree as shown below
+
+![vip-tree](https://user-images.githubusercontent.com/20396535/48194726-d5a67400-e373-11e8-9ab0-e380afe5faa2.PNG)
+
+```js
+ Nodes To be Configured:
+    * VIP Display Creds
+    * VIP OTPAuth Creds
+    * VIP Authenticate Push Credentials
+    * VIP Push Auth User
+```
+
+* Now access the protected site by OpenAM
+
+![login](https://user-images.githubusercontent.com/20396535/48189557-7c841380-e366-11e8-8050-f1b54e3d8e1c.PNG)
+
+
+
+
+
+
+
+
 
         
-The sample code described herein is provided on an "as is" basis, without warranty of any kind, to the fullest extent permitted by law. ForgeRock does not warrant or guarantee the individual success developers may have in implementing the sample code on their development platforms or in production configurations.
 
-ForgeRock does not warrant, guarantee or make any representations regarding the use, results of use, accuracy, timeliness or completeness of any data or information relating to the sample code. ForgeRock disclaims all warranties, expressed or implied, and in particular, disclaims all warranties of merchantability, and warranties related to the code, or any service or software related thereto.
 
-ForgeRock shall not be liable for any direct, indirect or consequential damages or costs of any type arising out of any action taken by you or others related to the sample code.
 
-[forgerock_platform]: https://www.forgerock.com/platform/  
+
+
+
+ 
+
+
+
+
