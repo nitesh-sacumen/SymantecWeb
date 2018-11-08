@@ -162,7 +162,8 @@ this section depicts configuration of VIP Auth Tree
 ```
 * Configure VIP Auth Tree as shown below
 
-![vip-tree](https://user-images.githubusercontent.com/20396535/48194726-d5a67400-e373-11e8-9ab0-e380afe5faa2.PNG)
+![final-tree](https://user-images.githubusercontent.com/20396535/48221988-81be7e00-e3b9-11e8-8489-d790faa833f4.PNG)
+
 
 ```js
  Nodes To be Configured:
