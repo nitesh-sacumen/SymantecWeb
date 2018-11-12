@@ -60,7 +60,6 @@ public class SmsDeviceRegister {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 			logger.debug("Status is:\t" + statusMessage);
 
@@ -82,33 +81,32 @@ public class SmsDeviceRegister {
 	 * @param credValue
 	 * @return SendOtpRequest payoad
 	 */
-	public static String getViewUserPayload(String userName, String credValue) {
+	private static String getViewUserPayload(String userName, String credValue) {
 		logger.info("getting SendOtpRequest payload");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("<soapenv:Header/>");
-		str.append("<soapenv:Body>");
-		str.append("<vip:SendOtpRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("");
-		str.append("<vip:userId>" + userName + "</vip:userId>");
-		str.append("");
-		str.append("<vip:smsDeliveryInfo>");
-		str.append("<vip:phoneNumber>" + credValue + "</vip:phoneNumber>");
-		str.append("");
-		str.append("</vip:smsDeliveryInfo>");
-		str.append("");
-		str.append("</vip:SendOtpRequest>");
-		str.append("</soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<vip:SendOtpRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"" +
+				"<vip:userId>" + userName + "</vip:userId>" +
+				"" +
+				"<vip:smsDeliveryInfo>" +
+				"<vip:phoneNumber>" + credValue + "</vip:phoneNumber>" +
+				"" +
+				"</vip:smsDeliveryInfo>" +
+				"" +
+				"</vip:SendOtpRequest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

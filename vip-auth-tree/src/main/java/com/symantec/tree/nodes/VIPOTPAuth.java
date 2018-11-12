@@ -9,7 +9,6 @@ import static org.forgerock.openam.auth.node.api.Action.send;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
-import org.forgerock.openam.core.CoreWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +24,10 @@ import javax.security.auth.callback.Callback;
 
 import java.util.*;
 
-import static com.symantec.tree.config.Constants.CREDCHOICE;
-import static com.symantec.tree.config.Constants.MOBNUM;
-import static com.symantec.tree.config.Constants.SECURECODE;
-import static com.symantec.tree.config.Constants.SECURECODEERROR;
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
+import static com.symantec.tree.config.Constants.MOB_NUM;
+import static com.symantec.tree.config.Constants.SECURE_CODE;
+import static com.symantec.tree.config.Constants.SECURE_CODE_ERROR;
 
 /**
  * 
@@ -44,7 +43,6 @@ public class VIPOTPAuth implements Node {
 	static Logger logger = LoggerFactory.getLogger(VIPOTPAuth.class);
 
 	private final Config config;
-	private final CoreWrapper coreWrapper;
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPOTPAuth";
 
 	/**
@@ -62,12 +60,10 @@ public class VIPOTPAuth implements Node {
 	 * Create the node.
 	 * 
 	 * @param config The service config.
-	 * @throws NodeProcessException If the configuration was not valid.
 	 */
 	@Inject
-	public VIPOTPAuth(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+	public VIPOTPAuth(@Assisted Config config) {
 		this.config = config;
-		this.coreWrapper = coreWrapper;
 	}
 
 	/**
@@ -77,22 +73,22 @@ public class VIPOTPAuth implements Node {
 	public Action process(TreeContext context) {
 		JsonValue sharedState = context.sharedState;
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-		String credValue = context.sharedState.get(MOBNUM).asString();
+		String credValue = context.sharedState.get(MOB_NUM).asString();
 
 		Optional<NameCallback> nameCallback = context.getCallback(NameCallback.class);
 
 		if (nameCallback != null && nameCallback.isPresent()) {
 			String textToken = context.getCallback(NameCallback.class).get().getName();
 			if (textToken != null && !textToken.isEmpty()) {
-				logger.info("SecureCode has been collected and placed  into the Shared State");
+				logger.info("SecureCode has been collected and placed into the Shared State");
 				return goTo(SymantecOTPAuthOutcome.TOKEN)
-						.replaceSharedState(context.sharedState.copy().put(SECURECODE, textToken)).build();
+						.replaceSharedState(context.sharedState.copy().put(SECURE_CODE, textToken)).build();
 			}
 		}
 
 		return context.getCallback(ChoiceCallback.class).map(c -> c.getSelectedIndexes()[0]).map(Integer::new)
 				.filter(choice -> -1 < choice && choice < 2).map(choice -> {
-					sharedState.put(CREDCHOICE, config.referrerCredList().get(choice));
+					sharedState.put(CRED_CHOICE, config.referrerCredList().get(choice));
 					switch (choice) {
 
 					case 1:
@@ -109,7 +105,7 @@ public class VIPOTPAuth implements Node {
 
 				}).orElseGet(() -> {
 					logger.debug("collecting choice");
-					return displayCreds(context);
+					return displayCredentials(context);
 				});
 	}
 
@@ -118,14 +114,12 @@ public class VIPOTPAuth implements Node {
 	 * @param context
 	 * @return list of callbacks.
 	 */
-	private Action displayCreds(TreeContext context) {
+	private Action displayCredentials(TreeContext context) {
 		List<Callback> cbList = new ArrayList<>(2);
 		Collection<String> values = config.referrerCredList().values();
-		if (values.contains("Token")) {
-			values.remove("Token");
-		}
-		String[] targetArray = values.toArray(new String[values.size()]);
-		String outputError = context.sharedState.get(SECURECODEERROR).asString();
+		values.remove("Token");
+		String[] targetArray = values.toArray(new String[0]);
+		String outputError = context.sharedState.get(SECURE_CODE_ERROR).asString();
 		logger.debug("text block error" + outputError);
 		if (outputError == null) {
 

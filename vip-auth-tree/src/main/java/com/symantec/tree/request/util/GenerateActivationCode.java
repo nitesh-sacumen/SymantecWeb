@@ -65,6 +65,8 @@ public class GenerateActivationCode {
 				activationCode = " ";
 			logger.debug("Status is:\t" + statusMessage);
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code.
 			e.printStackTrace();
 		}
 		String code = status + "," + activationCode;
@@ -100,6 +102,7 @@ public class GenerateActivationCode {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

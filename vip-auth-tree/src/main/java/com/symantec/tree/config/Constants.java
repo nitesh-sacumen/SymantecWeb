@@ -8,27 +8,29 @@ public final class Constants {
     private Constants() {
     }
     
-    public static final  String CREDCHOICE="SelectedValue";
-    public static final  String CREDID="CredentialID";
-    public static final  String SECURECODE="SecurityCode";
-    public static final  String TXNID="TransactionID";
-    public static final  String MOBNUM="Mobile Number";
-    public static final  String CONFIRMCREDCHOICE=" Cred Choice";
-    public static final  String SECURECODEERROR=" Display Error";
+    public static final  String CRED_CHOICE ="SelectedValue";
+    public static final  String CRED_ID ="CredentialID";
+    public static final  String SECURE_CODE ="SecurityCode";
+    public static final  String TXN_ID ="TransactionID";
+    public static final  String MOB_NUM ="Mobile Number";
+    public static final  String CONFIRM_CRED_CHOICE =" Cred Choice";
+    public static final  String SECURE_CODE_ERROR =" Display Error";
+    //TODO Remove, never used
     public static final  String FINALCODEERROR=" Display Error";
     
 
-    public static final String PUSHDISPLAYMESSAGETEXT = "push_display_message_text";
-    public static final String PUSHDISPLAYMESSAGETITLE = "push_display_message_title";
-    public static final String PUSHDISPLAYMESSAGEPROFILE = "push_display_message_profile";
+    public static final String PUSH_DISPLAY_MESSAGE_TEXT = "push_display_message_text";
+    public static final String PUSH_DISPLAY_MESSAGE_TITLE = "push_display_message_title";
+    public static final String PUSH_DISPLAY_MESSAGE_PROFILE = "push_display_message_profile";
     
     public static final String STANDARD_OTP = "STANDARD_OTP";
-    public static final  String ACTIVATIONCODE="ACTIVATION CODE";
+    public static final String ACTIVATION_CODE ="ACTIVATION CODE";
+    //TODO Remove, never used
     public static final String SHARED_SECRET="SharedSecret";
     public static final String NO_CREDENTIALS_REGISTERED="NoCredentialRegistered";
     
-    public static final String NOCREDREGISTERED = "NOCREDREGISTERED";
-    public static final String VIPCREDREGISTERED = "VIPCREDREGISTERED";
+    public static final String NO_CRED_REGISTERED = "NO_CRED_REGISTERED";
+    public static final String VIP_CRED_REGISTERED = "VIP_CRED_REGISTERED";
     
     public static final String VIP="VIP";
     public static final String SMS="SMS";
@@ -36,8 +38,7 @@ public final class Constants {
     public static final String SMS_OTP="SMS_OTP";
     public static final String VOICE_OTP="VOICE_OTP";
 
-    
-    
+
     public final class VIPAuthStatusCode{
     	public VIPAuthStatusCode() {
 		}

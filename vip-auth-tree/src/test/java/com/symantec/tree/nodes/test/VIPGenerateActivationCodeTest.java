@@ -32,23 +32,24 @@ import com.symantec.tree.nodes.VIPGenerateActivationCode;
 public class VIPGenerateActivationCodeTest {
 	@Mock
 	private VIPGenerateActivationCode.Config config;
-	@Mock
-	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
-		when(config.vipuserservice_url()).thenReturn("https://userservices-auth.vip.symantec.com/vipuserservices/ManagementService_1_8");
+		when(config.vipUserServiceUrl()).thenReturn("https://userservices-auth.vip.symantec" +
+				 ".com/vipuserservices/ManagementService_1_8");
 
 
 	}
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
-		VIPGenerateActivationCode node = new VIPGenerateActivationCode(config,coreWrapper);
+	public void proces() {
+        TreeContext context = getTreeContext(new HashMap<>());
+		VIPGenerateActivationCode node = new VIPGenerateActivationCode();
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

@@ -19,21 +19,20 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.sun.identity.authentication.spi.AuthLoginException;
-import com.symantec.tree.nodes.VIPConfirmCred;
+import com.symantec.tree.nodes.VIPConfirmCredential;
 
 /**
  * 
  * @author Symantec
  * @category test
- * test class for "VIPConfirmCred"
+ * test class for "VIPConfirmCredential"
  *
  */
 @Test
 public class VIPConfirmCredTest {
-	@Mock
-	private VIPConfirmCred.Config config;
-	@Mock
-	private CoreWrapper coreWrapper;
+
+	public VIPConfirmCredTest() {
+	}
 
 	@BeforeMethod
 	public void before() throws URISyntaxException, AuthLoginException {
@@ -43,11 +42,13 @@ public class VIPConfirmCredTest {
 	}
 
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
-		VIPConfirmCred node = new VIPConfirmCred(config,coreWrapper);
+	public void process() throws Exception {
+        TreeContext context = getTreeContext(new HashMap<>());
+		VIPConfirmCredential node = new VIPConfirmCredential();
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

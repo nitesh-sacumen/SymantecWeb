@@ -1,8 +1,6 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.CREDCHOICE;
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.SECURECODE;
+import static com.symantec.tree.config.Constants.CRED_ID;
 import static java.util.Collections.emptyList;
 import static org.forgerock.json.JsonValue.object;
 import static org.mockito.Mockito.when;
@@ -41,7 +39,7 @@ public class VIPAuthCredentialTest {
 	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
 		when(config.displayMsgText()).thenReturn("Sacumen Push");
@@ -51,15 +49,17 @@ public class VIPAuthCredentialTest {
 
 	}
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
+	public void proces() {
+        TreeContext context = getTreeContext(new HashMap<>());
 
 		context.sharedState.put(SharedStateConstants.USERNAME,"ruchika");
-		context.sharedState.put(CREDID,"SYMC87283752");
+		context.sharedState.put(CRED_ID,"SYMC87283752");
 		
-		VIPAuthCredential node = new VIPAuthCredential(config,coreWrapper);
+		VIPAuthCredential node = new VIPAuthCredential(config);
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

@@ -1,30 +1,19 @@
 package com.symantec.tree.nodes;
 
+import static com.symantec.tree.config.Constants.SECURE_CODE;
+import static com.symantec.tree.config.Constants.SECURE_CODE_ERROR;
+
+import com.symantec.tree.request.util.CheckVIPOtp;
+import java.util.List;
+import java.util.ResourceBundle;
 import javax.inject.Inject;
 import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
-import org.forgerock.openam.auth.node.api.Action;
-import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
-import org.forgerock.openam.auth.node.api.OutcomeProvider;
-import org.forgerock.openam.auth.node.api.SharedStateConstants;
-import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.api.*;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
-import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.shared.debug.Debug;
-import com.symantec.tree.request.util.CheckVIPOtp;
-import static com.symantec.tree.config.Constants.SECURECODE;
-import static com.symantec.tree.config.Constants.SECURECODEERROR;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-import java.util.ResourceBundle;
 
 /**
  * 
@@ -33,14 +22,11 @@ import java.util.ResourceBundle;
  * @Descrition "VIP SDK Check Symantec OTP" node with TRUE,FALSE and ERROR outcome.
  *
  */
-@Node.Metadata(outcomeProvider = VIPSDKOtpCheck.SymantecOutcomeProvider.class, configClass = VIPSDKOtpCheck.Config.class)
-public class VIPSDKOtpCheck implements Node {
+@Node.Metadata(outcomeProvider = VIPSDKOTPCheck.SymantecOutcomeProvider.class, configClass = VIPSDKOTPCheck.Config.class)
+public class VIPSDKOTPCheck implements Node {
 
-	private final Config config;
-	private final CoreWrapper coreWrapper;
-
-	private static final String BUNDLE = "com/symantec/tree/nodes/VIPSDKOtpCheck";
-	private final Logger logger = LoggerFactory.getLogger(VIPSDKOtpCheck.class);
+	private static final String BUNDLE = "com/symantec/tree/nodes/VIPSDKOTPCheck";
+	private final Logger logger = LoggerFactory.getLogger(VIPSDKOTPCheck.class);
 
 	private CheckVIPOtp checkOtp;
 
@@ -53,14 +39,10 @@ public class VIPSDKOtpCheck implements Node {
 
 	/**
 	 * Create the node.
-	 * 
-	 * @param config The service config.
-	 * @throws NodeProcessException If the configuration was not valid.
+	 *
 	 */
 	@Inject
-	public VIPSDKOtpCheck(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
-		this.config = config;
-		this.coreWrapper = coreWrapper;
+	public VIPSDKOTPCheck() {
 		checkOtp = new CheckVIPOtp();
 	}
 
@@ -68,20 +50,18 @@ public class VIPSDKOtpCheck implements Node {
 	 * Main logic of the node.
 	 */
 	@Override
-	public Action process(TreeContext context) throws NodeProcessException {
-		JsonValue sharedState = context.sharedState.copy();
+	public Action process(TreeContext context) {
 
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-		String otpValue = context.sharedState.get(SECURECODE).asString();
+		String otpValue = context.sharedState.get(SECURE_CODE).asString();
 		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue);
 		logger.debug("Check OTP is" + isDeviceAdded);
 		if (isDeviceAdded) {
 			return goTo(Symantec.TRUE).build();
 		} else {
 
-			context.sharedState.put(SECURECODEERROR, "Entered OTP is Invalid");
+			context.sharedState.put(SECURE_CODE_ERROR, "Entered OTP is Invalid");
 			return goTo(Symantec.FALSE).build();
-
 		}
 
 	}
@@ -115,7 +95,7 @@ public class VIPSDKOtpCheck implements Node {
 	public static class SymantecOutcomeProvider implements OutcomeProvider {
 		@Override
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPSDKOtpCheck.BUNDLE,
+			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPSDKOTPCheck.BUNDLE,
 					SymantecOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),
 					new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),

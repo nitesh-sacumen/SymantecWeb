@@ -1,51 +1,40 @@
 package com.symantec.tree.nodes;
 
-import static com.symantec.tree.config.Constants.CREDCHOICE;
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
 import static org.forgerock.openam.auth.node.api.Action.send;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
+import com.google.inject.assistedinject.Assisted;
+import com.sun.identity.sm.RequiredValueValidator;
+import java.util.*;
 import javax.inject.Inject;
-import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.ChoiceCallback;
-
 import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
 import org.forgerock.openam.auth.node.api.Node;
-import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.OutcomeProvider;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.assistedinject.Assisted;
-import com.sun.identity.sm.RequiredValueValidator;
 
 /**
  * 
  * @author Symantec
  * @category Node
- * @Descrition "VIP Display Creds" node with VIP, SMS and VOICE outcome, If VIP, go
+ * @Descrition "VIP Display Credential" node with VIP, SMS and VOICE outcome, If VIP, go
  *             to "VIP Enter CredentialID".If SMS and VOIC go to "VIP Enter Phone Number".
  *
  */
-@Node.Metadata(outcomeProvider = VIPDisplayCreds.CredsOutcomeProvider.class, configClass = VIPDisplayCreds.Config.class)
-public class VIPDisplayCreds implements Node {
+@Node.Metadata(outcomeProvider = VIPDisplayCredential.CredsOutcomeProvider.class, configClass =
+		 VIPDisplayCredential.Config.class)
+public class VIPDisplayCredential implements Node {
 
 	private final Config config;
-	private final CoreWrapper coreWrapper;
-	private static final String BUNDLE = "com/symantec/tree/nodes/VIPDisplayCreds";
-	private final Logger logger = LoggerFactory.getLogger(VIPDisplayCreds.class);
+	private static final String BUNDLE = "com/symantec/tree/nodes/VIPDisplayCredential";
+	private final Logger logger = LoggerFactory.getLogger(VIPDisplayCredential.class);
 
 	/**
 	 * Configuration for the node.
@@ -62,12 +51,10 @@ public class VIPDisplayCreds implements Node {
 	 * Create the node.
 	 * 
 	 * @param config The service config.
-	 * @throws NodeProcessException If the configuration was not valid.
 	 */
 	@Inject
-	public VIPDisplayCreds(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+	public VIPDisplayCredential(@Assisted Config config) {
 		this.config = config;
-		this.coreWrapper = coreWrapper;
 	}
 
 	/**
@@ -80,7 +67,7 @@ public class VIPDisplayCreds implements Node {
 
 		return context.getCallback(ChoiceCallback.class).map(c -> c.getSelectedIndexes()[0]).map(Integer::new)
 				.filter(choice -> -1 < choice && choice < 3).map(choice -> {
-					sharedState.put(CREDCHOICE, config.referrerCredList().get(choice));
+					sharedState.put(CRED_CHOICE, config.referrerCredList().get(choice));
 					switch (choice) {
 
 					case 0:
@@ -107,11 +94,9 @@ public class VIPDisplayCreds implements Node {
 	 * sending list of callbacks.
 	 */
 	private Action displayCreds(TreeContext context) {
-		List<Callback> cbList = new ArrayList<>(2);
 		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
 		Collection<String> values = config.referrerCredList().values();
-		String[] targetArray = values.toArray(new String[values.size()]);
-		ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 2, false);
+		String[] targetArray = values.toArray(new String[0]);
 		return send(new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false)).build();
 	}
 
@@ -144,7 +129,7 @@ public class VIPDisplayCreds implements Node {
 	public static class CredsOutcomeProvider implements OutcomeProvider {
 		@Override
 		public List<Outcome> getOutcomes(PreferredLocales locales, JsonValue nodeAttributes) {
-			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPDisplayCreds.BUNDLE,
+			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPDisplayCredential.BUNDLE,
 					CredsOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(SymantecDisplayCredsOutcome.VIP.name(), bundle.getString("vipOutcome")),
 					new Outcome(SymantecDisplayCredsOutcome.SMS.name(), bundle.getString("smsOutcome")),

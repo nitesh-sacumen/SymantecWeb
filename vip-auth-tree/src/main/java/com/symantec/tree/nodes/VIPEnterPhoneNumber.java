@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 
 import com.symantec.tree.request.util.SMSVoiceRegister;
 
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.MOBNUM;
-import static com.symantec.tree.config.Constants.CREDCHOICE;
+import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.MOB_NUM;
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
 import static com.symantec.tree.config.Constants.SMS;
 import static com.symantec.tree.config.Constants.VOICE;
 /**
@@ -46,21 +46,8 @@ public class VIPEnterPhoneNumber extends SingleOutcomeNode {
      */
     @Inject
     public VIPEnterPhoneNumber() {
-    	svRegister= new SMSVoiceRegister();
-
+    	svRegister = new SMSVoiceRegister();
     }
-    
-    /**
-     * 
-     * @param context
-     * @return name-callback
-     */
-	private Action collectOTP(TreeContext context) {
-		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
-		NameCallback nicb =new NameCallback(bundle.getString("callback.phoneNumber"),"Enter PhoneNumber");
-		
-		return send(nicb).build();
-	}
 
 	/**
 	 * Main logic of the node.
@@ -76,28 +63,39 @@ public class VIPEnterPhoneNumber extends SingleOutcomeNode {
                 .filter(name -> !Strings.isNullOrEmpty(name))
                 .map(name -> {
                 	logger.info("CredID has been collected and placed  into the Shared State");
-                	String credType= context.sharedState.get(CREDCHOICE).asString();
+                	String credType= context.sharedState.get(CRED_CHOICE).asString();
+                	//TODO Duplicate code found in VIPEnterCredentialID, move to common class
                 	if(credType.equalsIgnoreCase(SMS) ) {
                 	logger.info("calling sms register method");
                 	svRegister.smsRegister(name);
                 	return goToNext()
-                	.replaceSharedState(sharedState.copy().put(MOBNUM, name)).build();
+                	.replaceSharedState(sharedState.copy().put(MOB_NUM, name)).build();
 
                 	}else if(credType.equalsIgnoreCase(VOICE)){
                 	logger.info("calling voice register method");
                 	svRegister.voiceRegister(name);
                 	return goToNext()
-                	.replaceSharedState(sharedState.copy().put(MOBNUM, name)).build();
+                	.replaceSharedState(sharedState.copy().put(MOB_NUM, name)).build();
 
                 	}else
                 	return goToNext()
-                	.replaceSharedState(sharedState.copy().put(CREDID, name)).build();
+                	.replaceSharedState(sharedState.copy().put(CRED_ID, name)).build();
                 	
                 })
-      
                 .orElseGet(() -> {
                 	logger.debug("Enter Credential ID");
                     return collectOTP(context);
                 });
     }
+
+	/**
+	 *
+	 * @param context
+	 * @return name-callback
+	 */
+	private Action collectOTP(TreeContext context) {
+		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
+		NameCallback nameCallback = new NameCallback(bundle.getString("callback.phoneNumber"),"Enter PhoneNumber");
+		return send(nameCallback).build();
+	}
 }

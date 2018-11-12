@@ -72,6 +72,8 @@ public class CheckVIPOtp {
 			}
 
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code.
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
@@ -85,24 +87,21 @@ public class CheckVIPOtp {
 	 * @param otpValue
 	 * @return CheckOtpRequest payload
 	 */
-	public static String getViewUserPayload(String userName, String otpValue) {
+	private static String getViewUserPayload(String userName, String otpValue) {
 		logger.info("getting CheckOtpRequest payload");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("   <soapenv:Header/>");
-		str.append("   <soapenv:Body>");
-		str.append("      <vip:CheckOtpRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("<vip:userId>" + userName + "</vip:userId>");
-		str.append("         <vip:otpAuthData>");
-		str.append("            <vip:otp>" + otpValue + "</vip:otp>           ");
-		str.append("         </vip:otpAuthData>        ");
-		str.append("      </vip:CheckOtpRequest>");
-		str.append("   </soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
-
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"   <soapenv:Header/>" +
+				"   <soapenv:Body>" +
+				"      <vip:CheckOtpRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"<vip:userId>" + userName + "</vip:userId>" +
+				"         <vip:otpAuthData>" +
+				"            <vip:otp>" + otpValue + "</vip:otp>           " +
+				"         </vip:otpAuthData>        " +
+				"      </vip:CheckOtpRequest>" +
+				"   </soapenv:Body>" +
+				"</soapenv:Envelope>";
 	}
 
 	/**
@@ -112,6 +111,7 @@ public class CheckVIPOtp {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -1,9 +1,8 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.TXNID;
+import static com.symantec.tree.config.Constants.TXN_ID;
 import static java.util.Collections.emptyList;
 import static org.forgerock.json.JsonValue.object;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.net.URISyntaxException;
@@ -36,19 +35,21 @@ public class VIPPollPushRegTest {
 	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
 
 	}
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
-		context.sharedState.put(TXNID,"87283752");
+	public void proces() {
+        TreeContext context = getTreeContext(new HashMap<>());
+		context.sharedState.put(TXN_ID,"87283752");
 		
-		VIPPollPushReg node = new VIPPollPushReg(config);
+		VIPPollPushReg node = new VIPPollPushReg();
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

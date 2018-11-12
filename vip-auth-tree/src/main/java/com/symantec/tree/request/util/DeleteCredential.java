@@ -67,6 +67,8 @@ public class DeleteCredential {
 			}
 
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code.
 			logger.error("Not able to delete credentials");
 			e.printStackTrace();
 		}
@@ -79,21 +81,19 @@ public class DeleteCredential {
 	 * @param credType
 	 * @return RemoveCredentialRequest payload
 	 */
-	public static String getRemoveCredPayload(String userId, String credId, String credType) {
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("   <soapenv:Header/>");
-		str.append("   <soapenv:Body>");
-		str.append("      <vip:RemoveCredentialRequest>");
-		str.append("<vip:requestId>" + Math.round(Math.random() * 100000) + "</vip:requestId>");
-		str.append("         <vip:userId>" + userId + "</vip:userId>");
-		str.append("         <vip:credentialId>" + credId + "</vip:credentialId>");
-		str.append("          <vip:credentialType>" + credType + "</vip:credentialType>      ");
-		str.append("      </vip:RemoveCredentialRequest>");
-		str.append("   </soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+	private static String getRemoveCredPayload(String userId, String credId, String credType) {
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"   <soapenv:Header/>" +
+				"   <soapenv:Body>" +
+				"      <vip:RemoveCredentialRequest>" +
+				"<vip:requestId>" + Math.round(Math.random() * 100000) + "</vip:requestId>" +
+				"         <vip:userId>" + userId + "</vip:userId>" +
+				"         <vip:credentialId>" + credId + "</vip:credentialId>" +
+				"          <vip:credentialType>" + credType + "</vip:credentialType>      " +
+				"      </vip:RemoveCredentialRequest>" +
+				"   </soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 
@@ -104,6 +104,7 @@ public class DeleteCredential {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

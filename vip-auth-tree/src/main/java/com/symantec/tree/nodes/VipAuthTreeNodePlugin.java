@@ -55,7 +55,7 @@ import org.forgerock.openam.plugins.PluginException;
  * @supported.all.api
  * @since AM 5.5.0
  */
-public class VipAuthTreeNodePlugin extends AbstractNodeAmPlugin {
+public class VIPAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 
 	static private String currentVersion = "1.0.0";
 	
@@ -68,26 +68,26 @@ public class VipAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 	@Override
 	protected Map<String, Iterable<? extends Class<? extends Node>>> getNodesByVersion() {
 		return ImmutableMap.of(
-				VipAuthTreeNodePlugin.currentVersion, asList(
+				VIPAuthTreeNodePlugin.currentVersion, asList(
 						VIPSearchUser.class,
 						VIPRegisterUser.class,
-						VIPDisplayCreds.class,
+						VIPDisplayCredential.class,
 						VIPPushAuth.class,
-						VIPAddCreds.class,
-						VIPEnterCredId.class,
-						VIPOtpCheck.class,
+						VIPAddCredential.class,
+						VIPEnterCredentialId.class,
+						VIPOTPCheck.class,
 						VIPEnterOTP.class,
 						VIPPollPushAuth.class,
 						VIPPollPushReg.class,
 						VIPOTPAuth.class,
 						VIPAuthCredential.class,
 						VIPEnterPhoneNumber.class,
-						VIPVerifyCodeAddCred.class,
-						VIPConfirmCred.class,
+						VIPVerifyCodeAddCredential.class,
+						VIPConfirmCredential.class,
 						VIPGenerateActivationCode.class,
-						VIPSdkAddCreds.class,
-						VIPSDKEnterCredId.class,
-						VIPSDKOtpCheck.class
+						VIPSDKAddCredential.class,
+						VIPSDKEnterCredentialId.class,
+						VIPSDKOTPCheck.class
 				));
 	}
 
@@ -129,6 +129,6 @@ public class VipAuthTreeNodePlugin extends AbstractNodeAmPlugin {
      */
 	@Override
 	public String getPluginVersion() {
-		return VipAuthTreeNodePlugin.currentVersion;
+		return VIPAuthTreeNodePlugin.currentVersion;
 	}
 }

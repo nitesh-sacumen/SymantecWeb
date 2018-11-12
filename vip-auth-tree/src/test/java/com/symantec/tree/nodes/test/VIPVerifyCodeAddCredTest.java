@@ -1,64 +1,52 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.CREDCHOICE;
-import static com.symantec.tree.config.Constants.SECURECODE;
-import static com.symantec.tree.config.Constants.MOBNUM;
+import static com.symantec.tree.config.Constants.*;
 import static java.util.Collections.emptyList;
 import static org.forgerock.json.JsonValue.object;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.net.URISyntaxException;
+import com.symantec.tree.nodes.VIPVerifyCodeAddCredential;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext;
 import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.forgerock.openam.core.CoreWrapper;
-import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-
-import com.sun.identity.authentication.spi.AuthLoginException;
-import com.symantec.tree.nodes.VIPVerifyCodeAddCred;
 /**
  * 
  * @author Symantec
  * @category test
- * test class for "VIPVerifyCodeAddCred"
+ * test class for "VIPVerifyCodeAddCredential"
  *
  */
 @Test
 public class VIPVerifyCodeAddCredTest {
-	@Mock
-	private VIPVerifyCodeAddCred.Config config;
-	@Mock
-	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
 
 	}
 	
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
+	public void process() {
+        TreeContext context = getTreeContext(new HashMap<>());
 
 		context.sharedState.put(SharedStateConstants.USERNAME,"ruchika");
-		context.sharedState.put(CREDID,"SYMC87283752");
-		context.sharedState.put(SECURECODE,"487385");
-		context.sharedState.put(MOBNUM,"918147109089");
-		context.sharedState.put(CREDCHOICE,"SMS");
+		context.sharedState.put(CRED_ID,"SYMC87283752");
+		context.sharedState.put(SECURE_CODE,"487385");
+		context.sharedState.put(MOB_NUM,"918147109089");
+		context.sharedState.put(CRED_CHOICE,"SMS");
 		
-		VIPVerifyCodeAddCred node = new VIPVerifyCodeAddCred(config,coreWrapper);
+		VIPVerifyCodeAddCredential node = new VIPVerifyCodeAddCredential();
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

@@ -1,15 +1,12 @@
 package com.symantec.tree.request.util;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Base64;
 import java.util.Properties;
-
 import javax.net.ssl.SSLContext;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
@@ -28,9 +25,8 @@ public class HttpClientUtil {
 
 	static Logger logger = LoggerFactory.getLogger(HttpClientUtil.class);
 
-	public static final String ADMIN_STORE_FILE_LOCATION = System.getenv("SYMANTEC_HOME");
-	public static final String ADMIN_STORE_FILE = ADMIN_STORE_FILE_LOCATION + "\\symantecConfig.properties";
-	char SEP = File.separatorChar;
+	private static final String ADMIN_STORE_FILE_LOCATION = System.getenv("SYMANTEC_HOME");
+	private static final String ADMIN_STORE_FILE = ADMIN_STORE_FILE_LOCATION + "\\symantecConfig.properties";
 
 	/**
 	 * 
@@ -39,7 +35,7 @@ public class HttpClientUtil {
 	 * @return KeyStore
 	 * @throws Exception
 	 */
-	public KeyStore readStore(String KEYSTOREPATH, String KEYSTOREPASS) throws Exception {
+	private KeyStore readStore(String KEYSTOREPATH, String KEYSTOREPASS) throws Exception {
 		logger.info("reading key store values");
 		try (InputStream keyStoreStream = new FileInputStream(KEYSTOREPATH)) {
 			KeyStore keyStore = KeyStore.getInstance("JKS"); // or "PKCS12"
@@ -55,11 +51,11 @@ public class HttpClientUtil {
 		logger.info("getting http client");
 		HttpClient httpClient = null;
 		Properties prop = new Properties();
-		FileInputStream input = null;
+		FileInputStream input;
 
-		String KEYSTOREPATH = "";
-		String KEYPASS = "";
-		String KEYSTOREPASS = "";
+		String KEY_STORE_PATH;
+		String KEY_PASS;
+		String KEY_STORE_PASS;
 
 		try {
 
@@ -68,15 +64,17 @@ public class HttpClientUtil {
 			// load a properties file
 			prop.load(input);
 
-			KEYSTOREPATH = prop.getProperty("KeyStore.location");
-			KEYSTOREPASS = new String(Base64.getDecoder().decode(prop.getProperty("keyStore.password")));
-			KEYPASS = KEYSTOREPASS;
-			logger.debug(KEYSTOREPATH);
-			logger.debug(KEYSTOREPASS);
+			KEY_STORE_PATH = prop.getProperty("KeyStore.location");
+			KEY_STORE_PASS = new String(Base64.getDecoder().decode(prop.getProperty("keyStore.password")));
+			KEY_PASS = KEY_STORE_PASS;
+			logger.debug(KEY_STORE_PATH);
+			logger.debug(KEY_STORE_PASS);
 			SSLContext sslContext = SSLContexts.custom()
-					.loadKeyMaterial(readStore(KEYSTOREPATH, KEYSTOREPASS), KEYPASS.toCharArray()).build();
+					.loadKeyMaterial(readStore(KEY_STORE_PATH, KEY_STORE_PASS), KEY_PASS.toCharArray()).build();
 			httpClient = HttpClients.custom().setSSLContext(sslContext).build();
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code.
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
@@ -84,6 +82,8 @@ public class HttpClientUtil {
 		return httpClient;
 	}
 
+
+	//TODO This method is not used
 	/**
 	 * This method is used to get key store values form forgerock configurations
 	 * @return httpClient
@@ -102,6 +102,8 @@ public class HttpClientUtil {
 			SSLContext sslContext = SSLContexts.custom().loadKeyMaterial(keyStore, AM.getKeystorePass()).build();
 			httpClient = HttpClients.custom().setSSLContext(sslContext).build();
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception or any exception which is wrapped into Node
+			// Process exception in the node.
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}

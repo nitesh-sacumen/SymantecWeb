@@ -14,8 +14,8 @@ import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symantec.tree.config.Constants.SECURECODE;
-import static com.symantec.tree.config.Constants.MOBNUM;
+import static com.symantec.tree.config.Constants.SECURE_CODE;
+import static com.symantec.tree.config.Constants.MOB_NUM;
 
 /**
  * 
@@ -35,14 +35,12 @@ public class VIPEnterOTP extends SingleOutcomeNode {
      * Configuration for the node.
      */
     public interface Config {}
-    
 
     /**
      * Create the node.
      */
     @Inject
     public VIPEnterOTP() {
-
     }
     
     /**
@@ -68,11 +66,10 @@ public class VIPEnterOTP extends SingleOutcomeNode {
                 .map(String::new)
                 .filter(password -> !Strings.isNullOrEmpty(password))
                 .map(password -> {
-                	logger.info("SecureCode has been collected and placed  into the Shared State");
-                	logger.debug("mobile number in vip rnter otp is "+context.sharedState.get(MOBNUM));
-                	
+                	logger.info("SecureCode has been collected and placed into the Shared State");
+                	logger.debug("Mobile VIP number: " + context.sharedState.get(MOB_NUM));
                     return goToNext()
-                        .replaceSharedState(sharedState.copy().put(SECURECODE, password)).build();
+                        .replaceSharedState(sharedState.copy().put(SECURE_CODE, password)).build();
                 })
                 .orElseGet(() -> {
                 	logger.info("Enter Credential ID");

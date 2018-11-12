@@ -1,15 +1,13 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.SECURECODE;
+import static com.symantec.tree.config.Constants.SECURE_CODE;
 import static java.util.Collections.emptyList;
 import static org.forgerock.json.JsonValue.object;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import java.net.URISyntaxException;
+import com.symantec.tree.nodes.VIPOTPCheck;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext;
@@ -20,47 +18,45 @@ import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.sun.identity.authentication.spi.AuthLoginException;
-import com.symantec.tree.nodes.VIPOtpCheck;
-
 /**
  * 
  * @author Symantec
  * @category test
- * test class for "VIPOtpCheck"
+ * test class for "VIPOTPCheck"
  *
  */
 @Test
 public class VIPOtpCheckTest {
 	@Mock
-	private VIPOtpCheck.Config config;
+	private VIPOTPCheck.Config config;
 	@Mock
 	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
 		
 	}
 	
 	@Test
-	public void proces() throws Exception {
-		TreeContext context = new TreeContext(JsonValue.json(object(1)),
-                new ExternalRequestContext.Builder().build(), emptyList());
+	public void process() {
+		TreeContext context;
         
         Map<String, String[]> parameters = new HashMap<>();
         parameters.put(SharedStateConstants.USERNAME, new String[] {"mkathi"});
-        parameters.put(SECURECODE, new String[] {"12345678"});
+        parameters.put(SECURE_CODE, new String[] {"12345678"});
    
-        context = getTreeContext(new HashMap<String, String[]>());
+        context = getTreeContext(new HashMap<>());
 
 //		context.sharedState.put(SharedStateConstants.USERNAME,"ruchika");
-//		context.sharedState.put(SECURECODE,"678384");
+//		context.sharedState.put(SECURE_CODE,"678384");
 		
-		VIPOtpCheck node = new VIPOtpCheck(config,coreWrapper);
+		VIPOTPCheck node = new VIPOTPCheck();
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

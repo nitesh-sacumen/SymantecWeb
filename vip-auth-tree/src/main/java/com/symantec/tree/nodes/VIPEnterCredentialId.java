@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import com.symantec.tree.request.util.SMSVoiceRegister;
 
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.CREDCHOICE;
+import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
 import static com.symantec.tree.config.Constants.SMS;
 import static com.symantec.tree.config.Constants.VOICE;
 
@@ -29,11 +29,12 @@ import static com.symantec.tree.config.Constants.VOICE;
  * @Descrition "VIP Enter CredentialID" node with single outcome. This node will redirect to "VIP Add Credential".
  *
  */
-@Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class, configClass = VIPEnterCredId.Config.class)
-public class VIPEnterCredId extends SingleOutcomeNode {
+@Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class, configClass =
+		 VIPEnterCredentialId.Config.class)
+public class VIPEnterCredentialId extends SingleOutcomeNode {
 
-	private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterCredId";
-	private final Logger logger = LoggerFactory.getLogger(VIPEnterCredId.class);
+	private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterCredentialId";
+	private final Logger logger = LoggerFactory.getLogger(VIPEnterCredentialId.class);
 	private SMSVoiceRegister svRegister;
 
 	/**
@@ -46,7 +47,7 @@ public class VIPEnterCredId extends SingleOutcomeNode {
 	 * Create the node.
 	 */
 	@Inject
-	public VIPEnterCredId() {
+	public VIPEnterCredentialId() {
 		svRegister = new SMSVoiceRegister();
 
 	}
@@ -72,20 +73,21 @@ public class VIPEnterCredId extends SingleOutcomeNode {
 
 		return context.getCallback(PasswordCallback.class).map(PasswordCallback::getPassword).map(String::new)
 				.filter(password -> !Strings.isNullOrEmpty(password)).map(password -> {
-					logger.debug("CredID has been collected and placed  into the Shared State");
-					String credType = context.sharedState.get(CREDCHOICE).asString();
+					logger.debug("Credential ID has been collected and placed into the Shared State");
+					String credType = context.sharedState.get(CRED_CHOICE).asString();
+					//TODO Duplicated Code in VIPEnterPhoneNumber, remove out to common location
 					if (credType.equalsIgnoreCase(SMS)) {
 						logger.info("calling sms register method");
 						svRegister.smsRegister(password);
-						return goToNext().replaceSharedState(sharedState.copy().put(CREDID, password)).build();
+						return goToNext().replaceSharedState(sharedState.copy().put(CRED_ID, password)).build();
 
 					} else if (credType.equalsIgnoreCase(VOICE)) {
 						logger.info("calling voice register method");
 						svRegister.voiceRegister(password);
-						return goToNext().replaceSharedState(sharedState.copy().put(CREDID, password)).build();
+						return goToNext().replaceSharedState(sharedState.copy().put(CRED_ID, password)).build();
 
 					} else
-						return goToNext().replaceSharedState(sharedState.copy().put(CREDID, password)).build();
+						return goToNext().replaceSharedState(sharedState.copy().put(CRED_ID, password)).build();
 				}).orElseGet(() -> {
 					logger.debug("Enter Credential ID");
 					return collectOTP(context);

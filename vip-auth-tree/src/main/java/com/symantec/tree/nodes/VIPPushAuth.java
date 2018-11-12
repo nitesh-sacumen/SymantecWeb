@@ -1,22 +1,17 @@
 package com.symantec.tree.nodes;
 
+import static com.symantec.tree.config.Constants.TXN_ID;
+
 import com.google.inject.assistedinject.Assisted;
-
+import com.symantec.tree.config.Constants;
 import com.symantec.tree.request.util.AuthenticateUser;
-
-import org.forgerock.openam.annotations.sm.Attribute;
-import org.forgerock.openam.auth.node.api.*;
-import org.forgerock.openam.core.CoreWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import com.symantec.tree.config.Constants;
-import static com.symantec.tree.config.Constants.TXNID;
+import javax.inject.Inject;
+import org.forgerock.openam.annotations.sm.Attribute;
+import org.forgerock.openam.auth.node.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -29,12 +24,10 @@ import static com.symantec.tree.config.Constants.TXNID;
 @Node.Metadata(outcomeProvider = AbstractDecisionNode.OutcomeProvider.class, configClass = VIPPushAuth.Config.class)
 public class VIPPushAuth extends AbstractDecisionNode {
 
-	private final Config config;
-	private final CoreWrapper coreWrapper;
 	static final Logger logger = LoggerFactory.getLogger(VIPPushAuth.class);
 
 	private AuthenticateUser pushAuthUser;
-	final Map<String, String> vipPushCodeMap = new HashMap<>();
+	private final Map<String, String> vipPushCodeMap = new HashMap<>();
 
 	/**
 	 * Configuration for the node.
@@ -62,21 +55,18 @@ public class VIPPushAuth extends AbstractDecisionNode {
 	 * Create the node.
 	 * 
 	 * @param config The service config.
-	 * @throws NodeProcessException If the configuration was not valid.
 	 */
 	@Inject
-	public VIPPushAuth(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
-		this.config = config;
-		this.coreWrapper = coreWrapper;
+	public VIPPushAuth(@Assisted Config config) {
 
-		logger.debug("Display Message Text:", this.config.displayMsgText());
-		vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETEXT, this.config.displayMsgText());
+		logger.debug("Display Message Text:", config.displayMsgText());
+		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_TEXT, config.displayMsgText());
 
-		logger.debug("Display Message Title", this.config.displayMsgTitle());
-		vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETITLE, this.config.displayMsgTitle());
+		logger.debug("Display Message Title", config.displayMsgTitle());
+		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_TITLE, config.displayMsgTitle());
 
-		logger.debug("Display Message Profile", this.config.displayMsgProfile());
-		vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGEPROFILE, this.config.displayMsgProfile());
+		logger.debug("Display Message Profile", config.displayMsgProfile());
+		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_PROFILE, config.displayMsgProfile());
 
 		pushAuthUser = new AuthenticateUser();
 	}
@@ -85,14 +75,14 @@ public class VIPPushAuth extends AbstractDecisionNode {
 	 * Main logic of the node
 	 */
 	@Override
-	public Action process(TreeContext context) throws NodeProcessException {
+	public Action process(TreeContext context) {
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-		String transactionId = pushAuthUser.authUser(userName, vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETEXT),
-				vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETITLE),
-				vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGEPROFILE));
-		logger.debug("transactionId is " + transactionId);
+		String transactionId = pushAuthUser.authUser(userName, vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TEXT),
+				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TITLE),
+				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_PROFILE));
+		logger.debug("TransactionId is " + transactionId);
 		if (transactionId != null && !transactionId.isEmpty()) {
-			context.sharedState.put(TXNID, transactionId);
+			context.sharedState.put(TXN_ID, transactionId);
 			return goTo(true).build();
 		} else {
 			return goTo(false).build();

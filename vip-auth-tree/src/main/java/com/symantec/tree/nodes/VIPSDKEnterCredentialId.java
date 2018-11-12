@@ -15,14 +15,7 @@ import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.symantec.tree.request.util.SMSVoiceRegister;
-
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.MOBNUM;
-import static com.symantec.tree.config.Constants.SECURECODE;
-import static com.symantec.tree.config.Constants.CREDCHOICE;
-import static com.symantec.tree.config.Constants.SMS;
-import static com.symantec.tree.config.Constants.VOICE;
+import static com.symantec.tree.config.Constants.CRED_ID;
 
 /**
  * 
@@ -31,11 +24,11 @@ import static com.symantec.tree.config.Constants.VOICE;
  * @Descrition "VIP SDK Enter CredentialID" node with single outcome.
  *
  */
-@Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class, configClass = VIPSDKEnterCredId.Config.class)
-public class VIPSDKEnterCredId extends SingleOutcomeNode {
+@Node.Metadata(outcomeProvider = SingleOutcomeNode.OutcomeProvider.class, configClass = VIPSDKEnterCredentialId.Config.class)
+public class VIPSDKEnterCredentialId extends SingleOutcomeNode {
 
-	private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterCredId";
-	private final Logger logger = LoggerFactory.getLogger(VIPSDKEnterCredId.class);
+	private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterCredentialId";
+	private final Logger logger = LoggerFactory.getLogger(VIPSDKEnterCredentialId.class);
 
 	/**
 	 * Configuration for the node.
@@ -47,7 +40,7 @@ public class VIPSDKEnterCredId extends SingleOutcomeNode {
 	 * Create the node.
 	 */
 	@Inject
-	public VIPSDKEnterCredId() {
+	public VIPSDKEnterCredentialId() {
 
 	}
 
@@ -73,10 +66,8 @@ public class VIPSDKEnterCredId extends SingleOutcomeNode {
                 .map(PasswordCallback::getPassword)
                 .map(String::new)
                 .filter(password -> !Strings.isNullOrEmpty(password))
-                .map(password -> {
-                    return goToNext()
-                        .replaceSharedState(sharedState.copy().put(CREDID, password)).build();
-                })
+                .map(password -> goToNext()
+					.replaceSharedState(sharedState.copy().put(CRED_ID, password)).build())
                 .orElseGet(() -> {
                 	logger.info("Enter Credential ID");
                     return collectCredentialId(context);

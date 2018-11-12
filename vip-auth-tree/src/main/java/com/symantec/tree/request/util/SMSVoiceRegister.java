@@ -118,23 +118,21 @@ public class SMSVoiceRegister {
 	 * @param credValue
 	 * @return RegisterRequest payload
 	 */
-	public static String getSmsPayload(String credValue) {
+	private static String getSmsPayload(String credValue) {
 		logger.info("getting RegisterRequest payload for SMS");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("<soapenv:Header/>");
-		str.append("<soapenv:Body>");
-		str.append("<vip:RegisterRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("");
-		str.append("<vip:smsDeliveryInfo>");
-		str.append("<vip:phoneNumber>" + credValue + "</vip:phoneNumber> ");
-		str.append("</vip:smsDeliveryInfo> ");
-		str.append("</vip:RegisterRequest>");
-		str.append("</soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<vip:RegisterRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"" +
+				"<vip:smsDeliveryInfo>" +
+				"<vip:phoneNumber>" + credValue + "</vip:phoneNumber> " +
+				"</vip:smsDeliveryInfo> " +
+				"</vip:RegisterRequest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 
@@ -143,23 +141,21 @@ public class SMSVoiceRegister {
 	 * @param credValue
 	 * @return RegisterRequest payload for voice
 	 */
-	public static String getVoicePayload(String credValue) {
+	private static String getVoicePayload(String credValue) {
 		logger.info("getting RegisterRequest payload for voice");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("<soapenv:Header/>");
-		str.append("<soapenv:Body>");
-		str.append("<vip:RegisterRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("");
-		str.append("<vip:voiceDeliveryInfo>");
-		str.append("<vip:phoneNumber>" + credValue + "</vip:phoneNumber> ");
-		str.append("</vip:voiceDeliveryInfo> ");
-		str.append("</vip:RegisterRequest>");
-		str.append("</soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<vip:RegisterRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"" +
+				"<vip:voiceDeliveryInfo>" +
+				"<vip:phoneNumber>" + credValue + "</vip:phoneNumber> " +
+				"</vip:voiceDeliveryInfo> " +
+				"</vip:RegisterRequest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 
@@ -170,6 +166,7 @@ public class SMSVoiceRegister {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

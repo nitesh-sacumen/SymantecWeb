@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import static com.symantec.tree.config.Constants.STANDARD_OTP;
 
 /**
  * 
@@ -29,7 +28,6 @@ import static com.symantec.tree.config.Constants.STANDARD_OTP;
 public class AuthenticateCredential {
 	static Logger logger = LoggerFactory.getLogger(AuthenticateCredential.class);
 	public String authCredential(String credID, String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
-		String credType = STANDARD_OTP;
 		String transactionID = "";
 		HttpClientUtil clientUtil = new HttpClientUtil();
 		HttpClient httpClient = clientUtil.getHttpClient();
@@ -37,7 +35,7 @@ public class AuthenticateCredential {
 		HttpPost post = new HttpPost(getURL());
 		String status = null;
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-		String payLoad = getViewUserPayload(credID, credType, displayMsgText, displayMsgTitle, displayMsgProfile);
+		String payLoad = getViewUserPayload(credID, displayMsgText, displayMsgTitle, displayMsgProfile);
 		logger.debug("Request Payload: " + payLoad);
 		try {
 			post.setEntity(new StringEntity(payLoad));
@@ -65,6 +63,8 @@ public class AuthenticateCredential {
 			logger.debug("Status is:\t" + statusMessage);
 		
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
@@ -76,56 +76,47 @@ public class AuthenticateCredential {
 	/**
 	 * 
 	 * @param credId
-	 * @param credType
 	 * @param displayMsgText
 	 * @param displayMsgTitle
 	 * @param displayMsgProfile
 	 * @return AuthenticateCredentialsRequest payload
 	 */
-	public static String getViewUserPayload(String credId, String credType,String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
+	private static String getViewUserPayload(String credId, String displayMsgText, String displayMsgTitle,
+											  String displayMsgProfile) {
 		logger.info("getting payload for AuthenticateCredentialsRequest");
-		StringBuilder str = new StringBuilder();
-		str.append("<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("   <soapenv:Header/>");
-		str.append("   <soapenv:Body>");
-		str.append("      <vip:AuthenticateCredentialsRequest>");
-		str.append("<vip:requestId>"+Math.round(Math.random() * 100000)+"</vip:requestId>");
-		str.append("           <vip:credentials>");
-		str.append("            <vip:credentialId>"+credId+"</vip:credentialId>");
-		str.append("            <vip:credentialType>"+credType+"</vip:credentialType>");
-		str.append("           </vip:credentials>     ");
-
-		str.append("<vip:pushAuthData>");
-		
-		str.append("<!--0 to 20 repetitions:-->");
-		str.append("<vip:displayParameters>");
-		str.append("<vip:Key>" + "display.message.text" + "</vip:Key>");
-		str.append("<vip:Value>" + displayMsgText + "</vip:Value>");
-		str.append("");
-		str.append("</vip:displayParameters>");
-		
-		str.append("<vip:displayParameters>");
-		str.append("<vip:Key>" + "display.message.title" + "</vip:Key>");
-		str.append("<vip:Value>" + displayMsgTitle + "</vip:Value>");
-		str.append("");
-		str.append("</vip:displayParameters>");
-		
-		str.append("<vip:displayParameters>");
-		str.append("<vip:Key>" + "display.message.profile" + "</vip:Key>");
-		str.append("<vip:Value>" + displayMsgProfile + "</vip:Value>");
-		str.append("");
-		str.append("</vip:displayParameters>");
-		
-		
-		str.append("");
-		str.append("</vip:pushAuthData>");
-		
-		
-		str.append("       </vip:AuthenticateCredentialsRequest>");
-		str.append("   </soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
-
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"   <soapenv:Header/>" +
+				"   <soapenv:Body>" +
+				"      <vip:AuthenticateCredentialsRequest>" +
+				"<vip:requestId>" + Math.round(Math.random() * 100000) + "</vip:requestId>" +
+				"           <vip:credentials>" +
+				"            <vip:credentialId>" + credId + "</vip:credentialId>" +
+				"            <vip:credentialType>" + com.symantec.tree.config.Constants.STANDARD_OTP + "</vip" +
+				":credentialType>" +
+				"           </vip:credentials>     " +
+				"<vip:pushAuthData>" +
+				"<!--0 to 20 repetitions:-->" +
+				"<vip:displayParameters>" +
+				"<vip:Key>" + "display.message.text" + "</vip:Key>" +
+				"<vip:Value>" + displayMsgText + "</vip:Value>" +
+				"" +
+				"</vip:displayParameters>" +
+				"<vip:displayParameters>" +
+				"<vip:Key>" + "display.message.title" + "</vip:Key>" +
+				"<vip:Value>" + displayMsgTitle + "</vip:Value>" +
+				"" +
+				"</vip:displayParameters>" +
+				"<vip:displayParameters>" +
+				"<vip:Key>" + "display.message.profile" + "</vip:Key>" +
+				"<vip:Value>" + displayMsgProfile + "</vip:Value>" +
+				"" +
+				"</vip:displayParameters>" +
+				"" +
+				"</vip:pushAuthData>" +
+				"       </vip:AuthenticateCredentialsRequest>" +
+				"   </soapenv:Body>" +
+				"</soapenv:Envelope>";
 	}
 	
 	/**
@@ -135,6 +126,7 @@ public class AuthenticateCredential {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

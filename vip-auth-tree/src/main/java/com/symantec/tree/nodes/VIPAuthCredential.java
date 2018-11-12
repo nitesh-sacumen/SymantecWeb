@@ -8,15 +8,13 @@ import com.symantec.tree.request.util.DeleteCredential;
 
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
-import org.forgerock.openam.core.CoreWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.STANDARD_OTP;
-import static com.symantec.tree.config.Constants.TXNID;
+import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.TXN_ID;
 
 /**
  * 
@@ -30,11 +28,8 @@ import static com.symantec.tree.config.Constants.TXNID;
 public class VIPAuthCredential extends AbstractDecisionNode {
 	static Logger logger = LoggerFactory.getLogger(VIPAuthCredential.class);
 
-	private final Config config;
-	private final CoreWrapper coreWrapper;
-
-	private AuthenticateCredential authPushCred;
-	final Map<String, String> vipPushCodeMap = new HashMap<>();
+    private AuthenticateCredential authPushCred;
+	private final Map<String, String> vipPushCodeMap = new HashMap<>();
 
 	/**
 	 * Configuration for the node.
@@ -62,22 +57,18 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 	 * Create the node.
 	 * 
 	 * @param config The service config.
-	 * @throws NodeProcessException If the configuration was not valid.
-	 */
+     */
 	@Inject
-	public VIPAuthCredential(@Assisted Config config, CoreWrapper coreWrapper) throws NodeProcessException {
+	public VIPAuthCredential(@Assisted Config config) {
 
-		this.config = config;
-		this.coreWrapper = coreWrapper;
+        logger.debug("Display Message Text:", config.displayMsgText());
+		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_TEXT, config.displayMsgText());
 
-		logger.debug("Display Message Text:", this.config.displayMsgText());
-		vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETEXT, this.config.displayMsgText());
+		logger.debug("Display Message Title", config.displayMsgTitle());
+		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_TITLE, config.displayMsgTitle());
 
-		logger.debug("Display Message Title", this.config.displayMsgTitle());
-		vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGETITLE, this.config.displayMsgTitle());
-
-		logger.debug("Display Message Profile", this.config.displayMsgProfile());
-		vipPushCodeMap.put(Constants.PUSHDISPLAYMESSAGEPROFILE, this.config.displayMsgProfile());
+		logger.debug("Display Message Profile", config.displayMsgProfile());
+		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_PROFILE, config.displayMsgProfile());
 
 		authPushCred = new AuthenticateCredential();
 	}
@@ -86,43 +77,39 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 	 * Main logic of the node.
 	 */
 	@Override
-	public Action process(TreeContext context) throws NodeProcessException {
-		String credId = context.sharedState.get(CREDID).asString();
-		String credType = STANDARD_OTP;
-		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-		logger.info("calling VIP Auth credential ");
-		String Stat = authPushCred.authCredential(credId, vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETEXT),
-				vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGETITLE),
-				vipPushCodeMap.get(Constants.PUSHDISPLAYMESSAGEPROFILE));
+	public Action process(TreeContext context) {
+		String credId = context.sharedState.get(CRED_ID).asString();
+        String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
+		logger.info("Calling VIP Auth credential");
+		String Stat = authPushCred.authCredential(credId, vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TEXT),
+				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TITLE),
+				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_PROFILE));
 		String[] trastat = Stat.split(",");
 		for (String s : trastat)
 			logger.debug("Values:" + s);
 		String status = trastat[0];
 		String transactionId = trastat[1];
-		logger.debug("status of SymantecAuthCred  .. " + status);
+		logger.debug("Status of SymantecAuthCred  .. " + status);
 		logger.debug("TransactionID of SymantecAuthCred  .. " + transactionId);
 
-		context.sharedState.put(TXNID, transactionId);
+		context.sharedState.put(TXN_ID, transactionId);
 		if (status.equalsIgnoreCase(VIPAuthStatusCode.SUCCESS_CODE)) {
 			logger.debug("Mobile Push is sent successfully:" + status);
 			return goTo(true).build();
 		} else {
-			deleteCredential(userName, credId, credType);
+			deleteCredential(userName, credId);
 			return goTo(false).build();
 		}
 
 	}
 
 	/**
-	 * 
-	 * @param userName
+	 *  @param userName
 	 * @param credId
-	 * @param credType
-	 * deleting credentials
-	 */
-	private void deleteCredential(String userName, String credId, String credType) {
-		logger.info("deleting credentials");
+     */
+	private void deleteCredential(String userName, String credId) {
+		logger.info("Deleting credentials");
 		DeleteCredential delCred = new DeleteCredential();
-		delCred.deleteCredential(userName, credId, credType);
+		delCred.deleteCredential(userName, credId, Constants.STANDARD_OTP);
 	}
 }

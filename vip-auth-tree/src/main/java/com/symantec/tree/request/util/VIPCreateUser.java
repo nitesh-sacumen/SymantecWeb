@@ -38,18 +38,16 @@ public class VIPCreateUser {
 	 */
 	private String createUserPayload(String userId) {
 		logger.info("getting CreateUserRequest payload");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("   <soapenv:Header/>");
-		str.append("   <soapenv:Body>");
-		str.append("      <vip:CreateUserRequest>");
-		str.append("               <vip:requestId>" + Math.round(Math.random() * 100000) + "</vip:requestId>");
-		str.append("             <vip:userId>" + userId + "</vip:userId>");
-		str.append("      </vip:CreateUserRequest>");
-		str.append("   </soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"   <soapenv:Header/>" +
+				"   <soapenv:Body>" +
+				"      <vip:CreateUserRequest>" +
+				"               <vip:requestId>" + Math.round(Math.random() * 100000) + "</vip:requestId>" +
+				"             <vip:userId>" + userId + "</vip:userId>" +
+				"      </vip:CreateUserRequest>" +
+				"   </soapenv:Body>" +
+				"</soapenv:Envelope>";
 	}
 
 	/**
@@ -100,6 +98,8 @@ public class VIPCreateUser {
 			}
 
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception or another exception that we transform upstream.
+			// Also should only have try catch where required, not around so much extra code
 			logger.error(e.getMessage());
 		}
 		return isUserExisted;
@@ -112,6 +112,7 @@ public class VIPCreateUser {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

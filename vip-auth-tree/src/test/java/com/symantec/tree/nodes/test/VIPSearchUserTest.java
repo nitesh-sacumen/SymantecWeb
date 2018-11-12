@@ -1,9 +1,7 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.CREDID;
 import static java.util.Collections.emptyList;
 import static org.forgerock.json.JsonValue.object;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.net.URISyntaxException;
@@ -31,27 +29,25 @@ import com.symantec.tree.nodes.VIPSearchUser;
  */
 @Test
 public class VIPSearchUserTest {
-	@Mock
-	private VIPSearchUser.Config config;
-	@Mock
-	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
 
 	}
 	
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
+	public void process() {
+        TreeContext context = getTreeContext(new HashMap<>());
 
 		context.sharedState.put(SharedStateConstants.USERNAME,"ruchika");
 		
-		VIPSearchUser node = new VIPSearchUser(config,coreWrapper);
+		VIPSearchUser node = new VIPSearchUser();
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

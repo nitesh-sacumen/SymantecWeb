@@ -60,7 +60,6 @@ public class AddCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 			logger.debug("Status is:\t" + statusMessage);
 
@@ -70,6 +69,8 @@ public class AddCredential {
 			}
 
 		} catch (Exception e) {
+			//TODO Should throw a new Node Process exception or another error that a node wraps into a node process
+			// exception
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
@@ -83,24 +84,22 @@ public class AddCredential {
 	 * @param credIdType
 	 * @return AddCredentialRequest payload
 	 */
-	public static String getViewUserPayload(String userName, String credValue, String credIdType) {
+	private static String getViewUserPayload(String userName, String credValue, String credIdType) {
 		logger.info("getting payload for AddCredentialRequest");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("<soapenv:Header/>");
-		str.append("<soapenv:Body>");
-		str.append("<vip:AddCredentialRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("<vip:userId>" + userName + "</vip:userId>");
-		str.append("<vip:credentialDetail>");
-		str.append("<vip:credentialId>" + credValue + "</vip:credentialId>");
-		str.append("<vip:credentialType>" + credIdType + "</vip:credentialType>");
-		str.append("</vip:credentialDetail>");
-		str.append("</vip:AddCredentialRequest>");
-		str.append("</soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<vip:AddCredentialRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"<vip:userId>" + userName + "</vip:userId>" +
+				"<vip:credentialDetail>" +
+				"<vip:credentialId>" + credValue + "</vip:credentialId>" +
+				"<vip:credentialType>" + credIdType + "</vip:credentialType>" +
+				"</vip:credentialDetail>" +
+				"</vip:AddCredentialRequest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 
@@ -136,7 +135,6 @@ public class AddCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 			logger.debug("Status is:\t" + statusMessage);
 
@@ -146,6 +144,8 @@ public class AddCredential {
 			}
 
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
@@ -160,28 +160,26 @@ public class AddCredential {
 	 * @param otpReceived
 	 * @return AddCredentialRequest payload
 	 */
-	public static String getViewUserPayload(String userName, String credValue, String credIdType, String otpReceived) {
+	private static String getViewUserPayload(String userName, String credValue, String credIdType, String otpReceived) {
 
 		logger.info("getting payload for AddCredentialRequest with otp");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("<soapenv:Header/>");
-		str.append("<soapenv:Body>");
-		str.append("<vip:AddCredentialRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("<vip:userId>" + userName + "</vip:userId>");
-		str.append("<vip:credentialDetail>");
-		str.append("<vip:credentialId>" + credValue + "</vip:credentialId>");
-		str.append("<vip:credentialType>" + credIdType + "</vip:credentialType>");
-		str.append("</vip:credentialDetail>");
-		str.append("<vip:otpAuthData>");
-		str.append("<vip:otp>" + otpReceived + "</vip:otp>");
-		str.append("</vip:otpAuthData>");
-		str.append("</vip:AddCredentialRequest>");
-		str.append("</soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<vip:AddCredentialRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"<vip:userId>" + userName + "</vip:userId>" +
+				"<vip:credentialDetail>" +
+				"<vip:credentialId>" + credValue + "</vip:credentialId>" +
+				"<vip:credentialType>" + credIdType + "</vip:credentialType>" +
+				"</vip:credentialDetail>" +
+				"<vip:otpAuthData>" +
+				"<vip:otp>" + otpReceived + "</vip:otp>" +
+				"</vip:otpAuthData>" +
+				"</vip:AddCredentialRequest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 	
@@ -192,6 +190,7 @@ public class AddCredential {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

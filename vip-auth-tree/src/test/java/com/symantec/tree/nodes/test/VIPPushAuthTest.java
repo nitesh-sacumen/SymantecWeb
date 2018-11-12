@@ -1,6 +1,5 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.CREDID;
 import static java.util.Collections.emptyList;
 import static org.forgerock.json.JsonValue.object;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,7 @@ public class VIPPushAuthTest {
 	private CoreWrapper coreWrapper;
 
 	@BeforeMethod
-	public void before() throws URISyntaxException, AuthLoginException {
+	public void before() {
 
 		initMocks(this);
 		when(config.displayMsgText()).thenReturn("Sacumen Push");
@@ -47,14 +46,16 @@ public class VIPPushAuthTest {
 
 	}
 	@Test
-	public void proces() throws Exception {
-        TreeContext context = getTreeContext(new HashMap<String, String[]>());
+	public void process() {
+        TreeContext context = getTreeContext(new HashMap<>());
 
 		context.sharedState.put(SharedStateConstants.USERNAME,"ruchika");
 		
-		VIPPushAuth node = new VIPPushAuth(config,coreWrapper);
+		VIPPushAuth node = new VIPPushAuth(config);
 
 		// WHEN
+		//TODO Not verifying anything here
+
 		Action action = node.process(context);
 
 	}

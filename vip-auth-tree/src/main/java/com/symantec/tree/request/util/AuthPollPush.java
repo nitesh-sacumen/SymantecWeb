@@ -66,6 +66,8 @@ public class AuthPollPush {
 			return status;
 
 		} catch (Exception e) {
+			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
+			// not around so much extra code.
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
@@ -77,20 +79,18 @@ public class AuthPollPush {
 	 * @param authId
 	 * @return PollPushStatusRequest payload
 	 */
-	public static String getViewUserPayload(String authId) {
+	private static String getViewUserPayload(String authId) {
 		logger.info("getting payload for PollPushStatusRequest");
-		StringBuilder str = new StringBuilder();
-		str.append(
-				"<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">");
-		str.append("<soapenv:Header/>");
-		str.append("<soapenv:Body>");
-		str.append("<vip:PollPushStatusRequest>");
-		str.append("<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>");
-		str.append("<vip:transactionId>" + authId + "</vip:transactionId>");
-		str.append("</vip:PollPushStatusRequest>");
-		str.append("</soapenv:Body>");
-		str.append("</soapenv:Envelope>");
-		return str.toString();
+		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+				"xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" +
+				"<soapenv:Header/>" +
+				"<soapenv:Body>" +
+				"<vip:PollPushStatusRequest>" +
+				"<vip:requestId>" + new Random().nextInt(10) + 11111 + "</vip:requestId>" +
+				"<vip:transactionId>" + authId + "</vip:transactionId>" +
+				"</vip:PollPushStatusRequest>" +
+				"</soapenv:Body>" +
+				"</soapenv:Envelope>";
 
 	}
 
@@ -101,6 +101,7 @@ public class AuthPollPush {
 	private String getURL() {
 		Properties prop = new Properties();
 		try {
+			//TODO Need to load this into memory so we don't do File I/O on every time
 			prop.load(new FileInputStream("src/main/resources/vip.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -1,6 +1,5 @@
 package com.symantec.tree.nodes;
 
-import com.google.inject.assistedinject.Assisted;
 import com.symantec.tree.config.Constants.VIPPollPush;
 import com.symantec.tree.request.util.AuthPollPush;
 import com.symantec.tree.request.util.DeleteCredential;
@@ -21,8 +20,8 @@ import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.symantec.tree.config.Constants.STANDARD_OTP;
-import static com.symantec.tree.config.Constants.CREDID;
-import static com.symantec.tree.config.Constants.TXNID;
+import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.TXN_ID;
 /**
  * 
  * @author Symantec
@@ -50,11 +49,10 @@ public class VIPPollPushReg implements Node {
 
 	/**
 	 * Create the node.
-	 * 
-	 * @param config The service config.
+	 *
 	 */
 	@Inject
-	public VIPPollPushReg(@Assisted Config config) {
+	public VIPPollPushReg() {
 		pollPush = new AuthPollPush();
 	}
 
@@ -74,13 +72,13 @@ public class VIPPollPushReg implements Node {
 	 */
 	private Action verifyAuth(TreeContext context) {
 		logger.info("Entered into verifyAuth method");
-		String credId = context.sharedState.get(CREDID).asString();
+		String credId = context.sharedState.get(CRED_ID).asString();
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String credType = STANDARD_OTP;
 		JsonValue newSharedState = context.sharedState.copy();
 		try {
 
-			String result = pollPush.authPollPush(context.sharedState.get(TXNID).asString());
+			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString());
 
 			if (result != null) {
 

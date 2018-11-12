@@ -1,6 +1,5 @@
 package com.symantec.tree.nodes;
 
-import com.google.inject.assistedinject.Assisted;
 import com.symantec.tree.config.Constants.VIPPollPush;
 import com.symantec.tree.request.util.AuthPollPush;
 
@@ -20,7 +19,7 @@ import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.symantec.tree.config.Constants.TXNID;
+import static com.symantec.tree.config.Constants.TXN_ID;
 
 /**
  * 
@@ -50,11 +49,10 @@ public class VIPPollPushAuth implements Node {
 
 	/**
 	 * Create the node.
-	 * 
-	 * @param config The service config.
+	 *
 	 */
 	@Inject
-	public VIPPollPushAuth(@Assisted Config config) {
+	public VIPPollPushAuth() {
 		pollPush = new AuthPollPush();
 	}
 
@@ -75,7 +73,7 @@ public class VIPPollPushAuth implements Node {
 		JsonValue newSharedState = context.sharedState.copy();
 		try {
 
-			String result = pollPush.authPollPush(context.sharedState.get(TXNID).asString());
+			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString());
 
 			if (result != null) {
 
