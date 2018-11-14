@@ -1,8 +1,15 @@
 package com.symantec.tree.request.util;
 
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
+import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.MOB_NUM;
+import static com.symantec.tree.config.Constants.SMS;
+import static com.symantec.tree.config.Constants.VOICE;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.Random;
 
@@ -15,6 +22,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -164,14 +172,7 @@ public class SMSVoiceRegister {
 	 * @return ManagementServiceURL
 	 */
 	private String getURL() {
-		Properties prop = new Properties();
-		try {
-			//TODO Need to load this into memory so we don't do File I/O on every time
-			prop.load(new FileInputStream("src/main/resources/vip.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return prop.getProperty("ManagementServiceURL");
+		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
 	}
-
+	
 }

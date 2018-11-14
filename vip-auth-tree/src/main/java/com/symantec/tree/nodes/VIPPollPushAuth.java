@@ -66,7 +66,7 @@ public class VIPPollPushAuth implements Node {
 	/**
 	 * 
 	 * @param context
-	 * @return next actin.
+	 * @return next action.
 	 */
 	private Action verifyAuth(TreeContext context) {
 		logger.info("Entered into verifyAuth method");

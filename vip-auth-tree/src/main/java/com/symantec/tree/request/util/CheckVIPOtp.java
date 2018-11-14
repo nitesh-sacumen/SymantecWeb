@@ -3,6 +3,7 @@ package com.symantec.tree.request.util;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.Random;
 
@@ -109,14 +110,7 @@ public class CheckVIPOtp {
 	 * @return AuthenticationServiceURL
 	 */
 	private String getURL() {
-		Properties prop = new Properties();
-		try {
-			//TODO Need to load this into memory so we don't do File I/O on every time
-			prop.load(new FileInputStream("src/main/resources/vip.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return prop.getProperty("AuthenticationServiceURL");
+		return GetVIPServiceURL.getInstance().serviceUrls.get("AuthenticationServiceURL");
 	}
 
 }

@@ -3,6 +3,7 @@ package com.symantec.tree.request.util;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -63,9 +64,6 @@ public class AuthenticateCredential {
 			logger.debug("Status is:\t" + statusMessage);
 		
 		} catch (Exception e) {
-			//TODO need to handle this with a Node Process Exception. Also should only have try catch where required,
-			// not around so much extra code
-			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
 		String transtat=status+","+transactionID;
@@ -124,13 +122,6 @@ public class AuthenticateCredential {
 	 * @return AuthenticationServiceURL 
 	 */
 	private String getURL() {
-		Properties prop = new Properties();
-		try {
-			//TODO Need to load this into memory so we don't do File I/O on every time
-			prop.load(new FileInputStream("src/main/resources/vip.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return prop.getProperty("AuthenticationServiceURL");
+		return GetVIPServiceURL.getInstance().serviceUrls.get("AuthenticationServiceURL");
 	}
 }

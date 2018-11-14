@@ -70,7 +70,7 @@ public class VIPAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 		return ImmutableMap.of(
 				VIPAuthTreeNodePlugin.currentVersion, asList(
 						VIPSearchUser.class,
-						VIPRegisterUser.class,
+                        VIPRegisterUser.class,
 						VIPDisplayCredential.class,
 						VIPPushAuth.class,
 						VIPAddCredential.class,

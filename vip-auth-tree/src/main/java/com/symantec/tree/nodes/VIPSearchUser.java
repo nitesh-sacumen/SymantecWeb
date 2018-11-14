@@ -35,12 +35,7 @@ public class VIPSearchUser extends AbstractDecisionNode {
 	 */
 	@Inject
 	public VIPSearchUser() {
-		try {
 			vipSearchUser = new VIPGetUser();
-		} catch (Exception e) {
-			//TODO Should wrap the exception and throw a new Node Process Exception
-			logger.error("Error when instantiating search user: " + e.getMessage());
-		}
 	}
 
 	/**

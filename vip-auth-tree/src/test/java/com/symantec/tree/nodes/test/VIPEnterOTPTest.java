@@ -1,18 +1,33 @@
 package com.symantec.tree.nodes.test;
 
+import static com.symantec.tree.config.Constants.SECURE_CODE;
 import static com.symantec.tree.config.Constants.MOB_NUM;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.forgerock.json.JsonValue.field;
+import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 
 import com.symantec.tree.nodes.VIPEnterOTP;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.Enumeration;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.PasswordCallback;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
-import org.forgerock.openam.auth.node.api.ExternalRequestContext;
 import org.forgerock.openam.auth.node.api.TreeContext;
-import org.testng.annotations.BeforeMethod;
+import org.forgerock.openam.auth.node.api.ExternalRequestContext.Builder;
+import org.forgerock.util.i18n.PreferredLocales;
 import org.testng.annotations.Test;
 
 /**
@@ -25,28 +40,64 @@ import org.testng.annotations.Test;
 @Test
 public class VIPEnterOTPTest {
 
-	@BeforeMethod
-	public void before() {
-
-		initMocks(this);
-
-	}
 	@Test
-	public void proces() {
-        TreeContext context = getTreeContext(new HashMap<>());
-		context.sharedState.put(MOB_NUM,"8147109089");
-		
+    public void testProcessWithNoCallbacksReturnsASingleCallback() {
+        // Given
 		VIPEnterOTP node = new VIPEnterOTP();
+        JsonValue sharedState = json(object(field(MOB_NUM, "9112345671")));
+        PreferredLocales preferredLocales = mock(PreferredLocales.class);
+        ResourceBundle resourceBundle = new MockResourceBundle("Enter Your Security Code/OTP");
+        given(preferredLocales.getBundleInPreferredLocale(any(), any())).willReturn(resourceBundle);
 
-		// WHEN
-		//TODO Not verifying anything here
+        // When
+        Action result = node.process(getContext(sharedState, preferredLocales, emptyList()));
 
-		Action action = node.process(context);
+        // Then
+        assertThat(result.outcome).isEqualTo(null);
+        assertThat(result.callbacks).hasSize(1);
+        assertThat(result.callbacks.get(0)).isInstanceOf(PasswordCallback.class);
+        assertThat(((PasswordCallback) result.callbacks.get(0)).getPrompt()).isEqualTo("Enter Your Security Code/OTP");
+        assertThat((Object) result.sharedState).isNull();
+        assertThat(sharedState).isObject().containsExactly(entry(MOB_NUM, "9112345671"));
+    }
 
-	}
+    @Test
+    public void testProcessWithCallbacksAddsToState() {
+    	VIPEnterOTP node = new VIPEnterOTP();
+        JsonValue sharedState = json(object(field(MOB_NUM, "9112345671")));
+        PasswordCallback callback = new PasswordCallback("prompt", false);
+        callback.setPassword("secret".toCharArray());
+        
+        //when
+        Action result = node.process(getContext(sharedState, new PreferredLocales(), singletonList(callback)));
+        
+        //then
+        assertThat(result.outcome).isEqualTo("outcome");
+        assertThat(result.callbacks).isEmpty();
+        assertThat(result.sharedState).isObject().contains(MOB_NUM, "9112345671");
+        assertThat(result.sharedState).isObject().contains(SECURE_CODE, "secret");
+    }
 
-	private TreeContext getTreeContext(Map<String, String[]> parameters) {
-		return new TreeContext(JsonValue.json(object(1)),
-				new ExternalRequestContext.Builder().parameters(parameters).build(), emptyList());
-	}
+    private TreeContext getContext(JsonValue sharedState, PreferredLocales preferredLocales,
+                                   List<? extends Callback> callbacks) {
+        return new TreeContext(sharedState, new Builder().locales(preferredLocales).build(), callbacks);
+    }
+
+    static class MockResourceBundle extends ResourceBundle {
+        private final String value;
+
+        MockResourceBundle(String value) {
+            this.value = value;
+        }
+
+        @Override
+        protected Object handleGetObject(String key) {
+            return value;
+        }
+
+        @Override
+        public Enumeration<String> getKeys() {
+            return null;
+        }
+    }
 }

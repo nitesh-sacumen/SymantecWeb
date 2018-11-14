@@ -64,7 +64,6 @@ public class VIPEnterPhoneNumber extends SingleOutcomeNode {
                 .map(name -> {
                 	logger.info("CredID has been collected and placed  into the Shared State");
                 	String credType= context.sharedState.get(CRED_CHOICE).asString();
-                	//TODO Duplicate code found in VIPEnterCredentialID, move to common class
                 	if(credType.equalsIgnoreCase(SMS) ) {
                 	logger.info("calling sms register method");
                 	svRegister.smsRegister(name);

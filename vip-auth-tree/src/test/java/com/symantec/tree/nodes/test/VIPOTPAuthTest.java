@@ -1,20 +1,35 @@
 package com.symantec.tree.nodes.test;
 
-import static com.symantec.tree.config.Constants.MOB_NUM;
-import static com.symantec.tree.config.Constants.SECURE_CODE_ERROR;
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
+import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-
 import com.symantec.tree.nodes.VIPOTPAuth;
+
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.ChoiceCallback;
+import javax.security.auth.callback.NameCallback;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
-import org.forgerock.openam.auth.node.api.ExternalRequestContext;
-import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.auth.node.api.ExternalRequestContext.Builder;
+import org.forgerock.util.i18n.PreferredLocales;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,34 +50,89 @@ public class VIPOTPAuthTest {
 	public void before() {
 
 		initMocks(this);
-		//TODO Duplicate Code Found
 		HashMap<Integer, String> creds = new HashMap<>();
-		creds.put(0,"VIP");
-		creds.put(1,"SMS");
-		creds.put(2, "VOICE");
+		creds.put(0,"SMS");
+		creds.put(1,"VOICE");
 		when(config.referrerCredList()).thenReturn(creds);
 
 
 	}
 	@Test
-	public void proces() {
-        TreeContext context = getTreeContext(new HashMap<>());
-
-		context.sharedState.put(SharedStateConstants.USERNAME,"ruchika");
-		context.sharedState.put(MOB_NUM,"8147109089");
-		context.sharedState.put(SECURE_CODE_ERROR," Display Error");
-		
+	public void nodeProcessWithDefaultBehaviour() throws Exception {
 		VIPOTPAuth node = new VIPOTPAuth(config);
-
+		PreferredLocales preferredLocales = mock(PreferredLocales.class);
+		ResourceBundle resourceBundle = new MockResourceBundle("Choose Your Cred Type");
+		given(preferredLocales.getBundleInPreferredLocale(any(), any())).willReturn(resourceBundle);
+		JsonValue sharedState = json(object(1));
+		
 		// WHEN
-		//TODO Not verifying anything here
-
-		Action action = node.process(context);
+		Action action = node.process(getContext(sharedState, new PreferredLocales(),emptyList()));
+		
+		//THEN
+		assertThat(action.callbacks).hasSize(2);
+		assertThat(action.outcome).isEqualTo(null);
+		assertThat(action.callbacks.get(0)).isInstanceOf(ChoiceCallback.class);
+		assertThat(action.callbacks.get(1)).isInstanceOf(NameCallback.class);
+		assertThat(((ChoiceCallback) action.callbacks.get(0)).getPrompt()).isEqualTo("Choose Your Cred Type");
 
 	}
+	
+	@Test
+    public void nodeProcessWithSMSOutcome() {
+		VIPOTPAuth node = new VIPOTPAuth(config);
+		JsonValue sharedState = json(object(1));
+		Collection<String> values = config.referrerCredList().values();
+		String[] targetArray = values.toArray(new String[0]);
+		ChoiceCallback callback = new ChoiceCallback("Choose Your Cred Type",targetArray,
+				0,false);
+		callback.setSelectedIndex(0);
+		
+		//WHEN
+        Action result = node.process(getContext(sharedState, new PreferredLocales(), singletonList(callback)));
+        
+        //THEN
+        assertThat(result.outcome).isEqualTo("SMS");
+        assertThat(result.callbacks).isEmpty();
+        assertThat(result.sharedState).isObject().contains(CRED_CHOICE,"SMS");
+        assertThat(sharedState).isObject().containsExactly(entry(CRED_CHOICE,"SMS"));
+    }
+	
+	@Test
+    public void nodeProcessWithVOICEOutcome() {
+		VIPOTPAuth node = new VIPOTPAuth(config);
+		JsonValue sharedState = json(object(1));
+		Collection<String> values = config.referrerCredList().values();
+		String[] targetArray = values.toArray(new String[0]);
+		ChoiceCallback callback = new ChoiceCallback("Choose Your Cred Type",targetArray,
+				0,false);
+		callback.setSelectedIndex(1);
+        Action result = node.process(getContext(sharedState, new PreferredLocales(), singletonList(callback)));
+        assertThat(result.outcome).isEqualTo("VOICE");
+        assertThat(result.callbacks).isEmpty();
+        assertThat(result.sharedState).isObject().contains(CRED_CHOICE,"VOICE");
+        assertThat(sharedState).isObject().containsExactly(entry(CRED_CHOICE,"VOICE"));
+    }
 
-	private TreeContext getTreeContext(Map<String, String[]> parameters) {
-		return new TreeContext(JsonValue.json(object(1)),
-				new ExternalRequestContext.Builder().parameters(parameters).build(), emptyList());
+	private TreeContext getContext(JsonValue sharedState, PreferredLocales preferredLocales,
+			List<? extends Callback> callbacks) {
+		return new TreeContext(sharedState, new Builder().locales(preferredLocales).build(), callbacks);
+	}
+
+	static class MockResourceBundle extends ResourceBundle {
+		private final String value;
+
+		MockResourceBundle(String value) {
+			this.value = value;
+		}
+
+		@Override
+		protected Object handleGetObject(String key) {
+			return value;
+		}
+
+		@Override
+		public Enumeration<String> getKeys() {
+			return null;
+		}
 	}
 }

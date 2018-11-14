@@ -15,8 +15,6 @@ public final class Constants {
     public static final  String MOB_NUM ="Mobile Number";
     public static final  String CONFIRM_CRED_CHOICE =" Cred Choice";
     public static final  String SECURE_CODE_ERROR =" Display Error";
-    //TODO Remove, never used
-    public static final  String FINALCODEERROR=" Display Error";
     
 
     public static final String PUSH_DISPLAY_MESSAGE_TEXT = "push_display_message_text";
@@ -25,8 +23,7 @@ public final class Constants {
     
     public static final String STANDARD_OTP = "STANDARD_OTP";
     public static final String ACTIVATION_CODE ="ACTIVATION CODE";
-    //TODO Remove, never used
-    public static final String SHARED_SECRET="SharedSecret";
+  
     public static final String NO_CREDENTIALS_REGISTERED="NoCredentialRegistered";
     
     public static final String NO_CRED_REGISTERED = "NO_CRED_REGISTERED";
