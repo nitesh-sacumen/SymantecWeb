@@ -183,7 +183,9 @@ this section depicts configuration of VIP Auth Tree
 ```
 * Configure VIP Auth Tree as shown below
 
-![final-tree](https://user-images.githubusercontent.com/20396535/48221988-81be7e00-e3b9-11e8-8489-d790faa833f4.PNG)
+
+![new_conf](https://user-images.githubusercontent.com/20396535/48697182-fdb29480-ec09-11e8-9f67-35b05a52e814.PNG)
+
 
 
 ```js
@@ -192,6 +194,7 @@ this section depicts configuration of VIP Auth Tree
     * VIP OTPAuth Creds
     * VIP Authenticate Push Credentials
     * VIP Push Auth User
+    * VIP Search User
 ```
 
 * Now access the protected site by OpenAM
