@@ -14,8 +14,7 @@
  * Copyright ${data.get('yyyy')} ForgeRock AS.
 -->
 # VipAuthTreeNode
-
-A simple authentication node for ForgeRock's [Identity Platform][forgerock_platform] 5.5 and above.
+A simple authentication node for ForgeRock's Access Manager 6.0 and above.
 
 ## Information
 
@@ -151,9 +150,9 @@ Attributes to be configured are:
 This node register user in VIP, If user dont exist. There are no configurable attributes to it.
 ```
 
-** VIP Search User
+* VIP Search User
 ```js
-This node search user in VIP and get user info, if user exits. There are no configurable attributes to it.
+This node search user in VIP and get user info, if user exits.
 Attributes to be configured are:
  * Keystore Path: Path for keystore file.
  * Keystore Passwor: Password of keystore file.
