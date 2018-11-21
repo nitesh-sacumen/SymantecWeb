@@ -49,6 +49,13 @@ Following are the nodes that will be available after deploying the jar file:
 
 ![nodes-2](https://user-images.githubusercontent.com/20396535/48184091-f01e2480-e356-11e8-8707-962a3fc1110a.PNG)
 
+![display_error](https://user-images.githubusercontent.com/20396535/48692472-2fbcfa00-ebfc-11e8-9570-141944be1d25.PNG)
+
+
+* VIP DISPLAY ERROR
+```js
+This node will display error assiciated with exceed attempts of invalid otp. There are no configurable attributes to it.
+```
 
 * VIP Add Credential
 ```js
@@ -147,7 +154,21 @@ This node register user in VIP, If user dont exist. There are no configurable at
 ** VIP Search User
 ```js
 This node search user in VIP and get user info, if user exits. There are no configurable attributes to it.
+Attributes to be configured are:
+ * Keystore Path: Path for keystore file.
+ * Keystore Passwor: Password of keystore file.
 ```
+
+![searchuser](https://user-images.githubusercontent.com/20396535/48692585-89bdbf80-ebfc-11e8-9128-0b968b4f8f18.PNG)
+
+## Set Logging Level
+
+* User can set log level in forgerock instance, To set user need to follow this path:
+```js
+DEPLOYMENT-->SERVERS-->LocalInstance-->Debugging
+```
+
+![set_logging](https://user-images.githubusercontent.com/20396535/48692807-621b2700-ebfd-11e8-993b-d9f0da2f9191.PNG)
 
 ## Configure the trees as follows
 
@@ -162,7 +183,9 @@ this section depicts configuration of VIP Auth Tree
 ```
 * Configure VIP Auth Tree as shown below
 
-![final-tree](https://user-images.githubusercontent.com/20396535/48221988-81be7e00-e3b9-11e8-8489-d790faa833f4.PNG)
+
+![new_conf](https://user-images.githubusercontent.com/20396535/48697182-fdb29480-ec09-11e8-9f67-35b05a52e814.PNG)
+
 
 
 ```js
@@ -171,11 +194,13 @@ this section depicts configuration of VIP Auth Tree
     * VIP OTPAuth Creds
     * VIP Authenticate Push Credentials
     * VIP Push Auth User
+    * VIP Search User
 ```
 
 * Now access the protected site by OpenAM
 
 ![login](https://user-images.githubusercontent.com/20396535/48189557-7c841380-e366-11e8-8050-f1b54e3d8e1c.PNG)
+
 
 
 
