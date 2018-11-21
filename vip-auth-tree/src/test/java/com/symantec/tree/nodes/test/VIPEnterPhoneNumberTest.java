@@ -13,8 +13,10 @@ import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.symantec.tree.nodes.VIPEnterPhoneNumber;
+import com.symantec.tree.request.util.SMSVoiceRegister;
 
 import java.util.Enumeration;
 import java.util.List;
@@ -25,9 +27,14 @@ import javax.security.auth.callback.NameCallback;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext.Builder;
+import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.util.i18n.PreferredLocales;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -39,11 +46,29 @@ import org.testng.annotations.Test;
  */
 @Test
 public class VIPEnterPhoneNumberTest {
+	
+	@Mock
+	private CoreWrapper coreWrapper;
+	
+	@Mock
+	private VIPEnterPhoneNumber.Config config;
+	
+	@Mock 
+	private SMSVoiceRegister svRegister;
+	
+	
+	@InjectMocks
+	private VIPEnterPhoneNumber node ;
+	
+	@BeforeMethod
+	public void setup() throws NodeProcessException {
+		node = null;
+		initMocks(this);
+	}	
 
 	@Test
-    public void testProcessWithNoCallbacksReturnsASingleCallback() {
+    public void testProcessWithNoCallbacksReturnsASingleCallback() throws NodeProcessException {
         // Given
-		VIPEnterPhoneNumber node = new VIPEnterPhoneNumber();
         JsonValue sharedState = json(object(field(CRED_CHOICE, "SMS")));
         PreferredLocales preferredLocales = mock(PreferredLocales.class);
         ResourceBundle resourceBundle = new MockResourceBundle("Enter Your Phone Number");
@@ -62,9 +87,8 @@ public class VIPEnterPhoneNumberTest {
     }
 
     @Test
-    public void testProcessWithCallbacksAddsToState() {
+    public void testProcessWithCallbacksAddsToState() throws NodeProcessException {
     	//Given
-    	VIPEnterPhoneNumber node = new VIPEnterPhoneNumber();
     	JsonValue sharedState = json(object(field(CRED_CHOICE, "SMS")));
     	NameCallback callback = new NameCallback("prompt");
         callback.setName("918787878111");

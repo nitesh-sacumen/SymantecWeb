@@ -3,7 +3,6 @@ package com.symantec.tree.nodes;
 import com.symantec.tree.config.Constants.VIPPollPush;
 import com.symantec.tree.request.util.AuthPollPush;
 import com.symantec.tree.request.util.DeleteCredential;
-
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
@@ -13,18 +12,17 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
 import org.forgerock.openam.auth.node.api.Node;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.OutcomeProvider;
 import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symantec.tree.config.Constants.STANDARD_OTP;
-import static com.symantec.tree.config.Constants.CRED_ID;
-import static com.symantec.tree.config.Constants.TXN_ID;
+import static com.symantec.tree.config.Constants.*;
 /**
  * 
- * @author Symantec
+ * @author Sacumen (www.sacumen.com)
  * @category Node
  * @Descrition "VIP Poll Push Reg" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
  * If TRUE, it will go to "Success".
@@ -74,11 +72,13 @@ public class VIPPollPushReg implements Node {
 		logger.info("Entered into verifyAuth method");
 		String credId = context.sharedState.get(CRED_ID).asString();
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		String credType = STANDARD_OTP;
 		JsonValue newSharedState = context.sharedState.copy();
 		try {
 
-			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString());
+			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString(),key_store,key_store_pass);
 
 			if (result != null) {
 
@@ -91,11 +91,11 @@ public class VIPPollPushReg implements Node {
 						return goTo(Symantec.UNANSWERED).replaceSharedState(newSharedState).build();
 
 					} else if (result.equalsIgnoreCase(VIPPollPush.REJECTED)) {
-						deleteCredential(userName, credId, credType);
+						deleteCredential(userName, credId, credType,context);
 						return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
 
 					} else {
-						deleteCredential(userName, credId, credType);
+						deleteCredential(userName, credId, credType,context);
 						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
 
 					}
@@ -153,10 +153,12 @@ public class VIPPollPushReg implements Node {
 		}
 	}
 
-	private void deleteCredential(String userName, String credId, String credType) {
+	private void deleteCredential(String userName, String credId, String credType,TreeContext context) throws NodeProcessException {
 		logger.info("deleting credential");
 		DeleteCredential delCred = new DeleteCredential();
-		delCred.deleteCredential(userName, credId, credType);
+		String key_store = context.sharedState.get("key_store_path").asString();
+		String key_store_pass = context.sharedState.get("key_store_pass").asString();
+		delCred.deleteCredential(userName, credId, credType,key_store,key_store_pass);
 	}
 
 }

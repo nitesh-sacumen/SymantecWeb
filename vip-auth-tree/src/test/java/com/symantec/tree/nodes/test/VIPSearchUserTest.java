@@ -4,16 +4,20 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.forgerock.json.JsonValue.object;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.MockitoAnnotations.initMocks;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.SharedStateConstants;
 import org.forgerock.openam.auth.node.api.TreeContext;
+import org.forgerock.openam.core.CoreWrapper;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -29,33 +33,61 @@ import com.symantec.tree.request.util.VIPGetUser;
  */
 @Test
 public class VIPSearchUserTest {
-
+	
 	@Mock
+	private CoreWrapper coreWrapper;
+	
+	@Mock
+	private VIPSearchUser.Config config;
+	
+	@Mock 
 	private VIPGetUser vipSearchUser;
+	
+	
+	@InjectMocks
+	private VIPSearchUser node ;
 
 	@BeforeMethod
-	public void before() {
-
+	public void setup() throws NodeProcessException {
+		node = null;
 		initMocks(this);
-
-	}
+	}	
 
 	@Test
-	public void nodeProcessWithTrueOutcome() {
-		given(vipSearchUser.viewUserInfo(anyString())).willReturn(true);
-		given(vipSearchUser.getMobInfo(anyString())).willReturn("91565656543");
-
-		TreeContext context = getTreeContext(new HashMap<>());
-
-		context.sharedState.put(SharedStateConstants.USERNAME, "ruchika");
+	public void nodeProcessWithTrueOutcome() throws NodeProcessException, IOException {
+		given(vipSearchUser.viewUserInfo(any(), any(), any())).willReturn(true);
+	    TreeContext context = getTreeContext(new HashMap<>());
+	    
+		given(config.Key_Store_Path()).willReturn("newFile.txt");
+        given(config.Key_Store_Password()).willReturn("vip@123");
+                
+		context.sharedState.put(SharedStateConstants.USERNAME, "vip");
 
 		//WHEN
-		VIPSearchUser node = new VIPSearchUser();
 		Action action = node.process(context);
 
 		// THEN
 		assertThat(action.callbacks).isEmpty();
 		assertThat(action.outcome).isEqualTo("true");
+
+	}
+	
+	@Test
+	public void nodeProcessWithFalseOutcome() throws NodeProcessException, IOException {
+		given(vipSearchUser.viewUserInfo(any(), any(), any())).willReturn(false);
+	    TreeContext context = getTreeContext(new HashMap<>());
+	    
+		given(config.Key_Store_Path()).willReturn("newFile.txt");
+        given(config.Key_Store_Password()).willReturn("vip@123");
+                
+		context.sharedState.put(SharedStateConstants.USERNAME, "vip");
+
+		//WHEN
+		Action action = node.process(context);
+
+		// THEN
+		assertThat(action.callbacks).isEmpty();
+		assertThat(action.outcome).isEqualTo("false");
 
 	}
 	

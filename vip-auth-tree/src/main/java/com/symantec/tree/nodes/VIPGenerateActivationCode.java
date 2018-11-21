@@ -7,13 +7,12 @@ import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symantec.tree.config.Constants.ACTIVATION_CODE;
-
+import static com.symantec.tree.config.Constants.*;
 import javax.inject.Inject;
 
 /**
  * 
- * @author Symantec SDK
+ * @author Sacumen (www.sacumen.com)
  * @category Node
  * @Descrition "VIP Activation Code" node with true and false outcome.
  *
@@ -44,10 +43,13 @@ public class VIPGenerateActivationCode extends AbstractDecisionNode {
 
 	/**
 	 * Main logic of the node.
+	 * @throws NodeProcessException 
 	 */
 	@Override
-	public Action process(TreeContext context) {
-		String Stat = generateActivationCode.generateCode();
+	public Action process(TreeContext context) throws NodeProcessException {
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
+		String Stat = generateActivationCode.generateCode(key_store,key_store_pass);
 		String[] array = Stat.split(",");
 		for (String s : array)
 			logger.debug("Values:" + s);

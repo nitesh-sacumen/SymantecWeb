@@ -2,15 +2,19 @@ package com.symantec.tree.nodes;
 
 import static com.symantec.tree.config.Constants.*;
 
+import com.google.inject.assistedinject.Assisted;
+import com.symantec.tree.nodes.VIPPushAuth.Config;
 import com.symantec.tree.request.util.VIPGetUser;
 import javax.inject.Inject;
+
+import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Search User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Push Auth User". If False, go to
  *             "VIP Register User".
@@ -20,36 +24,48 @@ import org.slf4j.LoggerFactory;
 public class VIPSearchUser extends AbstractDecisionNode {
 	static Logger logger = LoggerFactory.getLogger(VIPSearchUser.class);
 
-	private VIPGetUser vipSearchUser = null;
-
 	/**
 	 * Configuration for the node.
 	 */
-	public interface Config {
+	 public interface Config {
+		@Attribute(order = 100, requiredValue = true)
+		String Key_Store_Path();
 
+
+		@Attribute(order = 200, requiredValue = true)
+		String Key_Store_Password();
 	}
+	 
+	private VIPGetUser vipSearchUser;
+	private final Config config;
 
 	/**
 	 * Create the node.
 	 *
 	 */
 	@Inject
-	public VIPSearchUser() {
-			vipSearchUser = new VIPGetUser();
+	public VIPSearchUser(@Assisted Config config,VIPGetUser vipSearchUser) {
+		this.config = config;
+		this.vipSearchUser = vipSearchUser;
 	}
 
 	/**
 	 * Main logic of the node.
+	 * @throws NodeProcessException 
 	 */
 	@Override
-	public Action process(TreeContext context) {
+	public Action process(TreeContext context) throws NodeProcessException {
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
-		boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName);
+		context.sharedState.put(KEY_STORE_PATH,config.Key_Store_Path());
+		context.sharedState.put(KEY_STORE_PASS,config.Key_Store_Password());
+		boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName,config.Key_Store_Path(),config.Key_Store_Password());
+
+		
 		String mobNum;
 
 		try {
 			if (isVIPProfileExisted) {
-				mobNum = vipSearchUser.getMobInfo(userName);
+				mobNum = vipSearchUser.getMobInfo(userName,config.Key_Store_Path(),config.Key_Store_Password());
 				logger.debug("Phone Number " + mobNum);
 
 				if (mobNum != null && mobNum.equalsIgnoreCase(NO_CRED_REGISTERED)) {

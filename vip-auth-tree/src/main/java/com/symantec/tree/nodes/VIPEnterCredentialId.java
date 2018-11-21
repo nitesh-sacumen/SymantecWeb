@@ -14,17 +14,11 @@ import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.symantec.tree.request.util.SMSVoiceRegister;
-
 import static com.symantec.tree.config.Constants.CRED_ID;
-import static com.symantec.tree.config.Constants.CRED_CHOICE;
-import static com.symantec.tree.config.Constants.SMS;
-import static com.symantec.tree.config.Constants.VOICE;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Enter CredentialID" node with single outcome. This node will redirect to "VIP Add Credential".
  *
@@ -35,8 +29,6 @@ public class VIPEnterCredentialId extends SingleOutcomeNode {
 
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterCredentialId";
 	private final Logger logger = LoggerFactory.getLogger(VIPEnterCredentialId.class);
-	private SMSVoiceRegister svRegister;
-
 	/**
 	 * Configuration for the node.
 	 */
@@ -66,7 +58,7 @@ public class VIPEnterCredentialId extends SingleOutcomeNode {
 	 */
 	@Override
 	public Action process(TreeContext context) {
-		logger.debug("Collect CredID started");
+		logger.info("Collect CredID started");
 		JsonValue sharedState = context.sharedState;
 
 		return context.getCallback(PasswordCallback.class).map(PasswordCallback::getPassword).map(String::new)

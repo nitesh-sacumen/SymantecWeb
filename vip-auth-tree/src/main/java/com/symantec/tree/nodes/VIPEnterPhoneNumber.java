@@ -9,21 +9,17 @@ import org.forgerock.guava.common.base.Strings;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.symantec.tree.request.util.SMSVoiceRegister;
 
-import static com.symantec.tree.config.Constants.CRED_ID;
-import static com.symantec.tree.config.Constants.MOB_NUM;
-import static com.symantec.tree.config.Constants.CRED_CHOICE;
-import static com.symantec.tree.config.Constants.SMS;
-import static com.symantec.tree.config.Constants.VOICE;
+import static com.symantec.tree.config.Constants.*;
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Enter Phone Number" node with single outcome. This node will redirect to "VIP Enter SecurityCode/OTP".
  *
@@ -53,10 +49,11 @@ public class VIPEnterPhoneNumber extends SingleOutcomeNode {
 	 * Main logic of the node.
 	 */
     @Override
-    public Action process(TreeContext context) {
+    public Action process(TreeContext context) throws NodeProcessException{
     	logger.info("Collect PhoneNumber started");
         JsonValue sharedState = context.sharedState;
-        
+        String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
         return context.getCallback(NameCallback.class)
                 .map(NameCallback::getName)
                 .map(String::new)
@@ -66,13 +63,21 @@ public class VIPEnterPhoneNumber extends SingleOutcomeNode {
                 	String credType= context.sharedState.get(CRED_CHOICE).asString();
                 	if(credType.equalsIgnoreCase(SMS) ) {
                 	logger.info("calling sms register method");
-                	svRegister.smsRegister(name);
+                	try {
+						svRegister.smsRegister(name,key_store,key_store_pass);
+					} catch (NodeProcessException e) {
+						e.printStackTrace();
+					}
                 	return goToNext()
                 	.replaceSharedState(sharedState.copy().put(MOB_NUM, name)).build();
 
                 	}else if(credType.equalsIgnoreCase(VOICE)){
                 	logger.info("calling voice register method");
-                	svRegister.voiceRegister(name);
+                	try {
+						svRegister.voiceRegister(name,key_store,key_store_pass);
+					} catch (NodeProcessException e) {
+						e.printStackTrace();
+					}
                 	return goToNext()
                 	.replaceSharedState(sharedState.copy().put(MOB_NUM, name)).build();
 
@@ -82,7 +87,7 @@ public class VIPEnterPhoneNumber extends SingleOutcomeNode {
                 	
                 })
                 .orElseGet(() -> {
-                	logger.debug("Enter Credential ID");
+                	logger.info("Enter Credential ID");
                     return collectOTP(context);
                 });
     }

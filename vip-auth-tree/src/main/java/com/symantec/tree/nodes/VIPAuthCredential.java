@@ -13,12 +13,10 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import static com.symantec.tree.config.Constants.CRED_ID;
-import static com.symantec.tree.config.Constants.TXN_ID;
-
-/**
+import static com.symantec.tree.config.Constants.*;
+/**s
  * 
- * @author Symantec
+ * @author Sacumen (www.sacumen.com)
  * @category Node
  * @Descrition "VIP Authenticate Push Credential" node with true and false outcome, If true, go
  *             to "VIP Poll Push Reg" else false, go to "VIP Enter SecurityCode/OTP".
@@ -59,7 +57,7 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 	 * @param config The service config.
      */
 	@Inject
-	public VIPAuthCredential(@Assisted Config config) {
+	public VIPAuthCredential(@Assisted Config config,AuthenticateCredential authPushCred) {
 
         logger.debug("Display Message Text:", config.displayMsgText());
 		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_TEXT, config.displayMsgText());
@@ -70,20 +68,24 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 		logger.debug("Display Message Profile", config.displayMsgProfile());
 		vipPushCodeMap.put(Constants.PUSH_DISPLAY_MESSAGE_PROFILE, config.displayMsgProfile());
 
-		authPushCred = new AuthenticateCredential();
+		this.authPushCred = authPushCred;
 	}
 
 	/**
 	 * Main logic of the node.
+	 * @throws NodeProcessException 
 	 */
 	@Override
-	public Action process(TreeContext context) {
+	public Action process(TreeContext context) throws NodeProcessException {
 		String credId = context.sharedState.get(CRED_ID).asString();
         String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
+        String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		logger.info("Calling VIP Auth credential");
 		String Stat = authPushCred.authCredential(credId, vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TEXT),
 				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TITLE),
-				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_PROFILE));
+				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_PROFILE),
+				key_store,key_store_pass);
 		String[] trastat = Stat.split(",");
 		for (String s : trastat)
 			logger.debug("Values:" + s);
@@ -97,19 +99,22 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 			logger.debug("Mobile Push is sent successfully:" + status);
 			return goTo(true).build();
 		} else {
-			deleteCredential(userName, credId);
+			deleteCredential(userName, credId,context);
 			return goTo(false).build();
 		}
 
 	}
 
 	/**
-	 *  @param userName
+	 * @param userName
 	 * @param credId
+	 * @throws NodeProcessException 
      */
-	private void deleteCredential(String userName, String credId) {
+	private void deleteCredential(String userName, String credId, TreeContext context) throws NodeProcessException {
 		logger.info("Deleting credentials");
 		DeleteCredential delCred = new DeleteCredential();
-		delCred.deleteCredential(userName, credId, Constants.STANDARD_OTP);
+		String key_store = context.sharedState.get("key_store_path").asString();
+		String key_store_pass = context.sharedState.get("key_store_pass").asString();
+		delCred.deleteCredential(userName, credId, Constants.STANDARD_OTP,key_store,key_store_pass);
 	}
 }

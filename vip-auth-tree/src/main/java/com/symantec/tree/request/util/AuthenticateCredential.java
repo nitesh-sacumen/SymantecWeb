@@ -1,13 +1,10 @@
 package com.symantec.tree.request.util;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Properties;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -15,47 +12,54 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * Authenticate credentials using AuthenticateCredentialsRequest
  *
  */
 public class AuthenticateCredential {
 	static Logger logger = LoggerFactory.getLogger(AuthenticateCredential.class);
-	public String authCredential(String credID, String displayMsgText, String displayMsgTitle,String displayMsgProfile) {
+	
+	/**
+	 * 
+	 * @param credID
+	 * @param displayMsgText
+	 * @param displayMsgTitle
+	 * @param displayMsgProfile
+	 * @param key_store
+	 * @param key_store_pass
+	 * @return status of AuthenticateCredentialsRequest
+	 * @throws NodeProcessException
+	 */
+	public String authCredential(String credID, String displayMsgText, String displayMsgTitle,String displayMsgProfile,
+			String key_store,String key_store_pass) throws NodeProcessException {
 		String transactionID = "";
-		HttpClientUtil clientUtil = new HttpClientUtil();
-		HttpClient httpClient = clientUtil.getHttpClient();
-
+		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
 		HttpPost post = new HttpPost(getURL());
 		String status = null;
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getViewUserPayload(credID, displayMsgText, displayMsgTitle, displayMsgProfile);
 		logger.debug("Request Payload: " + payLoad);
 		try {
+			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
-
-			logger.info("Executing http request for AuthenticateCredentials");
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
-
-			logger.debug("Response Code : " + response.getStatusLine().getStatusCode());
-			logger.info(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
-			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			logger.debug( "retrieving transactionId \t" + doc.getElementsByTagName("transactionId"));
 			if(doc.getElementsByTagName("transactionId").item(0) !=null) {
 				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
 			}
@@ -63,8 +67,8 @@ public class AuthenticateCredential {
 				transactionID = " ";
 			logger.debug("Status is:\t" + statusMessage);
 		
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			throw new NodeProcessException(e);
 		}
 		String transtat=status+","+transactionID;
 		logger.debug( "Status and TransactionId \t"+transtat);
@@ -120,8 +124,9 @@ public class AuthenticateCredential {
 	/**
 	 * 
 	 * @return AuthenticationServiceURL 
+	 * @throws NodeProcessException 
 	 */
-	private String getURL() {
+	private String getURL() throws NodeProcessException {
 		return GetVIPServiceURL.getInstance().serviceUrls.get("AuthenticationServiceURL");
 	}
 }

@@ -1,7 +1,6 @@
 package com.symantec.tree.nodes;
 
-import static com.symantec.tree.config.Constants.SECURE_CODE;
-import static com.symantec.tree.config.Constants.SECURE_CODE_ERROR;
+import static com.symantec.tree.config.Constants.*;
 
 import com.symantec.tree.request.util.CheckVIPOtp;
 import java.util.List;
@@ -48,13 +47,16 @@ public class VIPSDKOTPCheck implements Node {
 
 	/**
 	 * Main logic of the node.
+	 * @throws NodeProcessException 
 	 */
 	@Override
-	public Action process(TreeContext context) {
+	public Action process(TreeContext context) throws NodeProcessException {
 
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String otpValue = context.sharedState.get(SECURE_CODE).asString();
-		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue);
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
+		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue,key_store,key_store_pass);
 		logger.debug("Check OTP is" + isDeviceAdded);
 		if (isDeviceAdded) {
 			return goTo(Symantec.TRUE).build();

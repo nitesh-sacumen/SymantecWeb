@@ -21,17 +21,13 @@ import javax.security.auth.callback.ChoiceCallback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.Callback;
-
 import java.util.*;
 
-import static com.symantec.tree.config.Constants.CRED_CHOICE;
-import static com.symantec.tree.config.Constants.MOB_NUM;
-import static com.symantec.tree.config.Constants.SECURE_CODE;
-import static com.symantec.tree.config.Constants.SECURE_CODE_ERROR;
+import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP OTPAuth Creds" node with SMS, VOICE and TOKEN outcome.
  * If SMS and VOICE, it will go to "VIP Enter SecurityCode/OTP".
@@ -43,6 +39,8 @@ public class VIPOTPAuth implements Node {
 	static Logger logger = LoggerFactory.getLogger(VIPOTPAuth.class);
 
 	private final Config config;
+	private VoiceDeviceRegister voiceDeviceRegister;
+	private SmsDeviceRegister smsDeviceRegister;
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPOTPAuth";
 
 	/**
@@ -62,8 +60,10 @@ public class VIPOTPAuth implements Node {
 	 * @param config The service config.
 	 */
 	@Inject
-	public VIPOTPAuth(@Assisted Config config) {
+	public VIPOTPAuth(@Assisted Config config,VoiceDeviceRegister voiceDeviceRegister,SmsDeviceRegister smsDeviceRegister) {
 		this.config = config;
+		this.voiceDeviceRegister = voiceDeviceRegister;
+		this.smsDeviceRegister = smsDeviceRegister;
 	}
 
 	/**
@@ -71,9 +71,12 @@ public class VIPOTPAuth implements Node {
 	 */
 	@Override
 	public Action process(TreeContext context) {
+		logger.info("Selecting option from SMS/VOICE/TOKEN");
 		JsonValue sharedState = context.sharedState;
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String credValue = context.sharedState.get(MOB_NUM).asString();
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 
 		Optional<NameCallback> nameCallback = context.getCallback(NameCallback.class);
 
@@ -92,13 +95,21 @@ public class VIPOTPAuth implements Node {
 					switch (choice) {
 
 					case 1:
-						boolean isOTPVoiceAuthenticated = new VoiceDeviceRegister().voiceDeviceRegister(userName,
-								credValue);
-						logger.debug("Voice Call sent .. " + isOTPVoiceAuthenticated);
+						boolean isOTPVoiceAuthenticated;
+						try {
+							isOTPVoiceAuthenticated = voiceDeviceRegister.voiceDeviceRegister(userName,
+									credValue,key_store,key_store_pass);
+						} catch (NodeProcessException e) {
+							e.printStackTrace();
+						}
 						return goTo(SymantecOTPAuthOutcome.VOICE).replaceSharedState(sharedState).build();
 					case 0:
-						boolean isOTPSmsAuthenticated = new SmsDeviceRegister().smsDeviceRegister(userName, credValue);
-						logger.debug("OTP sent  " + isOTPSmsAuthenticated);
+						boolean isOTPSmsAuthenticated;
+						try {
+							isOTPSmsAuthenticated = smsDeviceRegister.smsDeviceRegister(userName, credValue,key_store,key_store_pass);
+						} catch (NodeProcessException e) {
+							e.printStackTrace();
+						}
 						return goTo(SymantecOTPAuthOutcome.SMS).replaceSharedState(sharedState).build();
 					}
 					return goTo(SymantecOTPAuthOutcome.TOKEN).replaceSharedState(sharedState).build();

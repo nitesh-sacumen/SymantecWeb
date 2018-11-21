@@ -15,6 +15,10 @@ public final class Constants {
     public static final  String MOB_NUM ="Mobile Number";
     public static final  String CONFIRM_CRED_CHOICE =" Cred Choice";
     public static final  String SECURE_CODE_ERROR =" Display Error";
+    public static final  String CREDENTIAL_ID_ERROR ="Credential Id Error";
+    public static final  String OTP_ERROR ="Invalid OTP";
+    public static final  String KEY_STORE_PATH = "key_store_path";
+    public static final  String KEY_STORE_PASS = "key_store_pass";
     
 
     public static final String PUSH_DISPLAY_MESSAGE_TEXT = "push_display_message_text";

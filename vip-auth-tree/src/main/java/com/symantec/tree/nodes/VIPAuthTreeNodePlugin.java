@@ -87,8 +87,10 @@ public class VIPAuthTreeNodePlugin extends AbstractNodeAmPlugin {
 						VIPGenerateActivationCode.class,
 						VIPSDKAddCredential.class,
 						VIPSDKEnterCredentialId.class,
-						VIPSDKOTPCheck.class
-				));
+						VIPSDKOTPCheck.class,
+						VIPDisplayError.class
+
+						));
 	}
 
     /** 

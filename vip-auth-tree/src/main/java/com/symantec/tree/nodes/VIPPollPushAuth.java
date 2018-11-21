@@ -2,7 +2,6 @@ package com.symantec.tree.nodes;
 
 import com.symantec.tree.config.Constants.VIPPollPush;
 import com.symantec.tree.request.util.AuthPollPush;
-
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
@@ -19,11 +18,11 @@ import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.symantec.tree.config.Constants.TXN_ID;
+import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Poll Push Auth" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
  * If TRUE, it will go to "Success".
@@ -71,9 +70,11 @@ public class VIPPollPushAuth implements Node {
 	private Action verifyAuth(TreeContext context) {
 		logger.info("Entered into verifyAuth method");
 		JsonValue newSharedState = context.sharedState.copy();
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		try {
 
-			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString());
+			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString(),key_store,key_store_pass);
 
 			if (result != null) {
 

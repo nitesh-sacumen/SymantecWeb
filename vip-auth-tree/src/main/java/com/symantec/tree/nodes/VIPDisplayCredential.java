@@ -1,13 +1,17 @@
 package com.symantec.tree.nodes;
 
 import static com.symantec.tree.config.Constants.CRED_CHOICE;
+import static com.symantec.tree.config.Constants.CREDENTIAL_ID_ERROR;
 import static org.forgerock.openam.auth.node.api.Action.send;
 
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.sm.RequiredValueValidator;
 import java.util.*;
 import javax.inject.Inject;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.ChoiceCallback;
+import javax.security.auth.callback.TextOutputCallback;
+
 import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
@@ -22,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen (www.sacumen.com)
  * @category Node
  * @Descrition "VIP Display Credential" node with VIP, SMS and VOICE outcome, If VIP, go
- *             to "VIP Enter CredentialID".If SMS and VOIC go to "VIP Enter Phone Number".
+ *             to "VIP Enter CredentialID".If SMS and VOICE go to "VIP Enter Phone Number".
  *
  */
 @Node.Metadata(outcomeProvider = VIPDisplayCredential.CredsOutcomeProvider.class, configClass =
@@ -83,21 +87,37 @@ public class VIPDisplayCredential implements Node {
 
 				}).orElseGet(() -> {
 					logger.debug("collecting choice");
-					return displayCreds(context);
+					return displayCredentials(context);
 				});
 	}
-
+	
 	/**
 	 * 
 	 * @param context
-	 * @return Action
-	 * sending list of callbacks.
+	 * @return Action for display credentials options.
 	 */
-	private Action displayCreds(TreeContext context) {
-		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
+	private Action displayCredentials(TreeContext context) {
+		List<Callback> cbList = new ArrayList<>(2);
 		Collection<String> values = config.referrerCredList().values();
 		String[] targetArray = values.toArray(new String[0]);
-		return send(new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false)).build();
+		String outputError = context.sharedState.get(CREDENTIAL_ID_ERROR).asString();
+		logger.debug("text block error" + outputError);
+		if (outputError == null) {
+            ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
+					getClass().getClassLoader());
+			ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false);
+			cbList.add(ccb);
+		} else {
+			TextOutputCallback tcb = new TextOutputCallback(0, outputError);
+			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
+					getClass().getClassLoader());
+			ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false);
+			cbList.add(tcb);
+			cbList.add(ccb);
+		}
+
+		return send(ImmutableList.copyOf(cbList)).build();
+
 	}
 
 	private ActionBuilder goTo(SymantecDisplayCredsOutcome outcome) {

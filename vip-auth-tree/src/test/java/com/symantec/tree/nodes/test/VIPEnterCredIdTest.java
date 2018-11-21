@@ -27,7 +27,6 @@ import javax.security.auth.callback.PasswordCallback;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
-import org.forgerock.openam.auth.node.api.ExternalRequestContext;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext.Builder;
 import org.forgerock.util.i18n.PreferredLocales;

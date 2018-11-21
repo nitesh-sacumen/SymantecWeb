@@ -1,7 +1,6 @@
 package com.symantec.tree.nodes;
 
-import static com.symantec.tree.config.Constants.NO_CREDENTIALS_REGISTERED;
-
+import static com.symantec.tree.config.Constants.*;
 import com.symantec.tree.request.util.VIPCreateUser;
 import javax.inject.Inject;
 import org.forgerock.openam.auth.node.api.*;
@@ -10,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Register User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Display Creds". If False, go to
  *             "Failure".
@@ -41,11 +40,14 @@ public class VIPRegisterUser extends AbstractDecisionNode {
 
 	/**
 	 * Main logic of the node.
+	 * @throws NodeProcessException 
 	 */
 	@Override
-	public Action process(TreeContext context) {
+	public Action process(TreeContext context) throws NodeProcessException {
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String credRegistrationStatus = context.transientState.get(NO_CREDENTIALS_REGISTERED).toString();
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		boolean isVIPProfileRegistered;
 
 		logger.info("credRegistrationStatus:" + credRegistrationStatus);
@@ -55,7 +57,7 @@ public class VIPRegisterUser extends AbstractDecisionNode {
 			return goTo(true).build();
 		} else {
 			logger.info("User not registered and hence making user registration call");
-			isVIPProfileRegistered = vIPCreateUser.createVIPUser(userName);
+			isVIPProfileRegistered = vIPCreateUser.createVIPUser(userName,key_store,key_store_pass);
 			return goTo(isVIPProfileRegistered).build();
 		}
 	}

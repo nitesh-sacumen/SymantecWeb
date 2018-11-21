@@ -1,12 +1,18 @@
 package com.symantec.tree.nodes;
 
 import static org.forgerock.openam.auth.node.api.Action.send;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.inject.Inject;
+import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.TextOutputCallback;
 
 import org.forgerock.guava.common.base.Strings;
+import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -14,12 +20,12 @@ import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symantec.tree.config.Constants.SECURE_CODE;
-import static com.symantec.tree.config.Constants.MOB_NUM;
+import static com.symantec.tree.config.Constants.*;
+
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Enter SecurityCode/OTP" node with single outcome. This node will redirect to "VIP Check Symantec OTP".
  *
@@ -42,16 +48,6 @@ public class VIPEnterOTP extends SingleOutcomeNode {
     @Inject
     public VIPEnterOTP() {
     }
-    
-    /**
-     * 
-     * @param context
-     * @return password callback
-     */
-	private Action collectOTP(TreeContext context) {
-		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
-		return send(new PasswordCallback(bundle.getString("callback.securecode"), false)).build();
-	}
 
 	/**
 	 * Main logic of the node
@@ -73,7 +69,33 @@ public class VIPEnterOTP extends SingleOutcomeNode {
                 })
                 .orElseGet(() -> {
                 	logger.info("Enter Credential ID");
-                    return collectOTP(context);
+                    return displayCredentials(context);
                 });
     }
+    
+    /**
+     * 
+     * @param context
+     * @return  list of callbacks
+     */
+    private Action displayCredentials(TreeContext context) {
+		List<Callback> cbList = new ArrayList<>(2);
+		String outputError = context.sharedState.get(OTP_ERROR).asString();
+		logger.debug("text block error" + outputError);
+		if (outputError == null) {
+			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
+			PasswordCallback pcb = new PasswordCallback(bundle.getString("callback.securecode"), false);
+			cbList.add(pcb);
+		} else {
+			TextOutputCallback tcb = new TextOutputCallback(0, outputError);
+			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
+					getClass().getClassLoader());
+			PasswordCallback pcb = new PasswordCallback(bundle.getString("callback.securecode"), false);
+			cbList.add(tcb);
+			cbList.add(pcb);
+		}
+
+		return send(ImmutableList.copyOf(cbList)).build();
+
+	}
 }

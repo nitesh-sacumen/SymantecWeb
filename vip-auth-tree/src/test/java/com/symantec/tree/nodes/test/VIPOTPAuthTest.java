@@ -1,6 +1,8 @@
 package com.symantec.tree.nodes.test;
 
 import static com.symantec.tree.config.Constants.CRED_CHOICE;
+import static com.symantec.tree.config.Constants.KEY_STORE_PASS;
+import static com.symantec.tree.config.Constants.KEY_STORE_PATH;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +15,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.symantec.tree.nodes.VIPOTPAuth;
+import com.symantec.tree.request.util.SmsDeviceRegister;
+import com.symantec.tree.request.util.VoiceDeviceRegister;
 
 import java.util.Collection;
 import java.util.Enumeration;
@@ -29,7 +34,9 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext.Builder;
+import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.util.i18n.PreferredLocales;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -45,10 +52,25 @@ import org.testng.annotations.Test;
 public class VIPOTPAuthTest {
 	@Mock
 	private VIPOTPAuth.Config config;
+	
+	@Mock
+	private CoreWrapper coreWrapper;
+	
+	@Mock
+	private VoiceDeviceRegister voiceDeviceRegister;
+	
+	@Mock
+	private SmsDeviceRegister smsDeviceRegister;
+	
+	
+	@InjectMocks
+	private VIPOTPAuth node ;
+	
 
 	@BeforeMethod
 	public void before() {
 
+		node = null;
 		initMocks(this);
 		HashMap<Integer, String> creds = new HashMap<>();
 		creds.put(0,"SMS");
@@ -59,11 +81,12 @@ public class VIPOTPAuthTest {
 	}
 	@Test
 	public void nodeProcessWithDefaultBehaviour() throws Exception {
-		VIPOTPAuth node = new VIPOTPAuth(config);
 		PreferredLocales preferredLocales = mock(PreferredLocales.class);
 		ResourceBundle resourceBundle = new MockResourceBundle("Choose Your Cred Type");
 		given(preferredLocales.getBundleInPreferredLocale(any(), any())).willReturn(resourceBundle);
 		JsonValue sharedState = json(object(1));
+		sharedState.put(KEY_STORE_PATH,"C://Users//keystore.ks");
+		sharedState.put(KEY_STORE_PASS,"WORK12345");
 		
 		// WHEN
 		Action action = node.process(getContext(sharedState, new PreferredLocales(),emptyList()));
@@ -79,8 +102,9 @@ public class VIPOTPAuthTest {
 	
 	@Test
     public void nodeProcessWithSMSOutcome() {
-		VIPOTPAuth node = new VIPOTPAuth(config);
 		JsonValue sharedState = json(object(1));
+		sharedState.put(KEY_STORE_PATH,"C://Users");
+		sharedState.put(KEY_STORE_PASS,"WORK12345");
 		Collection<String> values = config.referrerCredList().values();
 		String[] targetArray = values.toArray(new String[0]);
 		ChoiceCallback callback = new ChoiceCallback("Choose Your Cred Type",targetArray,
@@ -94,13 +118,14 @@ public class VIPOTPAuthTest {
         assertThat(result.outcome).isEqualTo("SMS");
         assertThat(result.callbacks).isEmpty();
         assertThat(result.sharedState).isObject().contains(CRED_CHOICE,"SMS");
-        assertThat(sharedState).isObject().containsExactly(entry(CRED_CHOICE,"SMS"));
+        assertThat(sharedState).isObject().contains(entry(CRED_CHOICE,"SMS"));
     }
 	
 	@Test
     public void nodeProcessWithVOICEOutcome() {
-		VIPOTPAuth node = new VIPOTPAuth(config);
 		JsonValue sharedState = json(object(1));
+		sharedState.put(KEY_STORE_PATH,"C://Users");
+		sharedState.put(KEY_STORE_PASS,"WORK12345");
 		Collection<String> values = config.referrerCredList().values();
 		String[] targetArray = values.toArray(new String[0]);
 		ChoiceCallback callback = new ChoiceCallback("Choose Your Cred Type",targetArray,
@@ -110,7 +135,7 @@ public class VIPOTPAuthTest {
         assertThat(result.outcome).isEqualTo("VOICE");
         assertThat(result.callbacks).isEmpty();
         assertThat(result.sharedState).isObject().contains(CRED_CHOICE,"VOICE");
-        assertThat(sharedState).isObject().containsExactly(entry(CRED_CHOICE,"VOICE"));
+        assertThat(sharedState).isObject().contains(entry(CRED_CHOICE,"VOICE"));
     }
 
 	private TreeContext getContext(JsonValue sharedState, PreferredLocales preferredLocales,

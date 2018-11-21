@@ -1,7 +1,6 @@
 package com.symantec.tree.nodes;
 
-import static com.symantec.tree.config.Constants.SECURE_CODE;
-import static com.symantec.tree.config.Constants.SECURE_CODE_ERROR;
+import static com.symantec.tree.config.Constants.*;
 
 import com.symantec.tree.request.util.CheckVIPOtp;
 import java.util.List;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Symantec
+ * @author Sacumen(www.sacumen.com)
  * @category Node
  * @Descrition "VIP Check Symantec OTP" node with TRUE,FALSE and ERROR outcome.
  *             If TRUE, it will go to "Success". If False, go to "VIP OTPAuth
@@ -31,6 +30,7 @@ public class VIPOTPCheck implements Node {
 	private final Logger logger = LoggerFactory.getLogger(VIPOTPCheck.class);
 
 	private CheckVIPOtp checkOtp;
+	static int counter = 0;
 
 	/**
 	 * Configuration for the node.
@@ -50,21 +50,23 @@ public class VIPOTPCheck implements Node {
 
 	/**
 	 * Main logic of the node.
+	 * 
+	 * @throws NodeProcessException
 	 */
 	@Override
-	public Action process(TreeContext context) {
+	public Action process(TreeContext context) throws NodeProcessException {
 
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String otpValue = context.sharedState.get(SECURE_CODE).asString();
-		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue);
+		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
+		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
+		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue, key_store, key_store_pass);
 		logger.info("Check OTP is" + isDeviceAdded);
 		if (isDeviceAdded) {
 			return goTo(Symantec.TRUE).build();
 		} else {
-
-			context.sharedState.put(SECURE_CODE_ERROR, "Entered Security Code is Invalid");
+			context.sharedState.put(SECURE_CODE_ERROR, "Entered Security Code is Invalid, Please enter valid OTP");
 			return goTo(Symantec.FALSE).build();
-
 		}
 
 	}

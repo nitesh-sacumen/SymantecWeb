@@ -6,73 +6,86 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+/**
+ * 
+ * @author Sacumen (www.sacumen.com)
+ * @Description Get user info from vip data base if user exists, else return false.
+ *
+ */
 
 public class VIPGetUser {
 
 	static Logger logger = LoggerFactory.getLogger(VIPGetUser.class);
 
-	public boolean viewUserInfo(String userId) {
+	/**
+	 * 
+	 * @param userId
+	 * @param KEY_STORE_PATH
+	 * @param KEY_STORE_PASS
+	 * @return true If user exists in vip database, else false.
+	 * @throws NodeProcessException
+	 */
+	public boolean viewUserInfo(String userId,String KEY_STORE_PATH,String KEY_STORE_PASS) throws NodeProcessException {
 		boolean isUserExisted = false;
+        HttpPost httpPost = new HttpPost(getURL());
+		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
+		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
+		httpPost.addHeader("SOAPAction", ""); /* \"\" */
+		httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
 
+		String userPayload = getViewUserPayload(userId);
+		InputStream is = new ByteArrayInputStream(userPayload.getBytes());
+
+		InputStreamEntity reqEntity = new InputStreamEntity(is, -1);
+		reqEntity.setContentType("text/xml");
+		reqEntity.setContentEncoding("charset=utf-8");
+		reqEntity.setChunked(true);
+
+		logger.debug("req content length:\t" + reqEntity.getContentLength());
+		httpPost.setEntity(reqEntity);
+
+		logger.info("executing GetUserInfoRequest");
 		try {
-			HttpClient httpClient = new HttpClientUtil().getHttpClient();
-
-			HttpPost httpPost = new HttpPost(getURL());
-			httpPost.addHeader("Accept-Encoding", "gzip,deflate");
-			httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
-			httpPost.addHeader("SOAPAction", ""); /* \"\" */
-			httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
-
-			String userPayload = getViewUserPayload(userId);
-			InputStream is = new ByteArrayInputStream(userPayload.getBytes());
-
-			InputStreamEntity reqEntity = new InputStreamEntity(is, -1);
-			reqEntity.setContentType("text/xml");
-			reqEntity.setContentEncoding("charset=utf-8");
-			reqEntity.setChunked(true);
-
-			logger.debug("req content length:\t" + reqEntity.getContentLength());
-			httpPost.setEntity(reqEntity);
-
-			logger.info("executing GetUserInfoRequest");
+			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH,KEY_STORE_PASS);
 			HttpResponse response = httpClient.execute(httpPost);
-			logger.debug("status code is"+response.getStatusLine().getStatusCode());
 			HttpEntity entity = response.getEntity();
-			logger.debug(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
-			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			logger.debug("Status is:\t" + statusMessage);
 			if ("Success".equals(statusMessage)) {
 				isUserExisted = true;
 			}
 
-		} catch (Exception e) {
-			// TODO need to handle this with a Node Process Exception or another exception
-			// that we transform upstream.
-			// Also should only have try catch where required, not around so much extra code
-			logger.error(e.getMessage());
-			e.printStackTrace();
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			throw new NodeProcessException(e);
 		}
 		return isUserExisted;
 	}
 
+	/**
+	 * 
+	 * @param userId
+	 * @return GetUserInfoRequest Payload
+	 */
 	private String getViewUserPayload(String userId) {
 		logger.info("getting GetUserInfoRequest payload");
 		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" "
@@ -84,44 +97,44 @@ public class VIPGetUser {
 				+ "</soapenv:Envelope>";
 	}
 
-	public String getMobInfo(String userId) throws NullPointerException {
+	/**
+	 * 
+	 * @param userId
+	 * @param KEY_STORE_PATH
+	 * @param KEY_STORE_PASS
+	 * @return User's Mobile information, If user exists in vip database.
+	 * @throws NullPointerException
+	 * @throws NodeProcessException
+	 */
+	public String getMobInfo(String userId,String KEY_STORE_PATH,String KEY_STORE_PASS) throws NullPointerException, NodeProcessException {
 		String phoneNumber = null;
+		HttpPost httpPost = new HttpPost(getURL());
+		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
+		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
+		httpPost.addHeader("SOAPAction", "");
+		httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
+
+		String userPayload = getViewUserPayload(userId);
+		InputStream is = new ByteArrayInputStream(userPayload.getBytes());
+
+		InputStreamEntity reqEntity = new InputStreamEntity(is, -1);
+		reqEntity.setContentType("text/xml");
+		reqEntity.setContentEncoding("charset=utf-8");
+		reqEntity.setChunked(true);
+
+		logger.debug("req content length:\t" + reqEntity.getContentLength());
+		httpPost.setEntity(reqEntity);
 
 		try {
-			HttpClient httpClient = new HttpClientUtil().getHttpClient();
-
-			HttpPost httpPost = new HttpPost(getURL());
-			httpPost.addHeader("Accept-Encoding", "gzip,deflate");
-			httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
-			httpPost.addHeader("SOAPAction", "");
-			httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
-
-			String userPayload = getViewUserPayload(userId);
-			InputStream is = new ByteArrayInputStream(userPayload.getBytes());
-
-			InputStreamEntity reqEntity = new InputStreamEntity(is, -1);
-			reqEntity.setContentType("text/xml");
-			reqEntity.setContentEncoding("charset=utf-8");
-			reqEntity.setChunked(true);
-
-			logger.debug("req content length:\t" + reqEntity.getContentLength());
-			httpPost.setEntity(reqEntity);
-
+			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH,KEY_STORE_PASS);
 			HttpResponse response = httpClient.execute(httpPost);
-			logger.debug("response code is" + response.getStatusLine().getStatusCode());
 			HttpEntity entity = response.getEntity();
-			logger.debug(response.getStatusLine().toString());
 			String body = IOUtils.toString(entity.getContent());
-			logger.debug("response body is:\t" + body);
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-
-			logger.debug("credentialBindingDetail:" + doc.getElementsByTagName("credentialBindingDetail"));
 			if (doc.getElementsByTagName("credentialBindingDetail") != null) {
-				logger.debug("credentialBindingDetail is NOT NULL");
-
 				if (doc.getElementsByTagName("credentialBindingDetail").item(0) != null) {
 					String credBindingDetail = doc.getElementsByTagName("credentialBindingDetail").item(0)
 							.getTextContent();
@@ -130,10 +143,8 @@ public class VIPGetUser {
 					if (credBindingDetail == null || credType.equalsIgnoreCase("SMS_OTP")
 							|| credType.equalsIgnoreCase("VOICE_OTP")) {
 						phoneNumber = doc.getElementsByTagName("credentialId").item(0).getTextContent();
-						logger.debug("\n\nPhone Number:-->" + phoneNumber);
 					} else {
 						String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-						logger.debug("Status is:\t" + statusMessage);
 						if (statusMessage != null && statusMessage.equalsIgnoreCase("Success")) {
 							return "VIP_CRED_REGISTERED";
 
@@ -143,7 +154,6 @@ public class VIPGetUser {
 
 				else {
 					String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-					logger.debug("Status is:\t" + statusMessage);
 					if (statusMessage != null && statusMessage.equalsIgnoreCase("Success")) {
 						return "NO_CRED_REGISTERED";
 					}
@@ -156,8 +166,8 @@ public class VIPGetUser {
 				}
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			throw new NodeProcessException(e);
 		}
 		return phoneNumber;
 	}
@@ -165,8 +175,9 @@ public class VIPGetUser {
 	/**
 	 * 
 	 * @return QueryServiceURL
+	 * @throws NodeProcessException 
 	 */
-	private String getURL() {
+	private String getURL() throws NodeProcessException {
 		return GetVIPServiceURL.getInstance().serviceUrls.get("QueryServiceURL");
 	}
 
