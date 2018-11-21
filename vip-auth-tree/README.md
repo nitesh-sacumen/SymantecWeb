@@ -155,10 +155,14 @@ This node register user in VIP, If user dont exist. There are no configurable at
 This node search user in VIP and get user info, if user exits.
 Attributes to be configured are:
  * Keystore Path: Path for keystore file.
- * Keystore Passwor: Password of keystore file.
+ * Keystore Password: Password of keystore file.
+ * Authentication Service URL: VIP Authentication Service URL
+ * Query Service URL: VIP Query Service URL
+ * Management Service URL: VIP Management Service URL
 ```
 
-![searchuser](https://user-images.githubusercontent.com/20396535/48692585-89bdbf80-ebfc-11e8-9128-0b968b4f8f18.PNG)
+![url_conf](https://user-images.githubusercontent.com/20396535/48860971-68212b80-ede8-11e8-9953-646b9625bb70.PNG)
+
 
 ## Set Logging Level
 
