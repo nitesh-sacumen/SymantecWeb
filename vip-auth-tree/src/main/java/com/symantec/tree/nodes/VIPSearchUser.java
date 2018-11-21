@@ -34,6 +34,15 @@ public class VIPSearchUser extends AbstractDecisionNode {
 
 		@Attribute(order = 200, requiredValue = true)
 		String Key_Store_Password();
+		
+		@Attribute(order = 300, requiredValue = true)
+		String Authentication_Service_URL();
+		
+		@Attribute(order = 400, requiredValue = true)
+		String Query_Service_URL();
+		
+		@Attribute(order = 500, requiredValue = true)
+		String Management_Service_URL();
 	}
 	 
 	private VIPGetUser vipSearchUser;
@@ -58,7 +67,10 @@ public class VIPSearchUser extends AbstractDecisionNode {
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		context.sharedState.put(KEY_STORE_PATH,config.Key_Store_Path());
 		context.sharedState.put(KEY_STORE_PASS,config.Key_Store_Password());
-		boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName,config.Key_Store_Path(),config.Key_Store_Password());
+		context.sharedState.put(AUTHENTICATION_SERVICE_URL,config.Authentication_Service_URL());
+		context.sharedState.put(QUERY_SERVICE_URL,config.Query_Service_URL());
+		context.sharedState.put(MANAGEMENT_SERVICE_URL,config.Management_Service_URL());
+		boolean isVIPProfileExisted = vipSearchUser.viewUserInfo(userName,config.Key_Store_Path(),config.Key_Store_Password(),context);
 
 		
 		String mobNum;

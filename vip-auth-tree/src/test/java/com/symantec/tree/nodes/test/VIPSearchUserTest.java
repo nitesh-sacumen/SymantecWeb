@@ -55,7 +55,7 @@ public class VIPSearchUserTest {
 
 	@Test
 	public void nodeProcessWithTrueOutcome() throws NodeProcessException, IOException {
-		given(vipSearchUser.viewUserInfo(any(), any(), any())).willReturn(true);
+		given(vipSearchUser.viewUserInfo(any(), any(), any(),any())).willReturn(true);
 	    TreeContext context = getTreeContext(new HashMap<>());
 	    
 		given(config.Key_Store_Path()).willReturn("newFile.txt");
@@ -74,7 +74,7 @@ public class VIPSearchUserTest {
 	
 	@Test
 	public void nodeProcessWithFalseOutcome() throws NodeProcessException, IOException {
-		given(vipSearchUser.viewUserInfo(any(), any(), any())).willReturn(false);
+		given(vipSearchUser.viewUserInfo(any(), any(), any(), any())).willReturn(false);
 	    TreeContext context = getTreeContext(new HashMap<>());
 	    
 		given(config.Key_Store_Path()).willReturn("newFile.txt");

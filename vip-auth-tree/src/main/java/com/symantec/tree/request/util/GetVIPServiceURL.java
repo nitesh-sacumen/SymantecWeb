@@ -1,11 +1,10 @@
 package com.symantec.tree.request.util;
 
-import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.forgerock.openam.auth.node.api.NodeProcessException;
-
+import org.forgerock.openam.auth.node.api.TreeContext;
+import static com.symantec.tree.config.Constants.*;
 /**
  * 
  * @author Sacumen (www.sacumen.com)
@@ -14,20 +13,9 @@ import org.forgerock.openam.auth.node.api.NodeProcessException;
  */
 public class GetVIPServiceURL {
 	private static GetVIPServiceURL getVIPServiceUrl = null;
-	static Hashtable<String,String> serviceUrls = new Hashtable<>();
+	final static Hashtable<String,String> serviceUrls = new Hashtable<>();
 	
-	private GetVIPServiceURL() throws NodeProcessException {
-		Properties prop = new Properties();
-		ClassLoader loader = Thread.currentThread().getContextClassLoader();
-		try {
-			prop.load(loader.getResourceAsStream("vip.properties"));
-		} catch (IOException e) {
-			throw new NodeProcessException(e);
-		}
-		serviceUrls.put("ManagementServiceURL", prop.getProperty("ManagementServiceURL"));
-		serviceUrls.put("AuthenticationServiceURL", prop.getProperty("AuthenticationServiceURL"));
-		serviceUrls.put("QueryServiceURL", prop.getProperty("QueryServiceURL"));
-		serviceUrls.put("SDKURL", prop.getProperty("SDKURL"));
+	private GetVIPServiceURL(){
 	}
 	
 	public static GetVIPServiceURL getInstance() throws NodeProcessException{
@@ -35,5 +23,11 @@ public class GetVIPServiceURL {
 			getVIPServiceUrl = new GetVIPServiceURL();
 		}
 		return getVIPServiceUrl;
+	}
+	
+	public void setServiceURL(TreeContext context) {
+		serviceUrls.put("ManagementServiceURL",context.sharedState.get(MANAGEMENT_SERVICE_URL).asString());
+		serviceUrls.put("AuthenticationServiceURL",context.sharedState.get(AUTHENTICATION_SERVICE_URL).asString());
+		serviceUrls.put("QueryServiceURL", context.sharedState.get(QUERY_SERVICE_URL).asString());
 	}
 }

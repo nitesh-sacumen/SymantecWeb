@@ -36,7 +36,7 @@ public class GenerateActivationCode {
 	 */
 	public String generateCode(String key_store,String key_store_pass) throws NodeProcessException {
 		String activationCode = "";
-		HttpPost post = new HttpPost(getURL());
+		HttpPost post = new HttpPost("https://services-auth.vip.symantec.com/prov/soap");
 		String status = null;
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = createPayload();

@@ -19,6 +19,9 @@ public final class Constants {
     public static final  String OTP_ERROR ="Invalid OTP";
     public static final  String KEY_STORE_PATH = "key_store_path";
     public static final  String KEY_STORE_PASS = "key_store_pass";
+    public static final  String AUTHENTICATION_SERVICE_URL = "Authentication_Service_URL";
+    public static final  String QUERY_SERVICE_URL = "Query_Service_URL";
+    public static final  String MANAGEMENT_SERVICE_URL = "Management_Service_URL";
     
 
     public static final String PUSH_DISPLAY_MESSAGE_TEXT = "push_display_message_text";

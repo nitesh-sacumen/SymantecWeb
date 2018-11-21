@@ -7,6 +7,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -41,8 +42,9 @@ public class VIPGetUser {
 	 * @return true If user exists in vip database, else false.
 	 * @throws NodeProcessException
 	 */
-	public boolean viewUserInfo(String userId,String KEY_STORE_PATH,String KEY_STORE_PASS) throws NodeProcessException {
+	public boolean viewUserInfo(String userId,String KEY_STORE_PATH,String KEY_STORE_PASS, TreeContext context) throws NodeProcessException {
 		boolean isUserExisted = false;
+		GetVIPServiceURL.getInstance().setServiceURL(context);
         HttpPost httpPost = new HttpPost(getURL());
 		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
 		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
