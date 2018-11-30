@@ -186,9 +186,7 @@ this section depicts configuration of VIP Auth Tree
 ```
 * Configure VIP Auth Tree as shown below
 
-
-![new_conf](https://user-images.githubusercontent.com/20396535/48697182-fdb29480-ec09-11e8-9f67-35b05a52e814.PNG)
-
+![sdk_7](https://user-images.githubusercontent.com/20396535/49303025-a5737080-f4ee-11e8-9f8f-e439b4472729.PNG)
 
 
 ```js
@@ -205,10 +203,117 @@ this section depicts configuration of VIP Auth Tree
 ![login](https://user-images.githubusercontent.com/20396535/48189557-7c841380-e366-11e8-8050-f1b54e3d8e1c.PNG)
 
 
+# VIP SDK Flow
+
+## Nodes For SDK Flow
+
+* VIP SDK Add Credential
+```js
+This node will add credentials as credential id associtaed with user in VIP Database. There are no configurable attributes to it.
+```
+
+* VIP SDK Check Symantec OTP
+```js
+This node will verify OTP with username.
+Attributes to be configured are:
+ * Keystore Path: Path for keystore file.
+ * Keystore Password: Password of keystore file.
+ * Authentication Service URL: VIP Authentication Service URL
+```
+
+* VIP Activation Code
+```js
+This node will get activation code from VIP Service.
+Attributes to be configured are:
+ * Keystore Path: Path for keystore file.
+ * Keystore Password: Password of keystore file.
+ * SDK Service URL: VIP SDK Service URL
+```
+
+* VIP SDK Enter CredentialID
+```js
+This node gives you a screen where you need to enter credential id generated on vip app. There are no configurable attributes to it.
+```
+
+* VIP SDK Enter SecurityCode/OTP
+```js
+This node gives you a screen where you need to enter OTP. There are no configurable attributes to it.
+```
+![sdk_1](https://user-images.githubusercontent.com/20396535/49300307-df8d4400-f4e7-11e8-8a6f-b93881ab74cc.PNG)
 
 
+## Follow the below steps for VIP SDK Flow using VIP-Auth-tree.
+
+### VIP Get Activation Code
+
+![activation_code](https://user-images.githubusercontent.com/20396535/49300990-94743080-f4e9-11e8-8d48-c3863ff4762a.PNG)
+
+```js
+* User uses postman to post to the link of OpenAM and submits username and password in the header
+* URL : http://localhost:8080/AM-eval-6.0.0.4/json/realms/root/authenticate?authIndexType=service&authIndexValue=VIP_SDK_GEN_CODE
+* Method: POST
+* Headers: 
+    Accept-API-Version:  resource=2.0, protocol=1.0
+    X-OpenAM-Username:  user1
+    X-OpenAM-Password:  password123$ 
+```
+
+* IF authentication is successful, It gives response like this:
+
+![gen_code](https://user-images.githubusercontent.com/20396535/49301177-051b4d00-f4ea-11e8-9f1d-e37f0ed00a67.PNG)
 
 
+### VIP SDK Add Credential
+
+![sdk_add_cred](https://user-images.githubusercontent.com/20396535/49301339-63e0c680-f4ea-11e8-8629-e879f2e21972.PNG)
+
+```js
+* User uses postman to post to the link of OpenAM and submits username and password in the header
+* URL : http://localhost:8080/AM-eval-6.0.0.4/json/realms/root/authenticate?authIndexType=service&authIndexValue=VIP_SDK_Add_Cred
+* Method: POST
+* Headers: 
+    Accept-API-Version:  resource=2.0, protocol=1.0
+    X-OpenAM-Username:  user1
+    X-OpenAM-Password:  password123$ 
+```
+
+* IF authentication is successful,  It gives response prompting for CredentialID
+
+![sdk_2](https://user-images.githubusercontent.com/20396535/49301512-ca65e480-f4ea-11e8-9529-bf3d9f113a80.PNG)
+
+* add the obtained CredentialID to the response body and send it to the same url using this as the request.
+
+![sdk_3](https://user-images.githubusercontent.com/20396535/49301629-13b63400-f4eb-11e8-8477-dcdc168f252d.PNG)
+
+* IF authentication is successful, It gives response like this:
+
+![gen_code](https://user-images.githubusercontent.com/20396535/49301177-051b4d00-f4ea-11e8-9f1d-e37f0ed00a67.PNG)
+
+### VIP SDK Verify OTP
+
+![sdk_4](https://user-images.githubusercontent.com/20396535/49301823-80313300-f4eb-11e8-8c47-28e6e572bce2.PNG)
+
+```js
+* User uses postman to post to the link of OpenAM and submits username and password in the header
+* URL : http://localhost:8080/AM-eval-6.0.0.4/json/realms/root/authenticate?authIndexType=service&authIndexValue=VIP_SDK_Verify_OTP
+* Method: POST
+* Headers: 
+    Accept-API-Version:  resource=2.0, protocol=1.0
+    X-OpenAM-Username:  user1
+    X-OpenAM-Password:  password123$ 
+```
+
+* IF authentication is successful,  It gives response prompting for Enter SecurityCode/OTP
+
+![sdk_5](https://user-images.githubusercontent.com/20396535/49301999-e6b65100-f4eb-11e8-88ea-69f6941623bd.PNG)
+
+* add the obtained OTP to the response body and send it to the same url using this as the request.
+
+![sdk_6](https://user-images.githubusercontent.com/20396535/49302109-27ae6580-f4ec-11e8-879a-8a632a66495f.PNG)
+
+* IF authentication is successful, It gives response like this:
+
+![gen_code](https://user-images.githubusercontent.com/20396535/49301177-051b4d00-f4ea-11e8-9f1d-e37f0ed00a67.PNG)
 
 
 
