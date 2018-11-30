@@ -1,20 +1,29 @@
 package com.symantec.tree.nodes;
 
 import static com.symantec.tree.config.Constants.*;
+
+import com.google.inject.assistedinject.Assisted;
+import com.symantec.tree.nodes.VIPGenerateActivationCode.Config;
 import com.symantec.tree.request.util.SdkAddCredential;
 import javax.inject.Inject;
+
+import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Node.Metadata(outcomeProvider = AbstractDecisionNode.OutcomeProvider.class, configClass = VIPSDKAddCredential.Config.class)
 public class VIPSDKAddCredential extends AbstractDecisionNode {
 
 	private SdkAddCredential addCred;
+	private final Config config;
+	private final Logger logger = LoggerFactory.getLogger(VIPSDKAddCredential.class);
+
 
 	/**
 	 * Configuration for the node.
 	 */
 	public interface Config {
-
 	}
 
 	/**
@@ -22,8 +31,9 @@ public class VIPSDKAddCredential extends AbstractDecisionNode {
 	 *
 	 */
 	@Inject
-	public VIPSDKAddCredential() {
-		addCred = new SdkAddCredential();
+	public VIPSDKAddCredential(@Assisted Config config,SdkAddCredential addCred) {
+		this.config = config;
+		this.addCred = addCred;
 	}
 
 	@Override
@@ -33,7 +43,7 @@ public class VIPSDKAddCredential extends AbstractDecisionNode {
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		if (credValue != null) {
-			boolean isCredAdded = addCred.addCredential(userName, credValue,key_store,key_store_pass);
+			boolean isCredAdded = addCred.addCredential(userName, credValue,STANDARD_OTP,key_store,key_store_pass);
 			return goTo(isCredAdded).build();
 		}
 		return goTo(false).build();

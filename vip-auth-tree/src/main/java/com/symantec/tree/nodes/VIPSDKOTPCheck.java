@@ -2,12 +2,15 @@ package com.symantec.tree.nodes;
 
 import static com.symantec.tree.config.Constants.*;
 
-import com.symantec.tree.request.util.CheckVIPOtp;
+import com.google.inject.assistedinject.Assisted;
+import com.symantec.tree.request.util.SDKCheckVIPOtp;
+
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
 import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
+import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.*;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
 import org.forgerock.util.i18n.PreferredLocales;
@@ -27,13 +30,23 @@ public class VIPSDKOTPCheck implements Node {
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPSDKOTPCheck";
 	private final Logger logger = LoggerFactory.getLogger(VIPSDKOTPCheck.class);
 
-	private CheckVIPOtp checkOtp;
+	private SDKCheckVIPOtp checkOtp;
+	private final Config config;
+
 
 	/**
 	 * Configuration for the node.
 	 */
 	public interface Config {
+		@Attribute(order = 100, requiredValue = true)
+		String Key_Store_Path();
 
+
+		@Attribute(order = 200, requiredValue = true)
+		String Key_Store_Password();
+		
+		@Attribute(order = 300, requiredValue = true)
+		String Authentication_Service_URL();
 	}
 
 	/**
@@ -41,8 +54,9 @@ public class VIPSDKOTPCheck implements Node {
 	 *
 	 */
 	@Inject
-	public VIPSDKOTPCheck() {
-		checkOtp = new CheckVIPOtp();
+	public VIPSDKOTPCheck(@Assisted Config config,SDKCheckVIPOtp checkOtp) {
+		this.config = config;
+		this.checkOtp = checkOtp;
 	}
 
 	/**
@@ -51,20 +65,11 @@ public class VIPSDKOTPCheck implements Node {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
-
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String otpValue = context.sharedState.get(SECURE_CODE).asString();
-		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
-		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
-		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue,key_store,key_store_pass);
-		logger.debug("Check OTP is" + isDeviceAdded);
-		if (isDeviceAdded) {
-			return goTo(Symantec.TRUE).build();
-		} else {
-
-			context.sharedState.put(SECURE_CODE_ERROR, "Entered OTP is Invalid");
-			return goTo(Symantec.FALSE).build();
-		}
+		String statusCode = checkOtp.checkOtp(userName, otpValue,config.Key_Store_Path(),config.Key_Store_Password(),config.Authentication_Service_URL());
+		logger.debug("Check OTP statusCode is" + statusCode);
+		return sendOutput(statusCode,context);
 
 	}
 
@@ -105,4 +110,16 @@ public class VIPSDKOTPCheck implements Node {
 		}
 	}
 
+	private Action sendOutput(String statusCode, TreeContext context) {
+		if (statusCode.equalsIgnoreCase(SUCCESS_CODE)) {
+			return goTo(Symantec.TRUE).build();
+		} else if(statusCode.equalsIgnoreCase(INVALID_CREDENIALS) || statusCode.equalsIgnoreCase(AUTHENTICATION_FAILED)) {
+				context.sharedState.put(OTP_ERROR, "Entered otp Code is Invalid,Please enter valid OTP");
+				return goTo(Symantec.FALSE).build();
+		}
+		else {
+			context.sharedState.put(DISPLAY_ERROR, "Your Credentials is disabled, Please contact your administrator.");
+			return goTo(Symantec.ERROR).build();
+		}
+	}
 }

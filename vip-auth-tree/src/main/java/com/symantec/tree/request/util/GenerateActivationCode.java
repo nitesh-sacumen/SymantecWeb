@@ -14,6 +14,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -34,9 +35,9 @@ public class GenerateActivationCode {
 	 * @return activation code with status
 	 * @throws NodeProcessException
 	 */
-	public String generateCode(String key_store,String key_store_pass) throws NodeProcessException {
+	public String generateCode(String key_store,String key_store_pass,String url) throws NodeProcessException {
 		String activationCode = "";
-		HttpPost post = new HttpPost("https://services-auth.vip.symantec.com/prov/soap");
+		HttpPost post = new HttpPost(url);
 		String status = null;
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = createPayload();
@@ -86,12 +87,4 @@ public class GenerateActivationCode {
 
 	}
 
-	/**
-	 * 
-	 * @return SDK_URL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("SDKURL");
-	}
 }

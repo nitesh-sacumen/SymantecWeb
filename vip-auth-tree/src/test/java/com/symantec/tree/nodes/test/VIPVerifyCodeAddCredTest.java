@@ -50,7 +50,7 @@ public class VIPVerifyCodeAddCredTest {
 
 	@Test
 	public void nodeProcessWithTrueOutcome() throws NodeProcessException {
-		given(addCredential.addCredential(any(),any(),any(),any(),any(),any())).willReturn(true);
+		given(addCredential.addCredential(any(),any(),any(),any(),any(),any())).willReturn("0000");
 		TreeContext context = getTreeContext(new HashMap<>());
 
 		context.sharedState.put(SharedStateConstants.USERNAME, "vip123");
@@ -72,7 +72,7 @@ public class VIPVerifyCodeAddCredTest {
 	
 	@Test
 	public void nodeProcessWithFalseOutcome() throws NodeProcessException {
-		given(addCredential.addCredential(any(),any(),any(),any(),any(),any())).willReturn(false);
+		given(addCredential.addCredential(any(),any(),any(),any(),any(),any())).willReturn("6004");
 		TreeContext context = getTreeContext(new HashMap<>());
 
 		context.sharedState.put(SharedStateConstants.USERNAME, "vip123");

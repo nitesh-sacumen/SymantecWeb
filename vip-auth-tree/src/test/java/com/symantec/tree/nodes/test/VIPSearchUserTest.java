@@ -55,7 +55,7 @@ public class VIPSearchUserTest {
 
 	@Test
 	public void nodeProcessWithTrueOutcome() throws NodeProcessException, IOException {
-		given(vipSearchUser.viewUserInfo(any(), any(), any(),any())).willReturn(true);
+		given(vipSearchUser.viewUserInfo(any(), any(), any(),any())).willReturn("0000");
 	    TreeContext context = getTreeContext(new HashMap<>());
 	    
 		given(config.Key_Store_Path()).willReturn("newFile.txt");
@@ -68,13 +68,13 @@ public class VIPSearchUserTest {
 
 		// THEN
 		assertThat(action.callbacks).isEmpty();
-		assertThat(action.outcome).isEqualTo("true");
+		assertThat(action.outcome).isEqualTo("TRUE");
 
 	}
 	
 	@Test
 	public void nodeProcessWithFalseOutcome() throws NodeProcessException, IOException {
-		given(vipSearchUser.viewUserInfo(any(), any(), any(), any())).willReturn(false);
+		given(vipSearchUser.viewUserInfo(any(), any(), any(), any())).willReturn("6003");
 	    TreeContext context = getTreeContext(new HashMap<>());
 	    
 		given(config.Key_Store_Path()).willReturn("newFile.txt");
@@ -87,7 +87,7 @@ public class VIPSearchUserTest {
 
 		// THEN
 		assertThat(action.callbacks).isEmpty();
-		assertThat(action.outcome).isEqualTo("false");
+		assertThat(action.outcome).isEqualTo("FALSE");
 
 	}
 	

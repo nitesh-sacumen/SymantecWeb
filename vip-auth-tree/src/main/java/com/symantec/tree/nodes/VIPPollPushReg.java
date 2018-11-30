@@ -96,7 +96,8 @@ public class VIPPollPushReg implements Node {
 
 					} else {
 						deleteCredential(userName, credId, credType,context);
-						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
+						context.sharedState.put(OTP_ERROR,"Not able to send push, Please enter Security Code");
+						return goTo(Symantec.ERROR).build();
 
 					}
 

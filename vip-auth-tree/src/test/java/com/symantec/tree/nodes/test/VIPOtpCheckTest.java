@@ -56,7 +56,7 @@ public class VIPOtpCheckTest {
 	public void testProcessWithTrueOutcome() throws NodeProcessException {
 		TreeContext context = getTreeContext(new HashMap<>());
 
-		given(checkOtp.checkOtp(any(), any(), any(), any())).willReturn(true);
+		given(checkOtp.checkOtp(any(), any(), any(), any())).willReturn("0000");
 		context.sharedState.put(SharedStateConstants.USERNAME, "vip123");
 		context.sharedState.put(SECURE_CODE, "78695981");
 		context.sharedState.put(KEY_STORE_PATH,"C://Users//keystore.ks");
@@ -75,7 +75,7 @@ public class VIPOtpCheckTest {
 	public void testProcessWithFalseOutcome() throws NodeProcessException {
 		TreeContext context = getTreeContext(new HashMap<>());
 
-		given(checkOtp.checkOtp(any(), any(), any(), any())).willReturn(false);
+		given(checkOtp.checkOtp(any(), any(), any(), any())).willReturn("6009");
 		context.sharedState.put(SharedStateConstants.USERNAME, "vip123");
 		context.sharedState.put(SECURE_CODE, "78695981");
 		context.sharedState.put(KEY_STORE_PATH,"C://Users//keystore.ks");

@@ -35,11 +35,12 @@ public class SMSVoiceRegister {
 	 * register SMS
 	 * @throws NodeProcessException 
 	 */
-	public void smsRegister(String credValue,String key_store,String key_store_pass) throws NodeProcessException {
+	public String smsRegister(String credValue,String key_store,String key_store_pass) throws NodeProcessException {
 		HttpPost post = new HttpPost(getURL());
 
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getSmsPayload(credValue);
+		String status;
 		logger.debug("Request Payload: " + payLoad);
 
 		try {
@@ -52,12 +53,14 @@ public class SMSVoiceRegister {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
+			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-
+			
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
+		
+		return status;
 
 	}
 
@@ -67,11 +70,12 @@ public class SMSVoiceRegister {
 	 * register voice
 	 * @throws NodeProcessException 
 	 */
-	public void voiceRegister(String credValue,String key_store,String key_store_pass) throws NodeProcessException {
+	public String voiceRegister(String credValue,String key_store,String key_store_pass) throws NodeProcessException {
 		HttpPost post = new HttpPost(getURL());
 
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getVoicePayload(credValue);
+		String status;
 		logger.debug("Request Payload: " + payLoad);
 		try {
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
@@ -83,12 +87,14 @@ public class SMSVoiceRegister {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
+			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
+		
+		return status;
 
 	}
 

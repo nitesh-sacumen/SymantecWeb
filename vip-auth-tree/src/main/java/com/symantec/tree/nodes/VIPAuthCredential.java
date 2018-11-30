@@ -99,6 +99,7 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 			logger.debug("Mobile Push is sent successfully:" + status);
 			return goTo(true).build();
 		} else {
+			context.sharedState.put(OTP_ERROR,"Not able to send push, Please enter Security Code");
 			deleteCredential(userName, credId,context);
 			return goTo(false).build();
 		}

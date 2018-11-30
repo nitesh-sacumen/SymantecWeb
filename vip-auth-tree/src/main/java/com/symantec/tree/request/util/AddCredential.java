@@ -6,7 +6,6 @@ import java.util.Random;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,14 +36,14 @@ public class AddCredential {
 	 * @return true if success, else false.
 	 * @throws NodeProcessException
 	 */
-	public Boolean addCredential(String userName, String credValue, String credIdType,String key_store,String key_store_pass) throws NodeProcessException {
+	public String addCredential(String userName, String credValue, String credIdType,String key_store,String key_store_pass) throws NodeProcessException {
 
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
 		HttpPost post = new HttpPost(getURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getViewUserPayload(userName, credValue, credIdType);
 		logger.debug("Request Payload: " + payLoad);
-		String statusMessage;
+		String status;
 		try {
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
@@ -55,18 +54,15 @@ public class AddCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-
+			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			status = doc.getElementsByTagName("status").item(0).getTextContent();
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
 
-		if ("success".equalsIgnoreCase(statusMessage)) {
-			return true;
-
-		}
-		return false;
+		return status;
 	}
+	
 
 	/**
 	 * 
@@ -96,7 +92,7 @@ public class AddCredential {
 	 * @return true if success, else false
 	 * @throws NodeProcessException
 	 */
-	public Boolean addCredential(String userName, String credValue, String credIdType, String otpreceived,String key_store,String key_store_pass)
+	public String addCredential(String userName, String credValue, String credIdType, String otpreceived,String key_store,String key_store_pass)
 			throws NodeProcessException {
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
 		HttpPost post = new HttpPost(getURL());
@@ -104,7 +100,7 @@ public class AddCredential {
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getViewUserPayload(userName, credValue, credIdType, otpreceived);
 		logger.debug("Request Payload: " + payLoad);
-		String statusMessage;
+		String status;
 		try {
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
@@ -115,15 +111,12 @@ public class AddCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			status = doc.getElementsByTagName("status").item(0).getTextContent();
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
-		if ("success".equalsIgnoreCase(statusMessage)) {
-			return true;
-
-		}
-		return false;
+		return status;
 	}
 
 	/**

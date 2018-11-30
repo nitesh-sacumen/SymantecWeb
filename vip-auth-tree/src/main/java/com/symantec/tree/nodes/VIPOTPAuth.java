@@ -29,9 +29,9 @@ import static com.symantec.tree.config.Constants.*;
  * 
  * @author Sacumen(www.sacumen.com)
  * @category Node
- * @Descrition "VIP OTPAuth Creds" node with SMS, VOICE and TOKEN outcome.
- * If SMS and VOICE, it will go to "VIP Enter SecurityCode/OTP".
- * If TOKEN, go to "VIP Check Symantec OTP".
+ * @Descrition "VIP OTPAuth Creds" node with SMS, VOICE, ERROR and TOKEN outcome. If
+ *             SMS,TOKEN and VOICE, it will go to "VIP Enter SecurityCode/OTP". If
+ *             ERROR, go to "VIP Display Error".
  *
  */
 @Node.Metadata(outcomeProvider = VIPOTPAuth.OTPAuthOutcomeProvider.class, configClass = VIPOTPAuth.Config.class)
@@ -60,7 +60,8 @@ public class VIPOTPAuth implements Node {
 	 * @param config The service config.
 	 */
 	@Inject
-	public VIPOTPAuth(@Assisted Config config,VoiceDeviceRegister voiceDeviceRegister,SmsDeviceRegister smsDeviceRegister) {
+	public VIPOTPAuth(@Assisted Config config, VoiceDeviceRegister voiceDeviceRegister,
+			SmsDeviceRegister smsDeviceRegister) {
 		this.config = config;
 		this.voiceDeviceRegister = voiceDeviceRegister;
 		this.smsDeviceRegister = smsDeviceRegister;
@@ -78,42 +79,44 @@ public class VIPOTPAuth implements Node {
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 
-		Optional<NameCallback> nameCallback = context.getCallback(NameCallback.class);
-
-		if (nameCallback != null && nameCallback.isPresent()) {
-			String textToken = context.getCallback(NameCallback.class).get().getName();
-			if (textToken != null && !textToken.isEmpty()) {
-				logger.info("SecureCode has been collected and placed into the Shared State");
-				return goTo(SymantecOTPAuthOutcome.TOKEN)
-						.replaceSharedState(context.sharedState.copy().put(SECURE_CODE, textToken)).build();
-			}
-		}
-
 		return context.getCallback(ChoiceCallback.class).map(c -> c.getSelectedIndexes()[0]).map(Integer::new)
-				.filter(choice -> -1 < choice && choice < 2).map(choice -> {
+				.filter(choice -> -1 < choice && choice < 3).map(choice -> {
 					sharedState.put(CRED_CHOICE, config.referrerCredList().get(choice));
 					switch (choice) {
 
 					case 1:
-						boolean isOTPVoiceAuthenticated;
+						boolean isOTPVoiceAuthenticated = false;
 						try {
-							isOTPVoiceAuthenticated = voiceDeviceRegister.voiceDeviceRegister(userName,
-									credValue,key_store,key_store_pass);
+						   isOTPVoiceAuthenticated = voiceDeviceRegister.voiceDeviceRegister(userName, credValue,
+									key_store, key_store_pass);
 						} catch (NodeProcessException e) {
 							e.printStackTrace();
 						}
-						return goTo(SymantecOTPAuthOutcome.VOICE).replaceSharedState(sharedState).build();
+						if(isOTPVoiceAuthenticated) {
+							return goTo(SymantecOTPAuthOutcome.VOICE).replaceSharedState(sharedState).build();
+						}else {
+							context.sharedState.put(DISPLAY_ERROR,"There is error to Send OTP through Voice, either Authenticate with other credentials or contact to admin. ");
+							return goTo(SymantecOTPAuthOutcome.ERROR).replaceSharedState(sharedState).build();
+						}
 					case 0:
-						boolean isOTPSmsAuthenticated;
+						boolean isOTPSmsAuthenticated = false;
 						try {
-							isOTPSmsAuthenticated = smsDeviceRegister.smsDeviceRegister(userName, credValue,key_store,key_store_pass);
+							isOTPSmsAuthenticated = smsDeviceRegister.smsDeviceRegister(userName, credValue, key_store,
+									key_store_pass);
 						} catch (NodeProcessException e) {
 							e.printStackTrace();
 						}
-						return goTo(SymantecOTPAuthOutcome.SMS).replaceSharedState(sharedState).build();
-					}
-					return goTo(SymantecOTPAuthOutcome.TOKEN).replaceSharedState(sharedState).build();
+						if(isOTPSmsAuthenticated) {
+							return goTo(SymantecOTPAuthOutcome.SMS).replaceSharedState(sharedState).build();
+						}else {
+							context.sharedState.put(DISPLAY_ERROR,"There is error to Send OTP through SMS, either Authenticate with other credentials or contact to admin. ");
+							return goTo(SymantecOTPAuthOutcome.ERROR).replaceSharedState(sharedState).build();
+						}
+					default:
+						return goTo(SymantecOTPAuthOutcome.TOKEN).replaceSharedState(sharedState).build();
+						
 
+					}
 				}).orElseGet(() -> {
 					logger.debug("collecting choice");
 					return displayCredentials(context);
@@ -128,28 +131,22 @@ public class VIPOTPAuth implements Node {
 	private Action displayCredentials(TreeContext context) {
 		List<Callback> cbList = new ArrayList<>(2);
 		Collection<String> values = config.referrerCredList().values();
-		values.remove("Token");
 		String[] targetArray = values.toArray(new String[0]);
-		String outputError = context.sharedState.get(SECURE_CODE_ERROR).asString();
+		String outputError = context.sharedState.get(PUSH_ERROR).asString();
 		logger.debug("text block error" + outputError);
 		if (outputError == null) {
 
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());
 			ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false);
-			NameCallback ncb = new NameCallback("Enter OTP");
 			cbList.add(ccb);
-			cbList.add(ncb);
 		} else {
 			TextOutputCallback tcb = new TextOutputCallback(0, outputError);
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());
 			ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false);
-			NameCallback ncb = new NameCallback("Enter OTP");
-
 			cbList.add(tcb);
 			cbList.add(ccb);
-			cbList.add(ncb);
 		}
 
 		return send(ImmutableList.copyOf(cbList)).build();
@@ -163,7 +160,7 @@ public class VIPOTPAuth implements Node {
 	/**
 	 * The possible outcomes for the SymantecVerifyAuth.
 	 */
-	public enum SymantecOTPAuthOutcome {
+	private enum SymantecOTPAuthOutcome {
 		/**
 		 * selection for SMS.
 		 */
@@ -175,7 +172,12 @@ public class VIPOTPAuth implements Node {
 		/**
 		 * selection for TOKEN.
 		 */
-		TOKEN
+		TOKEN,
+		
+		/**
+		 * selection for TOKEN.
+		 */
+		ERROR,
 
 	}
 
@@ -189,7 +191,8 @@ public class VIPOTPAuth implements Node {
 					OTPAuthOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(SymantecOTPAuthOutcome.SMS.name(), bundle.getString("smsOutcome")),
 					new Outcome(SymantecOTPAuthOutcome.VOICE.name(), bundle.getString("voiceOutcome")),
-					new Outcome(SymantecOTPAuthOutcome.TOKEN.name(), bundle.getString("tokenOutcome")));
+					new Outcome(SymantecOTPAuthOutcome.TOKEN.name(), bundle.getString("tokenOutcome")),
+			        new Outcome(SymantecOTPAuthOutcome.ERROR.name(),bundle.getString("errorOutcome")));
 		}
 	}
 }

@@ -2,6 +2,7 @@ package com.symantec.tree.request.util;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Random;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,34 +20,34 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import static com.symantec.tree.config.Constants.*;
-
 
 /**
  * 
- * @author Sacumen(www.sacumen.com) 
- * @Description Deleting credential id , which is associated with user using
- *         RemoveCredentialRequest
+ * @author Sacumen(www.sacumen.com)
+ * @Description: Checking OTP with CheckOtpRequest.
  *
  */
-public class DeleteCredential {
-	static Logger logger = LoggerFactory.getLogger(DeleteCredential.class);
+public class SDKCheckVIPOtp {
+
+	static Logger logger = LoggerFactory.getLogger(SDKCheckVIPOtp.class);
 
 	/**
 	 * 
 	 * @param userName
-	 * @param credId
-	 * @param credType
+	 * @param otpValue
+	 * @return status code of response
 	 * @throws NodeProcessException
 	 */
-	public void deleteCredential(String userName, String credId, String credType,String key_store,String key_store_pass) throws NodeProcessException {
-		HttpPost post = new HttpPost(getURL());
+	public String checkOtp(String userName, String otpValue,String key_store,String key_store_pass,String url) throws NodeProcessException {
+
+		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
+		HttpPost post = new HttpPost(url);
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-		String payLoad = getRemoveCredPayload(userName, credId, credType);
-		logger.debug("Request Payload: " + payLoad);
+		String payLoad = getViewUserPayload(userName, otpValue);
 		String status;
+		logger.debug("Request Payload: " + payLoad);
 		try {
-			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
+			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
@@ -57,40 +58,29 @@ public class DeleteCredential {
 			Document doc = builder.parse(src);
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-
+		
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
-		if (SUCCESS_CODE.equals(status)) {
-			logger.debug("Credential " + credType + " removed successfully for " + userName);
-		}
+		return status;
+
 	}
 
 	/**
 	 * 
-	 * @param userId
-	 * @param credId
-	 * @param credType
-	 * @return RemoveCredentialRequest payload
+	 * @param userName
+	 * @param otpValue
+	 * @return CheckOtpRequest payload
 	 */
-	private static String getRemoveCredPayload(String userId, String credId, String credType) {
+	private static String getViewUserPayload(String userName, String otpValue) {
+		logger.info("getting CheckOtpRequest payload");
 		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" "
 				+ "xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" + "   <soapenv:Header/>"
-				+ "   <soapenv:Body>" + "      <vip:RemoveCredentialRequest>" + "<vip:requestId>"
-				+ Math.round(Math.random() * 100000) + "</vip:requestId>" + "         <vip:userId>" + userId
-				+ "</vip:userId>" + "         <vip:credentialId>" + credId + "</vip:credentialId>"
-				+ "          <vip:credentialType>" + credType + "</vip:credentialType>      "
-				+ "      </vip:RemoveCredentialRequest>" + "   </soapenv:Body>" + "</soapenv:Envelope>";
-
-	}
-
-	/**
-	 * 
-	 * @return ManagementServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
+				+ "   <soapenv:Body>" + "      <vip:CheckOtpRequest>" + "<vip:requestId>" + new Random().nextInt(10)
+				+ 11111 + "</vip:requestId>" + "<vip:userId>" + userName + "</vip:userId>"
+				+ "         <vip:otpAuthData>" + "            <vip:otp>" + otpValue + "</vip:otp>           "
+				+ "         </vip:otpAuthData>        " + "      </vip:CheckOtpRequest>" + "   </soapenv:Body>"
+				+ "</soapenv:Envelope>";
 	}
 
 }

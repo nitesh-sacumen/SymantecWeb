@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sacumen(www.sacumen.com)
  * @category Node
- * @Descrition "VIP AddCred with VerifyCode" node with TRUE,FALSE outcome. If
+ * @Descrition "VIP AddCred with VerifyCode" node with TRUE,FALSE and ERROR outcome. If
  *             TRUE, it will go to "VIP Add More Creds". If False, go to "VIP
- *             Enter SecurityCode/OTP".
+ *             Enter SecurityCode/OTP" and if ERROR, go to "VIP Display Error".
  *
  */
 @Node.Metadata(outcomeProvider = VIPVerifyCodeAddCredential.SymantecOutcomeProvider.class, configClass = VIPVerifyCodeAddCredential.Config.class)
@@ -55,6 +55,7 @@ public class VIPVerifyCodeAddCredential implements Node {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		context.sharedState.remove(OTP_ERROR);
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String credValue = context.sharedState.get(CRED_ID).asString();
 		String credPhoneNumber = context.sharedState.get(MOB_NUM).asString();
@@ -65,35 +66,35 @@ public class VIPVerifyCodeAddCredential implements Node {
 		String credIdType;
 		if (context.sharedState.get(CRED_CHOICE).asString().equalsIgnoreCase(SMS)) {
 			credIdType = SMS_OTP;
-			boolean isCredAdded = addCred.addCredential(userName, credPhoneNumber, credIdType, otpReceived,
+			String statusCode = addCred.addCredential(userName, credPhoneNumber, credIdType, otpReceived,
 					key_store,key_store_pass);
-			return sendOutput(isCredAdded, context);
+			return sendOutput(statusCode, context);
 		} else if (context.sharedState.get(CRED_CHOICE).asString().equalsIgnoreCase(VOICE)) {
 			credIdType = VOICE_OTP;
-			boolean isCredAdded = addCred.addCredential(userName, credPhoneNumber, credIdType, otpReceived,
+			String statusCode = addCred.addCredential(userName, credPhoneNumber, credIdType, otpReceived,
 					key_store,key_store_pass);
-			return sendOutput(isCredAdded, context);
+			return sendOutput(statusCode, context);
 		} else {
 			credIdType = STANDARD_OTP;
-			boolean isCredAdded = addCred.addCredential(userName, credValue, credIdType, otpReceived,key_store,key_store_pass);
-			return sendOutput(isCredAdded, context);
+			String statusCode = addCred.addCredential(userName, credValue, credIdType, otpReceived,key_store,key_store_pass);
+			return sendOutput(statusCode, context);
 		}
 	}
 	
 	/**
 	 * The possible outcomes for the DisplayCredentail.
 	 */
-	public enum Symantec {
+	private enum Symantec {
 		/**
-		 * Successful authentication.
+		 * Successful.
 		 */
 		TRUE,
 		/**
-		 * Authentication failed.
+		 * failed.
 		 */
 		FALSE,
 		/**
-		 * The user has not been answered.
+		 * Disabled.
 		 */
 		ERROR
 
@@ -117,12 +118,22 @@ public class VIPVerifyCodeAddCredential implements Node {
 		}
 	}
 
-	private Action sendOutput(Boolean output, TreeContext context) {
-		if (output) {
+	/**
+	 * 
+	 * @param statusCode
+	 * @param context
+	 * @return Action Object
+	 */
+	private Action sendOutput(String statusCode, TreeContext context) {
+		if (statusCode.equalsIgnoreCase(SUCCESS_CODE)) {
 			return goTo(Symantec.TRUE).build();
-		} else {
+		} else if(statusCode.equalsIgnoreCase(INVALID_CREDENIALS) || statusCode.equalsIgnoreCase(AUTHENTICATION_FAILED)) {
 				context.sharedState.put(OTP_ERROR, "Entered otp Code is Invalid,Please enter valid OTP");
 				return goTo(Symantec.FALSE).build();
+		}
+		else {
+			context.sharedState.put(DISPLAY_ERROR, "Your Credentials is disabled, Please contact your administrator.");
+			return goTo(Symantec.ERROR).build();
 		}
 	}
 

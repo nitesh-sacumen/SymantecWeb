@@ -15,6 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -30,10 +31,10 @@ import org.xml.sax.SAXException;
 public class SdkAddCredential {
 	static Logger logger = LoggerFactory.getLogger(SdkAddCredential.class);
 
-	public Boolean addCredential(String userName, String credValue,String key_store,String key_store_pass) throws NodeProcessException {
+	public Boolean addCredential(String userName, String credValue, String credType,String key_store,String key_store_pass) throws NodeProcessException {
 		HttpPost post = new HttpPost(getURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
-		String payLoad = getViewUserPayload(userName, credValue);
+		String payLoad = getViewUserPayload(userName, credValue,credType);
 		logger.debug("Request Payload: " + payLoad);
 		try {
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
@@ -61,19 +62,21 @@ public class SdkAddCredential {
 	 * 
 	 * @param userName
 	 * @param credValue
+	 * @param credIdType
 	 * @return AddCredentialRequest payload
 	 */
-	public static String getViewUserPayload(String userName, String credValue) {
+	private static String getViewUserPayload(String userName, String credValue, String credIdType) {
 		logger.info("getting payload for AddCredentialRequest");
 		return "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" "
 				+ "xmlns:vip=\"https://schemas.symantec.com/vip/2011/04/vipuserservices\">" + "<soapenv:Header/>"
 				+ "<soapenv:Body>" + "<vip:AddCredentialRequest>" + "<vip:requestId>" + new Random().nextInt(10) + 11111
 				+ "</vip:requestId>" + "<vip:userId>" + userName + "</vip:userId>" + "<vip:credentialDetail>"
-				+ "<vip:credentialId>" + credValue + "</vip:credentialId>" + "</vip:credentialDetail>"
-				+ "</vip:AddCredentialRequest>" + "</soapenv:Body>" + "</soapenv:Envelope>";
+				+ "<vip:credentialId>" + credValue + "</vip:credentialId>" + "<vip:credentialType>" + credIdType
+				+ "</vip:credentialType>" + "</vip:credentialDetail>" + "</vip:AddCredentialRequest>"
+				+ "</soapenv:Body>" + "</soapenv:Envelope>";
 
 	}
-
+	
 	/**
 	 * 
 	 * @return ManagementServiceURL
@@ -82,5 +85,6 @@ public class SdkAddCredential {
 	private String getURL() throws NodeProcessException {
 		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
 	}
+
 
 }

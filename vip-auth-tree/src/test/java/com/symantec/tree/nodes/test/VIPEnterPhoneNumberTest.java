@@ -1,7 +1,6 @@
 package com.symantec.tree.nodes.test;
 
 import static com.symantec.tree.config.Constants.CRED_CHOICE;
-import static com.symantec.tree.config.Constants.MOB_NUM;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,6 +88,7 @@ public class VIPEnterPhoneNumberTest {
     @Test
     public void testProcessWithCallbacksAddsToState() throws NodeProcessException {
     	//Given
+		given(svRegister.smsRegister(any(),any(),any())).willReturn("0000");
     	JsonValue sharedState = json(object(field(CRED_CHOICE, "SMS")));
     	NameCallback callback = new NameCallback("prompt");
         callback.setName("918787878111");
@@ -97,10 +97,8 @@ public class VIPEnterPhoneNumberTest {
         Action result = node.process(getContext(sharedState, new PreferredLocales(), singletonList(callback)));
         
         //then
-        assertThat(result.outcome).isEqualTo("outcome");
+        assertThat(result.outcome).isEqualTo("TRUE");
         assertThat(result.callbacks).isEmpty();
-        assertThat(result.sharedState).isObject().contains(MOB_NUM, "918787878111");
-        assertThat(result.sharedState).isObject().contains(CRED_CHOICE, "SMS");
     }
 
     private TreeContext getContext(JsonValue sharedState, PreferredLocales preferredLocales,

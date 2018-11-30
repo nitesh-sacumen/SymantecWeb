@@ -11,13 +11,15 @@ import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,7 +28,8 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * 
  * @author Sacumen (www.sacumen.com)
- * @Description Get user info from vip data base if user exists, else return false.
+ * @Description Get user info from vip data base if user exists, else return
+ *              false.
  *
  */
 
@@ -39,13 +42,13 @@ public class VIPGetUser {
 	 * @param userId
 	 * @param KEY_STORE_PATH
 	 * @param KEY_STORE_PASS
-	 * @return true If user exists in vip database, else false.
+	 * @return status code of response.
 	 * @throws NodeProcessException
 	 */
-	public boolean viewUserInfo(String userId,String KEY_STORE_PATH,String KEY_STORE_PASS, TreeContext context) throws NodeProcessException {
-		boolean isUserExisted = false;
+	public String viewUserInfo(String userId, String KEY_STORE_PATH, String KEY_STORE_PASS, TreeContext context)
+			throws NodeProcessException {
 		GetVIPServiceURL.getInstance().setServiceURL(context);
-        HttpPost httpPost = new HttpPost(getURL());
+		HttpPost httpPost = new HttpPost(getURL());
 		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
 		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
 		httpPost.addHeader("SOAPAction", ""); /* \"\" */
@@ -61,10 +64,11 @@ public class VIPGetUser {
 
 		logger.debug("req content length:\t" + reqEntity.getContentLength());
 		httpPost.setEntity(reqEntity);
+		String status;
 
 		logger.info("executing GetUserInfoRequest");
 		try {
-			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH,KEY_STORE_PASS);
+			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH, KEY_STORE_PASS);
 			HttpResponse response = httpClient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -73,14 +77,11 @@ public class VIPGetUser {
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			if ("Success".equals(statusMessage)) {
-				isUserExisted = true;
-			}
-
+			status = doc.getElementsByTagName("status").item(0).getTextContent();
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
-		return isUserExisted;
+		return status;
 	}
 
 	/**
@@ -108,7 +109,8 @@ public class VIPGetUser {
 	 * @throws NullPointerException
 	 * @throws NodeProcessException
 	 */
-	public String getMobInfo(String userId,String KEY_STORE_PATH,String KEY_STORE_PASS) throws NullPointerException, NodeProcessException {
+	public String getMobInfo(String userId, String KEY_STORE_PATH, String KEY_STORE_PASS)
+			throws NullPointerException, NodeProcessException {
 		String phoneNumber = null;
 		HttpPost httpPost = new HttpPost(getURL());
 		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
@@ -128,7 +130,7 @@ public class VIPGetUser {
 		httpPost.setEntity(reqEntity);
 
 		try {
-			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH,KEY_STORE_PASS);
+			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH, KEY_STORE_PASS);
 			HttpResponse response = httpClient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -177,10 +179,56 @@ public class VIPGetUser {
 	/**
 	 * 
 	 * @return QueryServiceURL
-	 * @throws NodeProcessException 
+	 * @throws NodeProcessException
 	 */
+
+	public HashMap<String, String> getCredentialBindingDetail(String userId, String KEY_STORE_PATH, String KEY_STORE_PASS, TreeContext context) throws NodeProcessException {
+		HashMap<String, String> credentialBindingDetail = new HashMap<>();
+		Document doc;
+		HttpPost httpPost = new HttpPost(getURL());
+		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
+		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
+		httpPost.addHeader("SOAPAction", "");
+		httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
+
+		String userPayload = getViewUserPayload(userId);
+		InputStream is = new ByteArrayInputStream(userPayload.getBytes());
+
+		InputStreamEntity reqEntity = new InputStreamEntity(is, -1);
+		reqEntity.setContentType("text/xml");
+		reqEntity.setContentEncoding("charset=utf-8");
+		reqEntity.setChunked(true);
+
+		logger.debug("req content length:\t" + reqEntity.getContentLength());
+		httpPost.setEntity(reqEntity);
+		
+		logger.info("executing GetUserInfoRequest");
+		try {
+			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH, KEY_STORE_PASS);
+			HttpResponse response = httpClient.execute(httpPost);
+			HttpEntity entity = response.getEntity();
+			String body = IOUtils.toString(entity.getContent());
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			InputSource src = new InputSource();
+			src.setCharacterStream(new StringReader(body));
+			doc = builder.parse(src);
+		} catch (IOException | ParserConfigurationException | SAXException e) {
+			throw new NodeProcessException(e);
+		}
+		org.w3c.dom.NodeList nList = doc.getElementsByTagName("credentialBindingDetail");
+		for (int temp = 0; temp < nList.getLength(); temp++) {
+			Node node = nList.item(temp);
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				Element eElement = (Element) node;
+				String credentialId = eElement.getElementsByTagName("TokenId").item(0).getTextContent();
+				String credentialType = eElement.getElementsByTagName("Adapter").item(0).getTextContent();
+				credentialBindingDetail.put(credentialType, credentialId);
+			}
+		}
+		return credentialBindingDetail;
+	}
+	
 	private String getURL() throws NodeProcessException {
 		return GetVIPServiceURL.getInstance().serviceUrls.get("QueryServiceURL");
 	}
-
 }

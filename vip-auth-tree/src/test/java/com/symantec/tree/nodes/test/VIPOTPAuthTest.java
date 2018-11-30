@@ -34,6 +34,7 @@ import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.openam.auth.node.api.ExternalRequestContext.Builder;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
 import org.forgerock.openam.core.CoreWrapper;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.mockito.InjectMocks;
@@ -92,16 +93,16 @@ public class VIPOTPAuthTest {
 		Action action = node.process(getContext(sharedState, new PreferredLocales(),emptyList()));
 		
 		//THEN
-		assertThat(action.callbacks).hasSize(2);
+		assertThat(action.callbacks).hasSize(1);
 		assertThat(action.outcome).isEqualTo(null);
 		assertThat(action.callbacks.get(0)).isInstanceOf(ChoiceCallback.class);
-		assertThat(action.callbacks.get(1)).isInstanceOf(NameCallback.class);
 		assertThat(((ChoiceCallback) action.callbacks.get(0)).getPrompt()).isEqualTo("Choose Your Cred Type");
 
 	}
 	
 	@Test
-    public void nodeProcessWithSMSOutcome() {
+    public void nodeProcessWithSMSOutcome() throws NodeProcessException {
+		given(smsDeviceRegister.smsDeviceRegister(any(),any(),any(),any())).willReturn(true);
 		JsonValue sharedState = json(object(1));
 		sharedState.put(KEY_STORE_PATH,"C://Users");
 		sharedState.put(KEY_STORE_PASS,"WORK12345");
@@ -122,7 +123,8 @@ public class VIPOTPAuthTest {
     }
 	
 	@Test
-    public void nodeProcessWithVOICEOutcome() {
+    public void nodeProcessWithVOICEOutcome() throws NodeProcessException {
+		given(voiceDeviceRegister.voiceDeviceRegister(any(),any(),any(),any())).willReturn(true);
 		JsonValue sharedState = json(object(1));
 		sharedState.put(KEY_STORE_PATH,"C://Users");
 		sharedState.put(KEY_STORE_PASS,"WORK12345");

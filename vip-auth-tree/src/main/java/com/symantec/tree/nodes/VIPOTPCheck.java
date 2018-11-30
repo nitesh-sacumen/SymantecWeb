@@ -30,7 +30,6 @@ public class VIPOTPCheck implements Node {
 	private final Logger logger = LoggerFactory.getLogger(VIPOTPCheck.class);
 
 	private CheckVIPOtp checkOtp;
-	static int counter = 0;
 
 	/**
 	 * Configuration for the node.
@@ -60,15 +59,8 @@ public class VIPOTPCheck implements Node {
 		String otpValue = context.sharedState.get(SECURE_CODE).asString();
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
-		boolean isDeviceAdded = checkOtp.checkOtp(userName, otpValue, key_store, key_store_pass);
-		logger.info("Check OTP is" + isDeviceAdded);
-		if (isDeviceAdded) {
-			return goTo(Symantec.TRUE).build();
-		} else {
-			context.sharedState.put(SECURE_CODE_ERROR, "Entered Security Code is Invalid, Please enter valid OTP");
-			return goTo(Symantec.FALSE).build();
-		}
-
+		String statusCode = checkOtp.checkOtp(userName, otpValue, key_store, key_store_pass);
+		return sendOutput(statusCode, context);
 	}
 
 	private ActionBuilder goTo(Symantec outcome) {
@@ -105,6 +97,26 @@ public class VIPOTPCheck implements Node {
 			return ImmutableList.of(new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),
 					new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
 					new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param statusCode
+	 * @param context
+	 * @return Action Object.
+	 */
+	private Action sendOutput(String statusCode, TreeContext context) {
+		if (statusCode.equalsIgnoreCase(SUCCESS_CODE)) {
+			return goTo(Symantec.TRUE).build();
+		} else if(statusCode.equalsIgnoreCase(INVALID_CREDENIALS) || statusCode.equalsIgnoreCase(AUTHENTICATION_FAILED)) {
+				context.sharedState.put(OTP_ERROR, "Entered otp Code is Invalid,Please enter valid OTP");
+				return goTo(Symantec.FALSE).build();
+		}
+		else {
+			context.sharedState.put(DISPLAY_ERROR, "Your Credentials is disabled, Please contact your administrator.");
+			return goTo(Symantec.ERROR).build();
 		}
 	}
 

@@ -90,7 +90,8 @@ public class VIPPollPushAuth implements Node {
 						return goTo(Symantec.FALSE).replaceSharedState(newSharedState).build();
 
 					} else {
-						return goTo(Symantec.ERROR).replaceSharedState(newSharedState).build();
+						context.sharedState.put(PUSH_ERROR,"You have not approved push, Please select other option for authentication");
+						return goTo(Symantec.ERROR).build();
 
 					}
 

@@ -35,15 +35,16 @@ public class CheckVIPOtp {
 	 * 
 	 * @param userName
 	 * @param otpValue
-	 * @return true if OTP is correct else false
+	 * @return status code of response
 	 * @throws NodeProcessException
 	 */
-	public Boolean checkOtp(String userName, String otpValue,String key_store,String key_store_pass) throws NodeProcessException {
+	public String checkOtp(String userName, String otpValue,String key_store,String key_store_pass) throws NodeProcessException {
 
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
 		HttpPost post = new HttpPost(getURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getViewUserPayload(userName, otpValue);
+		String status;
 		logger.debug("Request Payload: " + payLoad);
 		try {
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
@@ -55,17 +56,13 @@ public class CheckVIPOtp {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
+			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
-			if ("success".equalsIgnoreCase(statusMessage)) {
-				return true;
-
-			}
-
+		
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
 		}
-		return false;
+		return status;
 
 	}
 

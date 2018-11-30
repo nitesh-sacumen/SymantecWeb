@@ -4,6 +4,7 @@ import static com.symantec.tree.config.Constants.*;
 
 import com.symantec.tree.nodes.VIPAddCredential;
 import com.symantec.tree.request.util.AddCredential;
+import com.symantec.tree.request.util.VIPGetUser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +41,9 @@ public class VIPAddCredentialsTest {
 	 @Mock
 	 private AddCredential addCredential;
 	 
+	 @Mock
+	 private VIPGetUser vipSearchUser;
+	 
 	 @InjectMocks
 	 private VIPAddCredential node;
 
@@ -53,8 +57,13 @@ public class VIPAddCredentialsTest {
 	@Test
 	public void testProcessWithTrueOutcome() throws NodeProcessException {
 		
-		given(addCredential.addCredential(any(),any(),any(),any(),any())).willReturn(true);
+		given(addCredential.addCredential(any(),any(),any(),any(),any())).willReturn("0000");
         TreeContext context = getTreeContext(new HashMap<>());
+        HashMap<String, String> map = new HashMap<>();
+
+        
+        map.put("OATH_TIME","VIP@123");
+		given(vipSearchUser.getCredentialBindingDetail(any(),any(),any(),any())).willReturn(map);
 
 		context.sharedState.put(USERNAME,"vip123");
 		context.sharedState.put(CRED_ID,"SYMC87283752");
@@ -68,17 +77,24 @@ public class VIPAddCredentialsTest {
 		//THEN
 		assertThat(action.callbacks).isEmpty();
 	    assertThat(context.sharedState).isObject().contains(entry(USERNAME, "vip123"),entry(CRED_ID, "SYMC87283752"),entry(CRED_CHOICE,"VIP"));
-	    assertThat(action.outcome).isEqualTo("true");
+	    assertThat(action.outcome).isEqualTo("TRUE");
 	}
 	@Test
 	public void testProcessWithFalseOutcome() throws NodeProcessException {
 		
-		given(addCredential.addCredential(any(),any(),any(),any(),any())).willReturn(false);
+		given(addCredential.addCredential(any(),any(),any(),any(),any())).willReturn("6004");
         TreeContext context = getTreeContext(new HashMap<>());
+        HashMap<String, String> map = new HashMap<>();
+        
+        map.put("OATH_TIME","VIP@123");
+		given(vipSearchUser.getCredentialBindingDetail(any(),any(),any(),any())).willReturn(map);
+
 
 		context.sharedState.put(USERNAME,"vip123");
 		context.sharedState.put(CRED_ID,"SYMC87283752");
 		context.sharedState.put(CRED_CHOICE,"VIP");
+		context.sharedState.put(QUERY_SERVICE_URL,"https://www.test.com");
+
 				
 		// WHEN
 		Action action = node.process(context);
@@ -86,7 +102,7 @@ public class VIPAddCredentialsTest {
 		// THEN
 		assertThat(action.callbacks).isEmpty();
 	    assertThat(context.sharedState).isObject().contains(entry(USERNAME, "vip123"),entry(CRED_ID, "SYMC87283752"),entry(CRED_CHOICE,"VIP"));
-	    assertThat(action.outcome).isEqualTo("false");
+	    assertThat(action.outcome).isEqualTo("FALSE");
 	}
 	
 	private TreeContext getTreeContext(Map<String, String[]> parameters) {

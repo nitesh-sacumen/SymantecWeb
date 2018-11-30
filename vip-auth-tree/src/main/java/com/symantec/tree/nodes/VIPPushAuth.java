@@ -91,6 +91,7 @@ public class VIPPushAuth extends AbstractDecisionNode {
 			context.sharedState.put(TXN_ID, transactionId);
 			return goTo(true).build();
 		} else {
+			context.sharedState.put(PUSH_ERROR,"Not able to send push, Please select other credential option");
 			return goTo(false).build();
 		}
 

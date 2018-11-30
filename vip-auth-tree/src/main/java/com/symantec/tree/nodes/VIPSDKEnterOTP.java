@@ -31,11 +31,11 @@ import static com.symantec.tree.config.Constants.*;
  *
  */
 @Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
-               configClass      = VIPEnterOTP.Config.class)
-public class VIPEnterOTP extends SingleOutcomeNode {
+               configClass      = VIPSDKEnterOTP.Config.class)
+public class VIPSDKEnterOTP extends SingleOutcomeNode {
 
-    private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterOTP";
-    private final Logger logger = LoggerFactory.getLogger(VIPEnterOTP.class);
+    private static final String BUNDLE = "com/symantec/tree/nodes/VIPSDKEnterOTP";
+    private final Logger logger = LoggerFactory.getLogger(VIPSDKEnterOTP.class);
 
     /**
      * Configuration for the node.
@@ -46,7 +46,7 @@ public class VIPEnterOTP extends SingleOutcomeNode {
      * Create the node.
      */
     @Inject
-    public VIPEnterOTP() {
+    public VIPSDKEnterOTP() {
     }
 
 	/**
@@ -55,7 +55,6 @@ public class VIPEnterOTP extends SingleOutcomeNode {
     @Override
     public Action process(TreeContext context) {
     	logger.info("Collect SecurityCode started");
-    	context.sharedState.remove(PHONE_NUMBER_ERROR);
         JsonValue sharedState = context.sharedState;
         return context.getCallback(PasswordCallback.class)
                 .map(PasswordCallback::getPassword)
@@ -63,7 +62,6 @@ public class VIPEnterOTP extends SingleOutcomeNode {
                 .filter(password -> !Strings.isNullOrEmpty(password))
                 .map(password -> {
                 	logger.info("SecureCode has been collected and placed into the Shared State");
-                	logger.debug("Mobile VIP number: " + context.sharedState.get(MOB_NUM));
                     return goToNext()
                         .replaceSharedState(sharedState.put(SECURE_CODE, password)).build();
                 })

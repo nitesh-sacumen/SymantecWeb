@@ -58,7 +58,7 @@ public class VIPEnterOTPTest {
         assertThat(result.callbacks.get(0)).isInstanceOf(PasswordCallback.class);
         assertThat(((PasswordCallback) result.callbacks.get(0)).getPrompt()).isEqualTo("Enter Your Security Code/OTP");
         assertThat((Object) result.sharedState).isNull();
-        assertThat(sharedState).isObject().containsExactly(entry(MOB_NUM, "9112345671"));
+        assertThat(sharedState).isObject().contains(entry(MOB_NUM, "9112345671"));
     }
 
     @Test

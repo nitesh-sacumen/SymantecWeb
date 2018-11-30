@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.TextOutputCallback;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
@@ -67,29 +69,30 @@ public class VIPEnterCredIdTest {
 
         // Then
         assertThat(result.outcome).isEqualTo(null);
-        assertThat(result.callbacks).hasSize(1);
-        assertThat(result.callbacks.get(0)).isInstanceOf(PasswordCallback.class);
-        assertThat(((PasswordCallback) result.callbacks.get(0)).getPrompt()).isEqualTo("Enter Your Cred Id");
+        assertThat(result.callbacks).hasSize(2);
+        assertThat(result.callbacks.get(1)).isInstanceOf(NameCallback.class);
+        assertThat(result.callbacks.get(0)).isInstanceOf(TextOutputCallback.class);
+        assertThat(((TextOutputCallback) result.callbacks.get(0)).getMessage()).isEqualTo("Please Enter your Credential Id");
         assertThat((Object) result.sharedState).isNull();
-        assertThat(sharedState).isObject().containsExactly(entry(CRED_CHOICE,"SMS"));
+        assertThat(sharedState).isObject().contains(entry(CRED_CHOICE,"SMS"));
     }
 
     @Test
     public void testProcessWithCallbacksAddsToState() {
     	VIPEnterCredentialId node = new VIPEnterCredentialId();
         JsonValue sharedState = json(object(field(CRED_CHOICE, "SMS")));
-        PasswordCallback callback = new PasswordCallback("prompt", false);
-        callback.setPassword("secret".toCharArray());
+        NameCallback callback = new NameCallback("Enter Credential ID");
+        callback.setName("secret");
         
         //WHEN
         Action result = node.process(getContext(sharedState, new PreferredLocales(), singletonList(callback)));
         
         //THEN
         assertThat(result.outcome).isEqualTo("outcome");
-        assertThat(result.callbacks).isEmpty();
+        assertThat(result.callbacks.isEmpty());
         assertThat(result.sharedState).isObject().contains(CRED_CHOICE, "SMS");
         assertThat(result.sharedState).isObject().contains(CRED_ID, "secret");
-        assertThat(sharedState).isObject().containsExactly(entry(CRED_CHOICE, "SMS"));
+        assertThat(sharedState).isObject().contains(entry(CRED_CHOICE, "SMS"));
     }
 
     private TreeContext getContext(JsonValue sharedState, PreferredLocales preferredLocales,

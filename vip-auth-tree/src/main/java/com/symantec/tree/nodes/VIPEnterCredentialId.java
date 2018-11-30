@@ -1,12 +1,19 @@
 package com.symantec.tree.nodes;
 
 import static org.forgerock.openam.auth.node.api.Action.send;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.inject.Inject;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.TextOutputCallback;
 
 import org.forgerock.guava.common.base.Strings;
+import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -14,7 +21,7 @@ import org.forgerock.openam.auth.node.api.SingleOutcomeNode;
 import org.forgerock.openam.auth.node.api.TreeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
@@ -48,9 +55,13 @@ public class VIPEnterCredentialId extends SingleOutcomeNode {
 	 * @return sending password call back.
 	 */
 	private Action collectOTP(TreeContext context) {
+		List<Callback> cbList = new ArrayList<>(2);
 		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
-		PasswordCallback pcb = new PasswordCallback(bundle.getString("callback.credId"), true);
-		return send(pcb).build();
+		NameCallback ncb = new NameCallback(bundle.getString("callback.credId"), "Enter Credential ID");
+		TextOutputCallback tcb = new TextOutputCallback(0,"Please Enter your Credential Id");
+		cbList.add(tcb);
+		cbList.add(ncb);
+		return send(ImmutableList.copyOf(cbList)).build();
 	}
 
 	/**
@@ -61,7 +72,8 @@ public class VIPEnterCredentialId extends SingleOutcomeNode {
 		logger.info("Collect CredID started");
 		JsonValue sharedState = context.sharedState;
 
-		return context.getCallback(PasswordCallback.class).map(PasswordCallback::getPassword).map(String::new)
+		context.sharedState.remove(CREDENTIAL_ID_ERROR);
+		return context.getCallback(NameCallback.class).map(NameCallback::getName).map(String::new)
 				.filter(password -> !Strings.isNullOrEmpty(password)).map(password -> {
 					logger.debug("Credential ID has been collected and placed into the Shared State");
 					return goToNext().replaceSharedState(sharedState.copy().put(CRED_ID, password)).build();
