@@ -26,16 +26,13 @@ public final class Constants {
     public static final  String QUERY_SERVICE_URL = "Query_Service_URL";
     public static final  String MANAGEMENT_SERVICE_URL = "Management_Service_URL";
     public static final String DUPLICATE_CREDENTIAL_MESSAGE = "Duplicate Credential Message";
-    public static final  String SDK_SERVICE_URL = "Sdk Service URL";
     
 
     public static final String PUSH_DISPLAY_MESSAGE_TEXT = "push_display_message_text";
     public static final String PUSH_DISPLAY_MESSAGE_TITLE = "push_display_message_title";
     public static final String PUSH_DISPLAY_MESSAGE_PROFILE = "push_display_message_profile";
     
-    public static final String STANDARD_OTP = "STANDARD_OTP";
-    public static final String ACTIVATION_CODE ="ACTIVATION CODE";
-  
+    public static final String STANDARD_OTP = "STANDARD_OTP";  
     public static final String NO_CREDENTIALS_REGISTERED="NoCredentialRegistered";
     
     public static final String NO_CRED_REGISTERED = "NO_CRED_REGISTERED";
@@ -61,11 +58,6 @@ public final class Constants {
     	public static final String SUCCESS_CODE="6040";
     }
     
-    public final class VIPSDKStatusCode{
-    	public VIPSDKStatusCode() {
-		}
-    	public static final String SUCCESS_CODE="0000";
-    }
     
     
     public final class VIPPollPush{
