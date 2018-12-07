@@ -27,16 +27,20 @@ import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP OTPAuth Creds" node with SMS, VOICE, ERROR and TOKEN outcome. If
- *             SMS,TOKEN and VOICE, it will go to "VIP Enter SecurityCode/OTP". If
- *             ERROR, go to "VIP Display Error".
+ * 
+ * "VIP OTPAuth Creds" node with SMS, VOICE, ERROR and TOKEN outcome. If
+ * SMS,TOKEN and VOICE, it will go to "VIP Enter SecurityCode/OTP". If
+ * ERROR, go to "VIP Display Error".
+ * 
+ * It displays options to user to choose credential type for authentication.
  *
  */
 @Node.Metadata(outcomeProvider = VIPOTPAuth.OTPAuthOutcomeProvider.class, configClass = VIPOTPAuth.Config.class)
 public class VIPOTPAuth implements Node {
-	static Logger logger = LoggerFactory.getLogger(VIPOTPAuth.class);
+	Logger logger = LoggerFactory.getLogger(VIPOTPAuth.class);
 
 	private final Config config;
 	private VoiceDeviceRegister voiceDeviceRegister;
@@ -55,9 +59,10 @@ public class VIPOTPAuth implements Node {
 	}
 
 	/**
-	 * Create the node.
 	 * 
-	 * @param config The service config.
+	 * @param config A Config instance 
+	 * @param voiceDeviceRegister VoiceDeviceRegister instance
+	 * @param smsDeviceRegister SmsDeviceRegister instance
 	 */
 	@Inject
 	public VIPOTPAuth(@Assisted Config config, VoiceDeviceRegister voiceDeviceRegister,
@@ -73,17 +78,21 @@ public class VIPOTPAuth implements Node {
 	@Override
 	public Action process(TreeContext context) {
 		logger.info("Selecting option from SMS/VOICE/TOKEN");
+		
+		//Getting configured parameters
 		JsonValue sharedState = context.sharedState;
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String credValue = context.sharedState.get(MOB_NUM).asString();
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 
+		// Getting Credential Type
 		return context.getCallback(ChoiceCallback.class).map(c -> c.getSelectedIndexes()[0]).map(Integer::new)
 				.filter(choice -> -1 < choice && choice < 3).map(choice -> {
 					sharedState.put(CRED_CHOICE, config.referrerCredList().get(choice));
 					switch (choice) {
 
+					// Sends OTP request for vip:voiceDeliveryInfo
 					case 1:
 						boolean isOTPVoiceAuthenticated = false;
 						try {
@@ -98,6 +107,8 @@ public class VIPOTPAuth implements Node {
 							context.sharedState.put(DISPLAY_ERROR,"There is error to Send OTP through Voice, either Authenticate with other credentials or contact to admin. ");
 							return goTo(SymantecOTPAuthOutcome.ERROR).replaceSharedState(sharedState).build();
 						}
+						
+					// Sends OTP request for vip:smsDeliveryInfo	
 					case 0:
 						boolean isOTPSmsAuthenticated = false;
 						try {
@@ -112,6 +123,8 @@ public class VIPOTPAuth implements Node {
 							context.sharedState.put(DISPLAY_ERROR,"There is error to Send OTP through SMS, either Authenticate with other credentials or contact to admin. ");
 							return goTo(SymantecOTPAuthOutcome.ERROR).replaceSharedState(sharedState).build();
 						}
+					
+					// Redirecting to enter Security Code
 					default:
 						return goTo(SymantecOTPAuthOutcome.TOKEN).replaceSharedState(sharedState).build();
 						
@@ -125,8 +138,8 @@ public class VIPOTPAuth implements Node {
 
 	/**
 	 * 
-	 * @param context
-	 * @return list of callbacks.
+	 * @param context TreeContext instance
+	 * @return Action instance
 	 */
 	private Action displayCredentials(TreeContext context) {
 		List<Callback> cbList = new ArrayList<>(2);
@@ -134,13 +147,17 @@ public class VIPOTPAuth implements Node {
 		String[] targetArray = values.toArray(new String[0]);
 		String outputError = context.sharedState.get(PUSH_ERROR).asString();
 		logger.debug("text block error" + outputError);
+		
+		// Fetching only options when there is no error.
 		if (outputError == null) {
-
-			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
+            ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());
 			ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false);
 			cbList.add(ccb);
-		} else {
+		} 
+		
+		// Fetching options with error, If occurs.
+		else {
 			TextOutputCallback tcb = new TextOutputCallback(0, outputError);
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());
@@ -158,7 +175,7 @@ public class VIPOTPAuth implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the SymantecVerifyAuth.
+	 * The possible outcomes for the VIP OTPAuth Creds.
 	 */
 	private enum SymantecOTPAuthOutcome {
 		/**

@@ -22,8 +22,9 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
- * @Description Executing SendOtpRequest
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
+ * Executing SendOtpRequest
  *
  */
 public class SmsDeviceRegister {
@@ -32,22 +33,30 @@ public class SmsDeviceRegister {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
-	 * @return true if success, else false
+	 * @param userName User Name
+	 * @param credValue Phone Number
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
+	 * @return status of SendOtpRequest
 	 * @throws NodeProcessException
 	 */
 	public Boolean smsDeviceRegister(String userName, String credValue,String key_store,String key_store_pass) throws NodeProcessException {
-		HttpPost post = new HttpPost(getURL());
-
-		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		//Constructing SendOtpRequest
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
+        post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+        
+        //Getting payload of SendOtpRequest
 		String payLoad = getViewUserPayload(userName, credValue);
 		logger.debug("Request Payload: " + payLoad);
 		String statusMessage;
 		try {
+			
+			//Executing SendOtpRequest
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
 
+			//Getting response of SendOtpRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -55,8 +64,11 @@ public class SmsDeviceRegister {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			//Getting status of SendOtpRequest
 			statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("failed to execute SendOtpRequest");
 			throw new NodeProcessException(e);
 		}
 		if ("success".equalsIgnoreCase(statusMessage)) {
@@ -68,8 +80,8 @@ public class SmsDeviceRegister {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
+	 * @param userName User Name
+	 * @param credValue Phone Number
 	 * @return SendOtpRequest payoad
 	 */
 	private static String getViewUserPayload(String userName, String credValue) {
@@ -81,10 +93,6 @@ public class SmsDeviceRegister {
 				+ "<vip:phoneNumber>" + credValue + "</vip:phoneNumber>" + "" + "</vip:smsDeliveryInfo>" + ""
 				+ "</vip:SendOtpRequest>" + "</soapenv:Body>" + "</soapenv:Envelope>";
 
-	}
-
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
 	}
 
 }

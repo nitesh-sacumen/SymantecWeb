@@ -22,18 +22,22 @@ import org.slf4j.LoggerFactory;
 import static com.symantec.tree.config.Constants.*;
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Poll Push Reg" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
+ * 
+ * "VIP Poll Push Reg" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
  * If TRUE, it will go to "Success".
  * If False, go to "Failure".
  * If Error, go to "VIP Enter SecurityCode/OTP".
  * If Unanswered, go to "polling wait node".
+ * 
+ * It gets status of push request.
  *
  */
 @Node.Metadata(outcomeProvider = VIPPollPushReg.SymantecOutcomeProvider.class, configClass = VIPPollPushReg.Config.class)
 public class VIPPollPushReg implements Node {
-	static Logger logger = LoggerFactory.getLogger(VIPPollPushReg.class);
+	Logger logger = LoggerFactory.getLogger(VIPPollPushReg.class);
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPPollPushReg";
 
 	private AuthPollPush pollPush;
@@ -50,8 +54,8 @@ public class VIPPollPushReg implements Node {
 	 *
 	 */
 	@Inject
-	public VIPPollPushReg() {
-		pollPush = new AuthPollPush();
+	public VIPPollPushReg(AuthPollPush pollPush) {
+		this.pollPush = pollPush;
 	}
 
 	/**
@@ -65,17 +69,21 @@ public class VIPPollPushReg implements Node {
 
 	/**
 	 * 
-	 * @param context
-	 * @return Action
+	 * @param context TreeContext instance
+	 * @return Action instance
 	 */
 	private Action verifyAuth(TreeContext context) {
 		logger.info("Entered into verifyAuth method");
+		
+		//Getting configured parameters
 		String credId = context.sharedState.get(CRED_ID).asString();
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		String credType = STANDARD_OTP;
 		JsonValue newSharedState = context.sharedState.copy();
+		
+		//Calling PollPushStatusRequest
 		try {
 
 			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString(),key_store,key_store_pass);
@@ -117,7 +125,7 @@ public class VIPPollPushReg implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the SymantecVerifyAuth.
+	 * The possible outcomes for the VIP Poll Push Reg.
 	 */
 	public enum Symantec {
 		/**

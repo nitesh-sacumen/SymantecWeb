@@ -25,7 +25,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * Create user if not exist.
  *
  */
@@ -35,7 +36,7 @@ public class VIPCreateUser {
 
 	/**
 	 * 
-	 * @param userId
+	 * @param userId User Name
 	 * @return CreateUserRequest payload
 	 */
 	private String createUserPayload(String userId) {
@@ -55,18 +56,22 @@ public class VIPCreateUser {
 	/**
 	 * 
 	 * @param userId
-	 * @return true id user is create, else false
-	 * @throws NodeProcessException 
-	 * 
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
+	 * @return status code of CreateUserRequest
+	 * @throws NodeProcessException
 	 */
 	public boolean createVIPUser(String userId,String key_store,String key_store_pass) throws NodeProcessException {
 		    boolean isUserExisted = false;
-			HttpPost httpPost = new HttpPost(getURL());
+			
+		    //Constructing CreateUserRequest
+		    HttpPost httpPost = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
 			httpPost.addHeader("Accept-Encoding", "gzip,deflate");
 			httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
 			httpPost.addHeader("SOAPAction", ""); /* \"\" */
 			httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
 
+			//Getting CreateUserRequest payload
 			String userPayload = createUserPayload(userId);
 			InputStream is = new ByteArrayInputStream(userPayload.getBytes());
 
@@ -79,6 +84,8 @@ public class VIPCreateUser {
 			httpPost.setEntity(reqEntity);
 			String statusMessage;
 			try {
+				
+			//Executing CreateUserRequest
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
 			HttpResponse response = httpClient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
@@ -87,7 +94,8 @@ public class VIPCreateUser {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String status = doc.getElementsByTagName("status").item(0).getTextContent();
+			
+			//Getting status of CreateUserRequest
 			statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 			}
 			catch (IOException | ParserConfigurationException | SAXException e) {
@@ -100,12 +108,4 @@ public class VIPCreateUser {
 		return isUserExisted;
 	}
 
-	/**
-	 * 
-	 * @return ManagementServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
-	}
 }

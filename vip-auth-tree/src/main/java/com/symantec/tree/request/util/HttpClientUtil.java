@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * Utility class to read key-store values to authenticate vip requests.
  *
  */
@@ -38,7 +39,7 @@ public class HttpClientUtil {
 	
 	/**
 	 * This method is used to get key store values form forgerock configurations
-	 * @return httpClient
+	 * @return httpClient HttpClient instance
 	 * @throws NodeProcessException 
 	 * @throws FileNotFoundException
 	 * @throws KeyStoreException 

@@ -9,10 +9,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Register User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Display Creds". If False, go to
- *             "Failure".
+ * 
+ * "VIP Register User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Display Creds". If False, go to
+ * "Failure".
+ * 
+ * It register user to VIP Database
  *
  */
 @Node.Metadata(outcomeProvider = AbstractDecisionNode.OutcomeProvider.class, configClass = VIPRegisterUser.Config.class)
@@ -30,12 +34,12 @@ public class VIPRegisterUser extends AbstractDecisionNode {
 	}
 
 	/**
-	 * Create the node.
-	 *
+	 * 
+	 * @param vIPCreateUser VIPCreateUser instance
 	 */
 	@Inject
-	public VIPRegisterUser() {
-		vIPCreateUser = new VIPCreateUser();
+	public VIPRegisterUser(VIPCreateUser vIPCreateUser) {
+		this.vIPCreateUser = vIPCreateUser;
 	}
 
 	/**
@@ -44,6 +48,8 @@ public class VIPRegisterUser extends AbstractDecisionNode {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		
+		//Getting configured parameters
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String credRegistrationStatus = context.transientState.get(NO_CREDENTIALS_REGISTERED).toString();
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
@@ -55,7 +61,10 @@ public class VIPRegisterUser extends AbstractDecisionNode {
 		if (credRegistrationStatus != null && credRegistrationStatus.equalsIgnoreCase("true")) {
 			logger.info("User already registered and hence not making user registration call");
 			return goTo(true).build();
-		} else {
+		} 
+		
+		//Calling CreateUserRequest
+		else {
 			logger.info("User not registered and hence making user registration call");
 			isVIPProfileRegistered = vIPCreateUser.createVIPUser(userName,key_store,key_store_pass);
 			return goTo(isVIPProfileRegistered).build();

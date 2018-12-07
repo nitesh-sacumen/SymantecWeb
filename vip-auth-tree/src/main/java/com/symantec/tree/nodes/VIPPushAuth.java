@@ -15,16 +15,20 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Push Auth User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Poll Push Auth". If False, go to
- *             "VIP OTPAuth Creds".
+ * 
+ * "VIP Push Auth User" node with TRUE,FALSE outcome. If TRUE, it will go to "VIP Poll Push Auth". If False, go to
+ * "VIP OTPAuth Creds".
+ * 
+ * It sends AuthenticateUserWithPushRequest 
  *
  */
 @Node.Metadata(outcomeProvider = AbstractDecisionNode.OutcomeProvider.class, configClass = VIPPushAuth.Config.class)
 public class VIPPushAuth extends AbstractDecisionNode {
 
-	static final Logger logger = LoggerFactory.getLogger(VIPPushAuth.class);
+	Logger logger = LoggerFactory.getLogger(VIPPushAuth.class);
 
 	private AuthenticateUser pushAuthUser;
 	private final Map<String, String> vipPushCodeMap = new HashMap<>();
@@ -53,9 +57,9 @@ public class VIPPushAuth extends AbstractDecisionNode {
 	}
 
 	/**
-	 * Create the node.
 	 * 
-	 * @param config The service config.
+	 * @param config Config instance
+	 * @param pushAuthUser AuthenticateUser instance
 	 */
 	@Inject
 	public VIPPushAuth(@Assisted Config config,AuthenticateUser pushAuthUser) {
@@ -79,9 +83,13 @@ public class VIPPushAuth extends AbstractDecisionNode {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		
+		//Getting configured parameters
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
+		
+		//Calling AuthenticateUserWithPushRequest 
 		String transactionId = pushAuthUser.authUser(userName, vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TEXT),
 				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TITLE),
 				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_PROFILE),

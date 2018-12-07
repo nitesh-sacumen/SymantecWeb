@@ -24,9 +24,10 @@ import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com) 
- * @Description Deleting credential id , which is associated with user using
- *         RemoveCredentialRequest
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
+ * Deleting credential id , which is associated with user using
+ * RemoveCredentialRequest
  *
  */
 public class DeleteCredential {
@@ -34,20 +35,30 @@ public class DeleteCredential {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credId
-	 * @param credType
+	 * @param userName User Name
+	 * @param credId Credential ID
+	 * @param credType Credential Type
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
 	 * @throws NodeProcessException
 	 */
 	public void deleteCredential(String userName, String credId, String credType,String key_store,String key_store_pass) throws NodeProcessException {
-		HttpPost post = new HttpPost(getURL());
+		
+		//Constructing RemoveCredentialRequest
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		// Getting RemoveCredentialRequest payload
 		String payLoad = getRemoveCredPayload(userName, credId, credType);
 		logger.debug("Request Payload: " + payLoad);
 		String status;
 		try {
+			
+			//Executing RemoveCredentialRequest
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			//Getting response of RemoveCredentialRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -55,10 +66,12 @@ public class DeleteCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			//Getting status code of RemoveCredentialRequest response
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 
 		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("Failed too execute RemoveCredentialRequest");
 			throw new NodeProcessException(e);
 		}
 		if (SUCCESS_CODE.equals(status)) {
@@ -68,9 +81,9 @@ public class DeleteCredential {
 
 	/**
 	 * 
-	 * @param userId
-	 * @param credId
-	 * @param credType
+	 * @param userId User Name
+	 * @param credId Credential ID
+	 * @param credType Credential Type
 	 * @return RemoveCredentialRequest payload
 	 */
 	private static String getRemoveCredPayload(String userId, String credId, String credType) {
@@ -82,15 +95,6 @@ public class DeleteCredential {
 				+ "          <vip:credentialType>" + credType + "</vip:credentialType>      "
 				+ "      </vip:RemoveCredentialRequest>" + "   </soapenv:Body>" + "</soapenv:Envelope>";
 
-	}
-
-	/**
-	 * 
-	 * @return ManagementServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
 	}
 
 }

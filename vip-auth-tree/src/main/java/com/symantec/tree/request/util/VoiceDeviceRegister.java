@@ -32,15 +32,15 @@ public class VoiceDeviceRegister {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
-	 * @param key_store
-	 * @param key_store_pass
+	 * @param userName User Name
+	 * @param credValue Phone Number
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
 	 * @return true if SendOtpRequest success, else false.
 	 * @throws NodeProcessException
 	 */
 	public Boolean voiceDeviceRegister(String userName, String credValue,String key_store,String key_store_pass) throws NodeProcessException {
-		HttpPost post = new HttpPost(getURL());
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
 
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
 		String payLoad = getViewUserPayload(userName, credValue);
@@ -69,8 +69,8 @@ public class VoiceDeviceRegister {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
+	 * @param userName User Name
+	 * @param credValue Phone Number
 	 * @return SendOtpRequest payload
 	 */
 	private static String getViewUserPayload(String userName, String credValue) {
@@ -91,13 +91,5 @@ public class VoiceDeviceRegister {
 				"</soapenv:Envelope>";
 	}
 
-	/**
-	 * 
-	 * @return ManagementServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
-	}
 
 }

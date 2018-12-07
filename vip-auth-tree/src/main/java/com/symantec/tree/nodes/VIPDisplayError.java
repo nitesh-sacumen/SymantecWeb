@@ -14,15 +14,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP DISPLAY ERROR" node with single outcome, which will lead to "login failure".
+ * 
+ * "VIP DISPLAY ERROR" node with single outcome, which will lead to "login failure".
+ * 
+ * It Displays error to the user.
  *
  */
 @Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
                configClass      = VIPDisplayError.Config.class)
 public class VIPDisplayError extends SingleOutcomeNode{
-	 private final Logger logger = LoggerFactory.getLogger(VIPDisplayError.class);
+	 static Logger logger = LoggerFactory.getLogger(VIPDisplayError.class);
 
 	    
 	    /**
@@ -37,6 +41,11 @@ public class VIPDisplayError extends SingleOutcomeNode{
 	    public VIPDisplayError() {
 	        }
 	    
+	    /**
+	     * 
+	     * @param context TreeContext instance
+	     * @return Action instance
+	     */
 		private Action displayError(TreeContext context) {
 			String outputError=context.sharedState.get(DISPLAY_ERROR).asString();
 			TextOutputCallback pcb = new TextOutputCallback(0, outputError);
@@ -45,18 +54,17 @@ public class VIPDisplayError extends SingleOutcomeNode{
 		
 		
 		/**
-	     * This Node method displays Error for maximum attempts of Invalid otp Entered.
+	     * This Node method displays Error.
 	     */
 	    @Override
 	    public Action process(TreeContext context) {
-	    	logger.info("Inside VIP DISPLAY ERROR Page");
+	    	logger.info("Displaying Error...........");
 	    	return context.getCallback(TextOutputCallback.class).map(TextOutputCallback::getMessage)
 	                .map(String::new)
 	                .filter(name -> !Strings.isNullOrEmpty(name))
 	                .map(name -> {
 	                	return goToNext().build();
 	                }).orElseGet(() -> {
-						logger.debug("Displaying Error");
 						return displayError(context);
 					});
 	                	

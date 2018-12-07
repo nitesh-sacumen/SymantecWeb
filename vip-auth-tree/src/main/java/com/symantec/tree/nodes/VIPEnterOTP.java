@@ -25,17 +25,20 @@ import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Enter SecurityCode/OTP" node with single outcome. This node will redirect to "VIP Check Symantec OTP".
- *
+ * 
+ * "VIP Enter SecurityCode/OTP" node with single outcome. This node will redirect to "VIP Check Symantec OTP".
+ * 
+ * It displays textbox to user to enter OTP.
  */
 @Node.Metadata(outcomeProvider  = SingleOutcomeNode.OutcomeProvider.class,
                configClass      = VIPEnterOTP.Config.class)
 public class VIPEnterOTP extends SingleOutcomeNode {
 
     private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterOTP";
-    private final Logger logger = LoggerFactory.getLogger(VIPEnterOTP.class);
+    Logger logger = LoggerFactory.getLogger(VIPEnterOTP.class);
 
     /**
      * Configuration for the node.
@@ -73,19 +76,25 @@ public class VIPEnterOTP extends SingleOutcomeNode {
                 });
     }
     
-    /**
-     * 
-     * @param context
-     * @return  list of callbacks
-     */
+   /**
+    * 
+    * @param context TreeContext instance
+    * @return Action instance
+    */
     private Action displayCredentials(TreeContext context) {
 		List<Callback> cbList = new ArrayList<>(2);
 		String outputError = context.sharedState.get(OTP_ERROR).asString();
+		logger.debug("outputError is ",outputError);
+		
+		// Fetching only textbox when there is no error.
 		if (outputError == null) {
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
 			PasswordCallback pcb = new PasswordCallback(bundle.getString("callback.securecode"), false);
 			cbList.add(pcb);
-		} else {
+		} 
+		
+		// Fetching textbox with error.
+		else {
 			TextOutputCallback tcb = new TextOutputCallback(0, outputError);
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());

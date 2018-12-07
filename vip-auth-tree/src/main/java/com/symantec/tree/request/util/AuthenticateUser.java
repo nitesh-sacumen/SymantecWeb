@@ -23,7 +23,8 @@ import com.symantec.tree.config.Constants.VIPAuthStatusCode;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com) 
+ * @author Sacumen (www.sacumen.com) <br> <br>
+ * 
  * Authenticate user using AuthenticateUserWithPushRequest
  *
  */
@@ -33,26 +34,34 @@ public class AuthenticateUser {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param displayMsgText
-	 * @param displayMsgTitle
-	 * @param displayMsgProfile
-	 * @return transaction id if success else, null
-	 * @throws NodeProcessException 
+	 * @param userName User Name
+	 * @param displayMsgText Display Message Text
+	 * @param displayMsgTitle Display Message Title
+	 * @param displayMsgProfile Display Message Profile
+	 * @param key_store KeyStore file path
+	 * @param key_store_pass KeyStore file password
+	 * @return Transaction ID
+	 * @throws NodeProcessException
 	 */
 	public String authUser(String userName, String displayMsgText, String displayMsgTitle, String displayMsgProfile,
 			String key_store,String key_store_pass) throws NodeProcessException {
-
-		String transactionID = "";
+		
+		//Constructing AuthenticateUserWithPushRequest 
+        String transactionID = "";
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
-		HttpPost post = new HttpPost(getURL());
-
-		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getAuthenticationServiceURL());
+        post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+        
+        //Getting payload of AuthenticateUserWithPushRequest
 		String payLoad = getViewUserPayload(userName, displayMsgText, displayMsgTitle, displayMsgProfile);
 		logger.debug("Request Payload: " + payLoad);
 		try {
+			
+			//Calling AuthenticateUserWithPushRequest
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			//Getting response of AuthenticateUserWithPushRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -60,8 +69,9 @@ public class AuthenticateUser {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			//Getting status of AuthenticateUserWithPushRequest response
 			String status = doc.getElementsByTagName("status").item(0).getTextContent();
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 			if (VIPAuthStatusCode.SUCCESS_CODE.equals(status)) {
 				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
 			}
@@ -73,10 +83,10 @@ public class AuthenticateUser {
 
 	/**
 	 * 
-	 * @param userId
-	 * @param displayMsgText
-	 * @param displayMsgTitle
-	 * @param displayMsgProfile
+	 * @param userName User Name
+	 * @param displayMsgText Display Message Text
+	 * @param displayMsgTitle Display Message Title
+	 * @param displayMsgProfile Display Message Profile
 	 * @return AuthenticateUserWithPushRequest payload
 	 */
 	private static String getViewUserPayload(String userId, String displayMsgText, String displayMsgTitle,
@@ -116,14 +126,4 @@ public class AuthenticateUser {
 				"</soapenv:Body>" +
 				"</soapenv:Envelope>";
 	}
-
-	/**
-	 * 
-	 * @return AuthenticationServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("AuthenticationServiceURL");
-	}
-
 }

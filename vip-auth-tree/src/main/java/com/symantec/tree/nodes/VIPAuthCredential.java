@@ -14,20 +14,24 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import static com.symantec.tree.config.Constants.*;
-/**s
+/**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Authenticate Push Credential" node with true and false outcome, If true, go
- *             to "VIP Poll Push Reg" else false, go to "VIP Enter SecurityCode/OTP".
+ * 
+ * "VIP Authenticate Push Credential" node with true and false outcome, If true, go
+ * to "VIP Poll Push Reg" else false, go to "VIP Enter SecurityCode/OTP".
+ * 
+ * It raise push notification for authentication.
  *
  */
 @Node.Metadata(outcomeProvider = AbstractDecisionNode.OutcomeProvider.class, configClass = VIPAuthCredential.Config.class)
 public class VIPAuthCredential extends AbstractDecisionNode {
+	
 	static Logger logger = LoggerFactory.getLogger(VIPAuthCredential.class);
-
     private AuthenticateCredential authPushCred;
-	private final Map<String, String> vipPushCodeMap = new HashMap<>();
+	private Map<String, String> vipPushCodeMap = new HashMap<>();
 
 	/**
 	 * Configuration for the node.
@@ -52,10 +56,10 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 	}
 
 	/**
-	 * Create the node.
 	 * 
-	 * @param config The service config.
-     */
+	 * @param config The config for this instance.
+	 * @param authPushCred AuthenticateCredential instance
+	 */
 	@Inject
 	public VIPAuthCredential(@Assisted Config config,AuthenticateCredential authPushCred) {
 
@@ -77,23 +81,21 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		
+		// Getting configured parameters
 		String credId = context.sharedState.get(CRED_ID).asString();
         String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
         String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
-		logger.info("Calling VIP Auth credential");
+		
+		// Calling AuthenticateCredentialsRequest 
 		String Stat = authPushCred.authCredential(credId, vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TEXT),
 				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_TITLE),
 				vipPushCodeMap.get(Constants.PUSH_DISPLAY_MESSAGE_PROFILE),
 				key_store,key_store_pass);
 		String[] trastat = Stat.split(",");
-		for (String s : trastat)
-			logger.debug("Values:" + s);
 		String status = trastat[0];
 		String transactionId = trastat[1];
-		logger.debug("Status of SymantecAuthCred  .. " + status);
-		logger.debug("TransactionID of SymantecAuthCred  .. " + transactionId);
-
 		context.sharedState.put(TXN_ID, transactionId);
 		if (status.equalsIgnoreCase(VIPAuthStatusCode.SUCCESS_CODE)) {
 			logger.debug("Mobile Push is sent successfully:" + status);
@@ -107,12 +109,13 @@ public class VIPAuthCredential extends AbstractDecisionNode {
 	}
 
 	/**
-	 * @param userName
-	 * @param credId
-	 * @throws NodeProcessException 
-     */
+	 * It deletes credential ID associated with user.
+	 * @param userName User Name
+	 * @param credId Credential ID
+	 * @param context TreeContext instance
+	 * @throws NodeProcessException
+	 */
 	private void deleteCredential(String userName, String credId, TreeContext context) throws NodeProcessException {
-		logger.info("Deleting credentials");
 		DeleteCredential delCred = new DeleteCredential();
 		String key_store = context.sharedState.get("key_store_path").asString();
 		String key_store_pass = context.sharedState.get("key_store_pass").asString();

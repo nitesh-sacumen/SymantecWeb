@@ -23,7 +23,8 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * Executing RegisterRequest for SMS and Voice
  */
 public class SMSVoiceRegister {
@@ -31,21 +32,30 @@ public class SMSVoiceRegister {
 
 	/**
 	 * 
-	 * @param credValue
-	 * register SMS
-	 * @throws NodeProcessException 
+	 * @param credValue Phone Number
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
+	 * @return status code of RegisterRequest 
+	 * @throws NodeProcessException
 	 */
 	public String smsRegister(String credValue,String key_store,String key_store_pass) throws NodeProcessException {
-		HttpPost post = new HttpPost(getURL());
-
-		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		//Constructing RegisterRequest
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
+        post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+        
+        //Getting RegisterRequest payload
 		String payLoad = getSmsPayload(credValue);
 		String status;
 		logger.debug("Request Payload: " + payLoad);
 
 		try {
+			
+			//Executing RegisterRequest
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			//Getting response of RegisterRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -53,10 +63,11 @@ public class SMSVoiceRegister {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			status = doc.getElementsByTagName("status").item(0).getTextContent();
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 			
+			//Getting status code of RegisterRequest
+			status = doc.getElementsByTagName("status").item(0).getTextContent();			
 		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("Failed to execute RegisterRequest");
 			throw new NodeProcessException(e);
 		}
 		
@@ -66,20 +77,29 @@ public class SMSVoiceRegister {
 
 	/**
 	 * 
-	 * @param credValue
-	 * register voice
-	 * @throws NodeProcessException 
+	 * @param credValue Phone Number
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
+	 * @return status code of RegisterRequest
+	 * @throws NodeProcessException
 	 */
 	public String voiceRegister(String credValue,String key_store,String key_store_pass) throws NodeProcessException {
-		HttpPost post = new HttpPost(getURL());
-
+		
+		//Constructing RegisterRequest
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		//Getting payload for RegisterRequest
 		String payLoad = getVoicePayload(credValue);
 		String status;
 		logger.debug("Request Payload: " + payLoad);
 		try {
+			
+			//Executing RegisterRequest 
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			//Getting response of RegisterRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -87,10 +107,12 @@ public class SMSVoiceRegister {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			//Getting status code of RegisterRequest
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 
 		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("Failed to execute RegisterRequest");
 			throw new NodeProcessException(e);
 		}
 		
@@ -100,7 +122,7 @@ public class SMSVoiceRegister {
 
 	/**
 	 * 
-	 * @param credValue
+	 * @param credValue Phone Number
 	 * @return RegisterRequest payload
 	 */
 	private static String getSmsPayload(String credValue) {
@@ -123,7 +145,7 @@ public class SMSVoiceRegister {
 
 	/**
 	 * 
-	 * @param credValue
+	 * @param credValue Phone Number
 	 * @return RegisterRequest payload for voice
 	 */
 	private static String getVoicePayload(String credValue) {
@@ -144,13 +166,5 @@ public class SMSVoiceRegister {
 
 	}
 
-	/**
-	 * 
-	 * @return ManagementServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
-	}
 	
 }

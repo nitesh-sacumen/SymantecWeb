@@ -25,10 +25,14 @@ import static com.symantec.tree.config.Constants.CONFIRM_CRED_CHOICE;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Add More Creds" node with yes and no outcome, If yes, go
- *             to "VIP Display Creds" else false, go to "Success".
+ * 
+ * "VIP Add More Creds" node with yes and no outcome, If yes, go
+ * to "VIP Display Creds" else false, go to "Success".
+ *  
+ *  It gives choice to user to add more credential.
  *
  */
 
@@ -37,7 +41,7 @@ import static com.symantec.tree.config.Constants.CONFIRM_CRED_CHOICE;
 public class VIPConfirmCredential implements Node {
 
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPConfirmCredential";
-	private final Logger logger = LoggerFactory.getLogger(VIPConfirmCredential.class);
+	static Logger logger = LoggerFactory.getLogger(VIPConfirmCredential.class);
 
 	/**
 	 * Configuration for the node.
@@ -46,8 +50,8 @@ public class VIPConfirmCredential implements Node {
 	}
 
 	/**
-	 * Create the node.
-	 *
+	 * 
+	 * VIPConfirmCredential constructor
 	 */
 	@Inject
 	public VIPConfirmCredential() {
@@ -65,8 +69,6 @@ public class VIPConfirmCredential implements Node {
 		List<ConfirmationCallback> confirmationCallbacks = context.getCallbacks(ConfirmationCallback.class);
 
 		for (ConfirmationCallback cc : confirmationCallbacks) {
-			logger.debug("Option type is:\t" + cc.getOptionType());
-			logger.debug("Selected option is:\t" + cc.getSelectedIndex());
 			inputChoice = SymantecConfirmCredOutcomeChoice.getChoiceByCode(cc.getSelectedIndex());
 			sharedState.put(CONFIRM_CRED_CHOICE, inputChoice);
 		}
@@ -81,11 +83,11 @@ public class VIPConfirmCredential implements Node {
 
 	}
 
-	/**
-	 * 
-	 * @param context
-	 * @return lsit of callbacks
-	 */
+    /**
+     * 
+     * @param context TreeContext instance
+     * @return Action instance
+     */
 	private Action displayCreds(TreeContext context) {
 		List<Callback> cbList = new ArrayList<>(2);
 		ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
@@ -143,7 +145,7 @@ public class VIPConfirmCredential implements Node {
 	}
 
 	/**
-	 * Defines the possible outcomes from this SymantecOutcomeProvider node.
+	 * Defines the possible outcomes from this VIP Add More Creds node.
 	 */
 	public static class CredsOutcomeProvider implements OutcomeProvider {
 		@Override

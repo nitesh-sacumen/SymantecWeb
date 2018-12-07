@@ -23,8 +23,9 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
- * @Description: Checking OTP with CheckOtpRequest.
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
+ * Checking OTP with CheckOtpRequest.
  *
  */
 public class CheckVIPOtp {
@@ -33,22 +34,31 @@ public class CheckVIPOtp {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param otpValue
-	 * @return status code of response
+	 * @param userName User Name
+	 * @param otpValue OTP Value
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
+	 * @return status code of CheckOtpRequest
 	 * @throws NodeProcessException
 	 */
 	public String checkOtp(String userName, String otpValue,String key_store,String key_store_pass) throws NodeProcessException {
 
+		//Constructing CheckOtpRequest
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
-		HttpPost post = new HttpPost(getURL());
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getAuthenticationServiceURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		//Getting CheckOtpRequest payload
 		String payLoad = getViewUserPayload(userName, otpValue);
 		String status;
 		logger.debug("Request Payload: " + payLoad);
 		try {
+			
+			// Executing CheckOtpRequest
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			//Getting response of CheckOtpRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -56,10 +66,12 @@ public class CheckVIPOtp {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			//Getting status code of CheckOtpRequest
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
 		
 		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("failed to execute CheckOtpRequest");
 			throw new NodeProcessException(e);
 		}
 		return status;
@@ -68,8 +80,8 @@ public class CheckVIPOtp {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param otpValue
+	 * @param userName User Name
+	 * @param otpValue OTP Value
 	 * @return CheckOtpRequest payload
 	 */
 	private static String getViewUserPayload(String userName, String otpValue) {
@@ -81,15 +93,6 @@ public class CheckVIPOtp {
 				+ "         <vip:otpAuthData>" + "            <vip:otp>" + otpValue + "</vip:otp>           "
 				+ "         </vip:otpAuthData>        " + "      </vip:CheckOtpRequest>" + "   </soapenv:Body>"
 				+ "</soapenv:Envelope>";
-	}
-
-	/**
-	 * 
-	 * @return AuthenticationServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("AuthenticationServiceURL");
 	}
 
 }

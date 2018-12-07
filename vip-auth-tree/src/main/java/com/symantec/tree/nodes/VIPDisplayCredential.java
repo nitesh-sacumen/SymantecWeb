@@ -26,10 +26,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Display Credential" node with VIP, SMS and VOICE outcome, If VIP, go
- *             to "VIP Enter CredentialID".If SMS and VOICE go to "VIP Enter Phone Number".
+ * 
+ * "VIP Display Credential" node with VIP, SMS and VOICE outcome, If VIP, go
+ * to "VIP Enter CredentialID".If SMS and VOICE go to "VIP Enter Phone Number".
+ * 
+ * It displays options to user to choose credential type.
  *
  */
 @Node.Metadata(outcomeProvider = VIPDisplayCredential.CredsOutcomeProvider.class, configClass =
@@ -93,7 +97,7 @@ public class VIPDisplayCredential implements Node {
 	
 	/**
 	 * 
-	 * @param context
+	 * @param context TreeContext instance
 	 * @return Action for display credentials options.
 	 */
 	private Action displayCredentials(TreeContext context) {
@@ -102,12 +106,17 @@ public class VIPDisplayCredential implements Node {
 		String[] targetArray = values.toArray(new String[0]);
 		String outputError = context.sharedState.get(CREDENTIAL_ID_ERROR).asString();
 		logger.debug("text block error" + outputError);
+		
+		// Fetching all the options when there is no error.
 		if (outputError == null) {
             ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());
 			ChoiceCallback ccb = new ChoiceCallback(bundle.getString("callback.creds"), targetArray, 0, false);
 			cbList.add(ccb);
-		} else {
+		} 
+		
+		// Fetching all options with error id if there is error.
+		else {
 			TextOutputCallback tcb = new TextOutputCallback(0, outputError);
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE,
 					getClass().getClassLoader());
@@ -125,7 +134,7 @@ public class VIPDisplayCredential implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the SymantecVerifyAuth.
+	 * The possible outcomes for the VIP Display Credential.
 	 */
 	public enum SymantecDisplayCredsOutcome {
 		/**

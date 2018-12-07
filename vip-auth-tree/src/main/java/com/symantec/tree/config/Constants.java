@@ -1,10 +1,12 @@
 package com.symantec.tree.config;
 
+/**
+ * 
+ * @author Sacumen(www.sacumen.com) <br> <br>
+ * 
+ * A constant file that handles all the constants parameter used inside the code.
+ */
 public final class Constants {
-
-    /**
-     * Private constructor.
-     */
     private Constants() {
     }
     

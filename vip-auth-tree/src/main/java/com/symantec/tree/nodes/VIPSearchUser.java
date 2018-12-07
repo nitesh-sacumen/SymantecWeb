@@ -20,15 +20,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Search User" node with TRUE,FALSE and ERROR outcome. If TRUE, it will go to "VIP Push Auth User". If False, go to
- *             "VIP Register User" and if ERROR, It will go to "VIP Display Error" Page.
+ * 
+ * "VIP Search User" node with TRUE,FALSE and ERROR outcome. If TRUE, it will go to "VIP Push Auth User". If False, go to
+ * "VIP Register User" and if ERROR, It will go to "VIP Display Error" Page.
+ * 
+ * It gets user info from VIP Database
  *
  */
 @Node.Metadata(outcomeProvider = VIPSearchUser.SymantecOutcomeProvider.class, configClass = VIPSearchUser.Config.class)
 public class VIPSearchUser implements Node {
-	static Logger logger = LoggerFactory.getLogger(VIPSearchUser.class);
+	Logger logger = LoggerFactory.getLogger(VIPSearchUser.class);
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPSearchUser";
 
 	/**
@@ -56,8 +60,9 @@ public class VIPSearchUser implements Node {
 	private final Config config;
 
 	/**
-	 * Create the node.
-	 *
+	 * 
+	 * @param config Config instance
+	 * @param vipSearchUser VIPGetUser instance
 	 */
 	@Inject
 	public VIPSearchUser(@Assisted Config config,VIPGetUser vipSearchUser) {
@@ -71,16 +76,22 @@ public class VIPSearchUser implements Node {
 	 */
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
+		
+		//Getting configured parameters
 		String userName = context.sharedState.get(SharedStateConstants.USERNAME).asString();
 		context.sharedState.put(KEY_STORE_PATH,config.Key_Store_Path());
 		context.sharedState.put(KEY_STORE_PASS,config.Key_Store_Password());
 		context.sharedState.put(AUTHENTICATION_SERVICE_URL,config.Authentication_Service_URL());
 		context.sharedState.put(QUERY_SERVICE_URL,config.Query_Service_URL());
 		context.sharedState.put(MANAGEMENT_SERVICE_URL,config.Management_Service_URL());
+		
+		//Getting User Info
 		String statusCode = vipSearchUser.viewUserInfo(userName,config.Key_Store_Path(),config.Key_Store_Password(),context);
         String mobNum;
 
 			if (statusCode.equalsIgnoreCase(SUCCESS_CODE)) {
+				
+				//Getting Mobile info of user
 				mobNum = vipSearchUser.getMobInfo(userName,config.Key_Store_Path(),config.Key_Store_Password());
 				logger.debug("Phone Number " + mobNum);
 
@@ -108,7 +119,7 @@ public class VIPSearchUser implements Node {
 	}
 	
 	/**
-	 * The possible outcomes for the SymantecVerifyAuth.
+	 * The possible outcomes for the VIP Search User.
 	 */
 	public enum Symantec {
 		/**

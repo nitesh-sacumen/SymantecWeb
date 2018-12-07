@@ -27,18 +27,21 @@ import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com) <br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Enter Phone Number" node with true, false and error outcome. If true, node will
- *             redirect to "VIP Enter SecurityCode/OTP". If false. node will redirect to same node and if error, it will 
- *             redirect to "VIP Display Error".
+ * 
+ * "VIP Enter Phone Number" node with true, false and error outcome. If true, node will
+ *  redirect to "VIP Enter SecurityCode/OTP". If false. node will redirect to same node and if error, it will 
+ *  redirect to "VIP Display Error".
  *
+ * It displays textbox to user to enter phone number.
  */
 @Node.Metadata(outcomeProvider = VIPEnterPhoneNumber.SymantecOutcomeProvider.class, configClass = VIPEnterPhoneNumber.Config.class)
 public class VIPEnterPhoneNumber implements Node {
 
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPEnterPhoneNumber";
-	private final Logger logger = LoggerFactory.getLogger(VIPEnterPhoneNumber.class);
+	Logger logger = LoggerFactory.getLogger(VIPEnterPhoneNumber.class);
 	private SMSVoiceRegister svRegister;
 
 	/**
@@ -48,11 +51,12 @@ public class VIPEnterPhoneNumber implements Node {
 	}
 
 	/**
-	 * Create the node.
+	 * 
+	 * @param svRegister SMSVoiceRegister instance
 	 */
 	@Inject
-	public VIPEnterPhoneNumber() {
-		svRegister = new SMSVoiceRegister();
+	public VIPEnterPhoneNumber(SMSVoiceRegister svRegister) {
+		this.svRegister = svRegister;
 	}
 
 	/**
@@ -61,13 +65,19 @@ public class VIPEnterPhoneNumber implements Node {
 	@Override
 	public Action process(TreeContext context) throws NodeProcessException {
 		logger.info("Collect PhoneNumber started");
+		
+		//Getting configured parameters
 		JsonValue sharedState = context.sharedState;
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
+		
+		// Getting Phone number from the user
 		return context.getCallback(NameCallback.class).map(NameCallback::getName).map(String::new)
 				.filter(name -> !Strings.isNullOrEmpty(name)).map(name -> {
 					logger.info("CredID has been collected and placed  into the Shared State");
 					String credType = context.sharedState.get(CRED_CHOICE).asString();
+					
+					// Registering entered phone number for vip:smsDeliveryInfo 
 					if (credType.equalsIgnoreCase(SMS)) {
 						logger.info("calling sms register method");
 						String status = null;
@@ -79,7 +89,10 @@ public class VIPEnterPhoneNumber implements Node {
 						}
 						return sendOutput(status, context);
 
-					} else if (credType.equalsIgnoreCase(VOICE)) {
+					} 
+					
+					// Registering entered phone number for vip:voiceDeliveryInfo
+					else if (credType.equalsIgnoreCase(VOICE)) {
 						String status = null;
 						logger.info("calling voice register method");
 						try {
@@ -90,7 +103,10 @@ public class VIPEnterPhoneNumber implements Node {
 						}
 						return sendOutput(status, context);
 
-					}else {
+					}
+					
+					// Displaying Error, If occurs.
+					else {
 						context.sharedState.put(DISPLAY_ERROR, "Not able to send OTP on given Phone Number, Please contact to your administrator.");
 						return goTo(Symantec.ERROR).build(); 
 					}
@@ -102,7 +118,7 @@ public class VIPEnterPhoneNumber implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the DisplayCredentail.
+	 * The possible outcomes for the VIP Enter Phone Number.
 	 */
 	private enum Symantec {
 		/**
@@ -140,9 +156,11 @@ public class VIPEnterPhoneNumber implements Node {
 
 	/**
 	 * 
-	 * @param statusCode
-	 * @param context
-	 * @return Action type of Object
+	 * @param statusCode response status code of RegisterRequest
+	 * @param context TreeContext instance
+	 * @return Action instance
+	 * 
+	 * It makes decision for outcome according to response status code of RegisterRequest.
 	 */
 	private Action sendOutput(String statusCode, TreeContext context) {
 		if (statusCode.equalsIgnoreCase(SUCCESS_CODE)) {
@@ -163,17 +181,23 @@ public class VIPEnterPhoneNumber implements Node {
 
 	/**
 	 *
-	 * @param context
-	 * @return name-callback
+	 * @param context TreeContext instance
+	 * @return Action instance
 	 */
 	public Action collectOTP(TreeContext context) {
 		String outputError = context.sharedState.get(PHONE_NUMBER_ERROR).asString();
 		List<Callback> cbList = new ArrayList<>(2);
+		logger.debug("output error is "+outputError);
+		
+		// Fetching only textbox when there is no error.
 		if(outputError==null) {
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
 			NameCallback nameCallback = new NameCallback(bundle.getString("callback.phoneNumber"), "Enter PhoneNumber");
 			cbList.add(nameCallback);
-		}else {
+		}
+		
+		// Fetching textbox with error.
+		else {
 			ResourceBundle bundle = context.request.locales.getBundleInPreferredLocale(BUNDLE, getClass().getClassLoader());
 			NameCallback nameCallback = new NameCallback(bundle.getString("callback.phoneNumber"), "Enter PhoneNumber");
 			TextOutputCallback tcb = new TextOutputCallback(0, outputError);

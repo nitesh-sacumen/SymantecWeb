@@ -23,7 +23,8 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
  * getting status of poll push request using PollPushStatusRequest
  *
  */
@@ -33,20 +34,29 @@ public class AuthPollPush {
 
 	/**
 	 * 
-	 * @param authId
-	 * @return response status code
-	 * @throws NodeProcessException 
+	 * @param authId Transaction ID
+	 * @param key_store Keystore file path
+	 * @param key_store_pass Keystore file password
+	 * @return PollPushStatusRequest status code
+	 * @throws NodeProcessException
 	 */
 	public String authPollPush(String authId,String key_store,String key_store_pass) throws NodeProcessException {
 
+		//Constructing PollPushStatusRequest
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
-		HttpPost post = new HttpPost(getURL());
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getQueryServiceURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		//Getting payload of PollPushStatusRequest
 		String payLoad = getViewUserPayload(authId);
 		logger.debug("Request Payload in authPollPush: " + payLoad);
 		try {
+			
+			//Calling PollPushStatusRequest
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			//Getting response of PollPushStatusRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -54,8 +64,9 @@ public class AuthPollPush {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			//Getting status code of PollPushStatusRequest response
 			String status = doc.getElementsByTagName("status").item(1).getTextContent();
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(1).getTextContent();
 			return status;
 
 		} catch (IOException | ParserConfigurationException | SAXException e) {
@@ -65,7 +76,7 @@ public class AuthPollPush {
 
 	/**
 	 * 
-	 * @param authId
+	 * @param authId Transaction ID
 	 * @return PollPushStatusRequest payload
 	 */
 	private static String getViewUserPayload(String authId) {
@@ -81,15 +92,6 @@ public class AuthPollPush {
 				"</soapenv:Body>" +
 				"</soapenv:Envelope>";
 
-	}
-
-	/**
-	 * 
-	 * @return QueryServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("QueryServiceURL");
 	}
 
 }

@@ -27,9 +27,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com)
- * @Description Get user info from vip data base if user exists, else return
- *              false.
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
+ * Get user info from vip data base if user exists, else return
+ * false.
  *
  */
 
@@ -39,21 +40,24 @@ public class VIPGetUser {
 
 	/**
 	 * 
-	 * @param userId
-	 * @param KEY_STORE_PATH
-	 * @param KEY_STORE_PASS
-	 * @return status code of response.
+	 * @param userId User Name
+	 * @param KEY_STORE_PATH Keystore file path
+	 * @param KEY_STORE_PASS Keystore file passwords
+	 * @return status code of GetUserInfoRequest response.
 	 * @throws NodeProcessException
 	 */
 	public String viewUserInfo(String userId, String KEY_STORE_PATH, String KEY_STORE_PASS, TreeContext context)
 			throws NodeProcessException {
+		
+		//Constructing GetUserInfoRequest
 		GetVIPServiceURL.getInstance().setServiceURL(context);
-		HttpPost httpPost = new HttpPost(getURL());
+		HttpPost httpPost = new HttpPost(GetVIPServiceURL.getInstance().getQueryServiceURL());
 		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
 		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
 		httpPost.addHeader("SOAPAction", ""); /* \"\" */
 		httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
 
+		//Getting GetUserInfoRequest payload
 		String userPayload = getViewUserPayload(userId);
 		InputStream is = new ByteArrayInputStream(userPayload.getBytes());
 
@@ -68,6 +72,8 @@ public class VIPGetUser {
 
 		logger.info("executing GetUserInfoRequest");
 		try {
+			
+			//Executing GetUserInfoRequest
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH, KEY_STORE_PASS);
 			HttpResponse response = httpClient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
@@ -76,7 +82,8 @@ public class VIPGetUser {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			
+			//Getting status of GetUserInfoRequest
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 		} catch (IOException | ParserConfigurationException | SAXException e) {
 			throw new NodeProcessException(e);
@@ -86,7 +93,7 @@ public class VIPGetUser {
 
 	/**
 	 * 
-	 * @param userId
+	 * @param userId Username
 	 * @return GetUserInfoRequest Payload
 	 */
 	private String getViewUserPayload(String userId) {
@@ -102,9 +109,9 @@ public class VIPGetUser {
 
 	/**
 	 * 
-	 * @param userId
-	 * @param KEY_STORE_PATH
-	 * @param KEY_STORE_PASS
+	 * @param userId User Name
+	 * @param KEY_STORE_PATH Keystore file path
+	 * @param KEY_STORE_PASS Keystore file passwords
 	 * @return User's Mobile information, If user exists in vip database.
 	 * @throws NullPointerException
 	 * @throws NodeProcessException
@@ -112,12 +119,15 @@ public class VIPGetUser {
 	public String getMobInfo(String userId, String KEY_STORE_PATH, String KEY_STORE_PASS)
 			throws NullPointerException, NodeProcessException {
 		String phoneNumber = null;
-		HttpPost httpPost = new HttpPost(getURL());
+		
+		//Constructing GetUserInfoRequest
+		HttpPost httpPost = new HttpPost(GetVIPServiceURL.getInstance().getQueryServiceURL());
 		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
 		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
 		httpPost.addHeader("SOAPAction", "");
 		httpPost.addHeader("User-Agent", "Apache-HttpClient/4.1.1");
 
+		//Getting GetUserInfoRequest payload
 		String userPayload = getViewUserPayload(userId);
 		InputStream is = new ByteArrayInputStream(userPayload.getBytes());
 
@@ -130,6 +140,8 @@ public class VIPGetUser {
 		httpPost.setEntity(reqEntity);
 
 		try {
+			
+			//Executing GetUserInfoRequest
 			HttpClient httpClient = HttpClientUtil.getInstance().getHttpClientForgerock(KEY_STORE_PATH, KEY_STORE_PASS);
 			HttpResponse response = httpClient.execute(httpPost);
 			HttpEntity entity = response.getEntity();
@@ -138,6 +150,8 @@ public class VIPGetUser {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			// Getting credentialBindingDetail for registered phone number
 			if (doc.getElementsByTagName("credentialBindingDetail") != null) {
 				if (doc.getElementsByTagName("credentialBindingDetail").item(0) != null) {
 					String credBindingDetail = doc.getElementsByTagName("credentialBindingDetail").item(0)
@@ -176,16 +190,20 @@ public class VIPGetUser {
 		return phoneNumber;
 	}
 
+
 	/**
 	 * 
-	 * @return QueryServiceURL
+	 * @param userId User Name
+	 * @param KEY_STORE_PATH Keystore file path
+	 * @param KEY_STORE_PASS Keystore file passwords
+	 * @param context TreeContext instance
+	 * @return CredentialBindingDetail
 	 * @throws NodeProcessException
 	 */
-
 	public HashMap<String, String> getCredentialBindingDetail(String userId, String KEY_STORE_PATH, String KEY_STORE_PASS, TreeContext context) throws NodeProcessException {
 		HashMap<String, String> credentialBindingDetail = new HashMap<>();
 		Document doc;
-		HttpPost httpPost = new HttpPost(getURL());
+		HttpPost httpPost = new HttpPost(GetVIPServiceURL.getInstance().getQueryServiceURL());
 		httpPost.addHeader("Accept-Encoding", "gzip,deflate");
 		httpPost.addHeader("Content-Type", "text/xml;charset=utf-8");
 		httpPost.addHeader("SOAPAction", "");
@@ -228,7 +246,4 @@ public class VIPGetUser {
 		return credentialBindingDetail;
 	}
 	
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("QueryServiceURL");
-	}
 }

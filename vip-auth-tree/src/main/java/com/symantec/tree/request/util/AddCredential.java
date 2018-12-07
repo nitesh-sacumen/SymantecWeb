@@ -21,32 +21,40 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Sacumen (www.sacumen.com) 
- * @Description Add credentials using "AddCredentialRequest".
+ * @author Sacumen (www.sacumen.com) <br> <br> 
+ * 
+ * Add credentials using "AddCredentialRequest".
  *
  */
 public class AddCredential {
-	public static final Logger logger = LoggerFactory.getLogger(AddCredential.class);
+	static Logger logger = LoggerFactory.getLogger(AddCredential.class);
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
-	 * @param credIdType
-	 * @return true if success, else false.
+	 * @param userName User Name
+	 * @param credValue Credential ID
+	 * @param credIdType Credential Type
+	 * @return status of AddCredentialRequest.
 	 * @throws NodeProcessException
 	 */
 	public String addCredential(String userName, String credValue, String credIdType,String key_store,String key_store_pass) throws NodeProcessException {
 
+		//Getting HttpClientUtil instance and preparing request
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
-		HttpPost post = new HttpPost(getURL());
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		// Getting request payload
 		String payLoad = getViewUserPayload(userName, credValue, credIdType);
 		logger.debug("Request Payload: " + payLoad);
 		String status;
 		try {
+			
+			//Calling AddCredentialRequest
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			// Getting response of AddCredentialRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -54,9 +62,12 @@ public class AddCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			
+			//Getting status code of AddCredentialRequest response
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
-		} catch (IOException | ParserConfigurationException | SAXException e) {
+		} 
+		catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("failed to during AddCredentialRequest");
 			throw new NodeProcessException(e);
 		}
 
@@ -66,9 +77,9 @@ public class AddCredential {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
-	 * @param credIdType
+	 * @param userName User Name
+	 * @param credValue Credential ID
+	 * @param credIdType Credential Type
 	 * @return AddCredentialRequest payload
 	 */
 	private static String getViewUserPayload(String userName, String credValue, String credIdType) {
@@ -85,25 +96,32 @@ public class AddCredential {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
-	 * @param credIdType
-	 * @param otpreceived
-	 * @return true if success, else false
+	 * @param userName User Name
+	 * @param credValue Credential ID
+	 * @param credIdType Credential Type
+	 * @param otpreceived OTP
+	 * @return status code of AddCredentialRequest
 	 * @throws NodeProcessException
 	 */
 	public String addCredential(String userName, String credValue, String credIdType, String otpreceived,String key_store,String key_store_pass)
 			throws NodeProcessException {
+		
+		//Preparing AddCredentialRequest 
 		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
-		HttpPost post = new HttpPost(getURL());
-
-		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getManagementServiceURL());
+        post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+        
+        //Getting AddCredentialRequest payload
 		String payLoad = getViewUserPayload(userName, credValue, credIdType, otpreceived);
 		logger.debug("Request Payload: " + payLoad);
 		String status;
 		try {
+			
+			//Calling AddCredentialRequest
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			// Getting response of AddCredentialRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -111,9 +129,11 @@ public class AddCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
-			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			
+			// Getting response status code of AddCredentialRequest
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 		} catch (IOException | ParserConfigurationException | SAXException e) {
+			logger.error("failed to execute AddCredentialRequest");
 			throw new NodeProcessException(e);
 		}
 		return status;
@@ -121,10 +141,10 @@ public class AddCredential {
 
 	/**
 	 * 
-	 * @param userName
-	 * @param credValue
-	 * @param credIdType
-	 * @param otpReceived
+	 * @param userName User Name
+	 * @param credValue Credential ID
+	 * @param credIdType Credential Type
+	 * @param otpReceived OTP
 	 * @return AddCredentialRequest payload
 	 */
 	private static String getViewUserPayload(String userName, String credValue, String credIdType, String otpReceived) {
@@ -141,13 +161,5 @@ public class AddCredential {
 
 	}
 
-	/**
-	 * 
-	 * @return ManagementServiceURL
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("ManagementServiceURL");
-	}
 
 }

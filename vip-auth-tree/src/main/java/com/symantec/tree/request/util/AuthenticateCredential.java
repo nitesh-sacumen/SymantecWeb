@@ -21,7 +21,8 @@ import org.xml.sax.SAXException;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * Authenticate credentials using AuthenticateCredentialsRequest
  *
  */
@@ -30,27 +31,35 @@ public class AuthenticateCredential {
 	
 	/**
 	 * 
-	 * @param credID
-	 * @param displayMsgText
-	 * @param displayMsgTitle
-	 * @param displayMsgProfile
-	 * @param key_store
-	 * @param key_store_pass
+	 * @param credID Credential ID
+	 * @param displayMsgText Display Message Text
+	 * @param displayMsgTitle Display Message Title
+	 * @param displayMsgProfile Display Message Profile
+	 * @param key_store KeyStore file path
+	 * @param key_store_pass KeyStore file password
 	 * @return status of AuthenticateCredentialsRequest
 	 * @throws NodeProcessException
 	 */
 	public String authCredential(String credID, String displayMsgText, String displayMsgTitle,String displayMsgProfile,
 			String key_store,String key_store_pass) throws NodeProcessException {
 		String transactionID = "";
-		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
-		HttpPost post = new HttpPost(getURL());
 		String status = null;
+		
+		// Constructing AuthenticateCredentialsRequest
+		HttpClientUtil clientUtil = HttpClientUtil.getInstance();
+		HttpPost post = new HttpPost(GetVIPServiceURL.getInstance().getAuthenticationServiceURL());
 		post.setHeader("CONTENT-TYPE", "text/xml; charset=ISO-8859-1");
+		
+		//Getting payload of AuthenticateCredentialsRequest
 		String payLoad = getViewUserPayload(credID, displayMsgText, displayMsgTitle, displayMsgProfile);
 		logger.debug("Request Payload: " + payLoad);
 		try {
+			
+			// Calling AuthenticateCredentialsRequest
 			HttpClient httpClient = clientUtil.getHttpClientForgerock(key_store,key_store_pass);
 			post.setEntity(new StringEntity(payLoad));
+			
+			// Getting response of AuthenticateCredentialsRequest
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = IOUtils.toString(entity.getContent());
@@ -58,8 +67,12 @@ public class AuthenticateCredential {
 			InputSource src = new InputSource();
 			src.setCharacterStream(new StringReader(body));
 			Document doc = builder.parse(src);
+			
+			// Getting status code and status message for AuthenticateCredentialsRequest response
 			status = doc.getElementsByTagName("status").item(0).getTextContent();
 			String statusMessage = doc.getElementsByTagName("statusMessage").item(0).getTextContent();
+			
+			// returning status code and transaction ID
 			if(doc.getElementsByTagName("transactionId").item(0) !=null) {
 				transactionID = doc.getElementsByTagName("transactionId").item(0).getTextContent();
 			}
@@ -77,10 +90,10 @@ public class AuthenticateCredential {
 
 	/**
 	 * 
-	 * @param credId
-	 * @param displayMsgText
-	 * @param displayMsgTitle
-	 * @param displayMsgProfile
+	 * @param credId Credential ID
+	 * @param displayMsgText Display Message Text
+	 * @param displayMsgTitle Display Message Title
+	 * @param displayMsgProfile Display Message Profile
 	 * @return AuthenticateCredentialsRequest payload
 	 */
 	private static String getViewUserPayload(String credId, String displayMsgText, String displayMsgTitle,
@@ -120,13 +133,5 @@ public class AuthenticateCredential {
 				"   </soapenv:Body>" +
 				"</soapenv:Envelope>";
 	}
-	
-	/**
-	 * 
-	 * @return AuthenticationServiceURL 
-	 * @throws NodeProcessException 
-	 */
-	private String getURL() throws NodeProcessException {
-		return GetVIPServiceURL.getInstance().serviceUrls.get("AuthenticationServiceURL");
-	}
+
 }

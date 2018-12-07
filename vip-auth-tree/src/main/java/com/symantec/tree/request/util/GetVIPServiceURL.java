@@ -7,8 +7,9 @@ import org.forgerock.openam.auth.node.api.TreeContext;
 import static com.symantec.tree.config.Constants.*;
 /**
  * 
- * @author Sacumen (www.sacumen.com)
- * @Description  Getting Service URL for Authentications
+ * @author Sacumen (www.sacumen.com)<br> <br>
+ * 
+ * Getting Service URL for Authentications
  *
  */
 public class GetVIPServiceURL {
@@ -29,5 +30,17 @@ public class GetVIPServiceURL {
 		serviceUrls.put("ManagementServiceURL",context.sharedState.get(MANAGEMENT_SERVICE_URL).asString());
 		serviceUrls.put("AuthenticationServiceURL",context.sharedState.get(AUTHENTICATION_SERVICE_URL).asString());
 		serviceUrls.put("QueryServiceURL", context.sharedState.get(QUERY_SERVICE_URL).asString());
+	}
+	
+	public String getManagementServiceURL() {
+		return serviceUrls.get("ManagementServiceURL");
+	}
+	
+	public String getAuthenticationServiceURL() {
+		return serviceUrls.get("AuthenticationServiceURL");
+	}
+	
+	public String getQueryServiceURL() {
+		return serviceUrls.get("QueryServiceURL");
 	}
 }

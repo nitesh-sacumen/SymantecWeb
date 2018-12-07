@@ -22,19 +22,23 @@ import static com.symantec.tree.config.Constants.*;
 
 /**
  * 
- * @author Sacumen(www.sacumen.com)
+ * @author Sacumen(www.sacumen.com)<br> <br>
+ * 
  * @category Node
- * @Descrition "VIP Poll Push Auth" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
+ * 
+ * "VIP Poll Push Auth" node with TRUE,FALSE, UNANSWERED and ERROR outcome.
  * If TRUE, it will go to "Success".
  * If False, go to "Failure".
  * If Error, go to "VIP OTPAuth Creds".
  * If Unanswered, go to "polling wait node".
+ * 
+ * It gets status of push request.
  *
  */
 @Node.Metadata(outcomeProvider = VIPPollPushAuth.SymantecOutcomeProvider.class, configClass = VIPPollPushAuth.Config.class)
 public class VIPPollPushAuth implements Node {
 
-	static final Logger logger = LoggerFactory.getLogger(VIPPollPushAuth.class);
+	Logger logger = LoggerFactory.getLogger(VIPPollPushAuth.class);
 	private static final String BUNDLE = "com/symantec/tree/nodes/VIPPollPushAuth";
 
 	private AuthPollPush pollPush;
@@ -47,12 +51,12 @@ public class VIPPollPushAuth implements Node {
 	}
 
 	/**
-	 * Create the node.
-	 *
+	 * 
+	 * @param pollPush AuthPollPush instance
 	 */
 	@Inject
-	public VIPPollPushAuth() {
-		pollPush = new AuthPollPush();
+	public VIPPollPushAuth(AuthPollPush pollPush) {
+		this.pollPush = pollPush;
 	}
 
 	/**
@@ -64,16 +68,19 @@ public class VIPPollPushAuth implements Node {
 
 	/**
 	 * 
-	 * @param context
-	 * @return next action.
+	 * @param context TreeContext instance
+	 * @return Action instance.
 	 */
 	private Action verifyAuth(TreeContext context) {
+		
+		// Getting configured parameters
 		logger.info("Entered into verifyAuth method");
 		JsonValue newSharedState = context.sharedState.copy();
 		String key_store = context.sharedState.get(KEY_STORE_PATH).asString();
 		String key_store_pass = context.sharedState.get(KEY_STORE_PASS).asString();
 		try {
 
+			// Calling PollPushStatusRequest
 			String result = pollPush.authPollPush(context.sharedState.get(TXN_ID).asString(),key_store,key_store_pass);
 
 			if (result != null) {
@@ -111,7 +118,7 @@ public class VIPPollPushAuth implements Node {
 	}
 
 	/**
-	 * The possible outcomes for the SymantecVerifyAuth.
+	 * The possible outcomes for the VIP Poll Push Auth.
 	 */
 	public enum Symantec {
 		/**
