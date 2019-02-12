@@ -1,13 +1,13 @@
 package com.symantec.tree.nodes;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.symantec.tree.config.Constants.VIPPollPush;
 import com.symantec.tree.request.util.AuthPollPush;
 import com.symantec.tree.request.util.DeleteCredential;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.inject.Inject;
-import org.forgerock.guava.common.base.Strings;
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
@@ -156,9 +156,9 @@ public class VIPPollPushReg implements Node {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPPollPushReg.BUNDLE,
 					SymantecOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),
-					new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
-					new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")),
-					new Outcome(Symantec.UNANSWERED.name(), bundle.getString("unansweredOutcome")));
+									new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
+									new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")),
+									new Outcome(Symantec.UNANSWERED.name(), bundle.getString("unansweredOutcome")));
 		}
 	}
 

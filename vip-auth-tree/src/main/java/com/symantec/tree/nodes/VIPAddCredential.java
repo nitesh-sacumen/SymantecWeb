@@ -1,6 +1,7 @@
 package com.symantec.tree.nodes;
 
 
+import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -10,7 +11,6 @@ import com.symantec.tree.request.util.VIPGetUser;
 
 import javax.inject.Inject;
 
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.*;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
@@ -130,8 +130,8 @@ public class VIPAddCredential implements Node {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPAddCredential.BUNDLE,
 					SymantecOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),
-					new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
-					new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
+									new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
+									new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
 		}
 	}
 

@@ -2,6 +2,8 @@ package com.symantec.tree.nodes;
 
 import static org.forgerock.openam.auth.node.api.Action.send;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -10,8 +12,7 @@ import javax.inject.Inject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.TextOutputCallback;
-import org.forgerock.guava.common.base.Strings;
-import org.forgerock.guava.common.collect.ImmutableList;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -73,7 +74,7 @@ public class VIPEnterPhoneNumber implements Node {
 		
 		// Getting Phone number from the user
 		return context.getCallback(NameCallback.class).map(NameCallback::getName).map(String::new)
-				.filter(name -> !Strings.isNullOrEmpty(name)).map(name -> {
+					  .filter(name -> !Strings.isNullOrEmpty(name)).map(name -> {
 					logger.info("CredID has been collected and placed  into the Shared State");
 					String credType = context.sharedState.get(CRED_CHOICE).asString();
 					
@@ -149,8 +150,8 @@ public class VIPEnterPhoneNumber implements Node {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPEnterPhoneNumber.BUNDLE,
 					SymantecOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),
-					new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
-					new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
+									new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
+									new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
 		}
 	}
 

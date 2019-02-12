@@ -2,6 +2,8 @@ package com.symantec.tree.nodes;
 
 import static org.forgerock.openam.auth.node.api.Action.send;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -11,8 +13,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
-import org.forgerock.guava.common.base.Strings;
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;

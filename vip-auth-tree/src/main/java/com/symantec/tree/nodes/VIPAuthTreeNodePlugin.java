@@ -17,8 +17,9 @@
 package com.symantec.tree.nodes;
 
 import static java.util.Arrays.asList;
+
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import org.forgerock.guava.common.collect.ImmutableMap;
 import org.forgerock.openam.auth.node.api.AbstractNodeAmPlugin;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.plugins.PluginException;

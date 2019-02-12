@@ -1,16 +1,35 @@
 package com.symantec.tree.nodes;
 
-import static com.symantec.tree.config.Constants.*;
+import static com.symantec.tree.config.Constants.AUTHENTICATION_FAILED;
+import static com.symantec.tree.config.Constants.CRED_CHOICE;
+import static com.symantec.tree.config.Constants.CRED_ID;
+import static com.symantec.tree.config.Constants.DISPLAY_ERROR;
+import static com.symantec.tree.config.Constants.INVALID_CREDENIALS;
+import static com.symantec.tree.config.Constants.KEY_STORE_PASS;
+import static com.symantec.tree.config.Constants.KEY_STORE_PATH;
+import static com.symantec.tree.config.Constants.MOB_NUM;
+import static com.symantec.tree.config.Constants.OTP_ERROR;
+import static com.symantec.tree.config.Constants.SECURE_CODE;
+import static com.symantec.tree.config.Constants.SMS;
+import static com.symantec.tree.config.Constants.SMS_OTP;
+import static com.symantec.tree.config.Constants.STANDARD_OTP;
+import static com.symantec.tree.config.Constants.SUCCESS_CODE;
+import static com.symantec.tree.config.Constants.VOICE;
+import static com.symantec.tree.config.Constants.VOICE_OTP;
 
+import com.google.common.collect.ImmutableList;
+import com.symantec.tree.request.util.AddCredential;
 import java.util.List;
 import java.util.ResourceBundle;
-import com.symantec.tree.request.util.AddCredential;
 import javax.inject.Inject;
-
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
-import org.forgerock.openam.auth.node.api.*;
+import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
+import org.forgerock.openam.auth.node.api.Node;
+import org.forgerock.openam.auth.node.api.NodeProcessException;
+import org.forgerock.openam.auth.node.api.OutcomeProvider;
+import org.forgerock.openam.auth.node.api.SharedStateConstants;
+import org.forgerock.openam.auth.node.api.TreeContext;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,8 +144,8 @@ public class VIPVerifyCodeAddCredential implements Node {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPVerifyCodeAddCredential.BUNDLE,
 					SymantecOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(Symantec.TRUE.name(), bundle.getString("trueOutcome")),
-					new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
-					new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
+									new Outcome(Symantec.FALSE.name(), bundle.getString("falseOutcome")),
+									new Outcome(Symantec.ERROR.name(), bundle.getString("errorOutcome")));
 		}
 	}
 

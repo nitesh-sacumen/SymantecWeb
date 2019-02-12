@@ -4,6 +4,7 @@ import static com.symantec.tree.config.Constants.CRED_CHOICE;
 import static com.symantec.tree.config.Constants.CREDENTIAL_ID_ERROR;
 import static org.forgerock.openam.auth.node.api.Action.send;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.sm.RequiredValueValidator;
 import java.util.*;
@@ -12,7 +13,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.ChoiceCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
 import org.forgerock.openam.auth.node.api.Action;
@@ -161,8 +161,8 @@ public class VIPDisplayCredential implements Node {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPDisplayCredential.BUNDLE,
 					CredsOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(SymantecDisplayCredsOutcome.VIP.name(), bundle.getString("vipOutcome")),
-					new Outcome(SymantecDisplayCredsOutcome.SMS.name(), bundle.getString("smsOutcome")),
-					new Outcome(SymantecDisplayCredsOutcome.VOICE.name(), bundle.getString("voiceOutcome")));
+									new Outcome(SymantecDisplayCredsOutcome.SMS.name(), bundle.getString("smsOutcome")),
+									new Outcome(SymantecDisplayCredsOutcome.VOICE.name(), bundle.getString("voiceOutcome")));
 		}
 	}
 }

@@ -2,9 +2,10 @@ package com.symantec.tree.nodes;
 
 import static com.symantec.tree.config.Constants.DISPLAY_ERROR;
 import static org.forgerock.openam.auth.node.api.Action.send;
+
+import com.google.common.base.Strings;
 import javax.inject.Inject;
 import javax.security.auth.callback.TextOutputCallback;
-import org.forgerock.guava.common.base.Strings;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
 import org.forgerock.openam.auth.node.api.SingleOutcomeNode;

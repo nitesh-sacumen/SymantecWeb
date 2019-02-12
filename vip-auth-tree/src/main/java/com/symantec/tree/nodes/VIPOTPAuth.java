@@ -1,5 +1,6 @@
 package com.symantec.tree.nodes;
 
+import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 import com.sun.identity.sm.RequiredValueValidator;
 import com.symantec.tree.request.util.SmsDeviceRegister;
@@ -13,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.forgerock.util.i18n.PreferredLocales;
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.openam.auth.node.api.Action.ActionBuilder;
 
 import javax.inject.Inject;

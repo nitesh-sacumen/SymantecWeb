@@ -1,11 +1,11 @@
 package com.symantec.tree.nodes;
 
+import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.ConfirmationCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -153,7 +153,7 @@ public class VIPConfirmCredential implements Node {
 			ResourceBundle bundle = locales.getBundleInPreferredLocale(VIPConfirmCredential.BUNDLE,
 					CredsOutcomeProvider.class.getClassLoader());
 			return ImmutableList.of(new Outcome(SymantecConfirmCredOutcome.YES.name(), bundle.getString("YesOutcome")),
-					new Outcome(SymantecConfirmCredOutcome.NO.name(), bundle.getString("NoOutcome")));
+									new Outcome(SymantecConfirmCredOutcome.NO.name(), bundle.getString("NoOutcome")));
 		}
 	}
 }

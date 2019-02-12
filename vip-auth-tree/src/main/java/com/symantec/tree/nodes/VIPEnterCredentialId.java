@@ -2,6 +2,8 @@ package com.symantec.tree.nodes;
 
 import static org.forgerock.openam.auth.node.api.Action.send;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -11,8 +13,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.TextOutputCallback;
 
-import org.forgerock.guava.common.base.Strings;
-import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.auth.node.api.Action;
 import org.forgerock.openam.auth.node.api.Node;
@@ -77,7 +77,7 @@ public class VIPEnterCredentialId extends SingleOutcomeNode {
 
 		context.sharedState.remove(CREDENTIAL_ID_ERROR);
 		return context.getCallback(NameCallback.class).map(NameCallback::getName).map(String::new)
-				.filter(password -> !Strings.isNullOrEmpty(password)).map(password -> {
+					  .filter(password -> !Strings.isNullOrEmpty(password)).map(password -> {
 					logger.debug("Credential ID has been collected and placed into the Shared State");
 					return goToNext().replaceSharedState(sharedState.copy().put(CRED_ID, password)).build();
 				}).orElseGet(() -> {
